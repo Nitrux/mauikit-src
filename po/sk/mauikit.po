@@ -54,7 +54,7 @@ msgstr "Rodina"
 #: src/controls.6/FontPicker.qml:98
 #, kde-format
 msgid "Pick the font family."
-msgstr ""
+msgstr "Vyberte rodinu písma."
 
 #: src/controls.6/FontPicker.qml:120
 #, kde-format
@@ -69,7 +69,7 @@ msgstr "Písmo štýl."
 #: src/controls.6/FontPicker.qml:141
 #, kde-format
 msgid "Font size from recommended values."
-msgstr ""
+msgstr "Veľkosť písma z odporúčaných hodnôt."
 
 #: src/controls.6/FontPicker.qml:160
 #, kde-format
@@ -79,7 +79,7 @@ msgstr "Monospaced Fonts"
 #: src/controls.6/FontPicker.qml:161
 #, kde-format
 msgid "Display only monospaced fonts."
-msgstr ""
+msgstr "Zobraziť iba neproporcionálne písma."
 
 #: src/controls.6/FontPicker.qml:172
 #, kde-format
@@ -89,7 +89,7 @@ msgstr "Náhľad"
 #: src/controls.6/FontPicker.qml:173
 #, kde-format
 msgid "Test the font."
-msgstr ""
+msgstr "Otestovať písmo."
 
 #: src/controls.6/FontPicker.qml:180
 #, kde-format
@@ -116,17 +116,17 @@ msgstr "Prijať"
 #: src/controls.6/ImageViewer.qml:210
 #, kde-format
 msgid "Oops!"
-msgstr ""
+msgstr "Ups!"
 
 #: src/controls.6/ImageViewer.qml:211
 #, kde-format
 msgid "The image could not be loaded."
-msgstr ""
+msgstr "Obrázok sa nepodarilo načítať."
 
 #: src/controls.6/private/AboutDialog.qml:91
 #, kde-format
 msgid "Version ID copied to clipboard"
-msgstr ""
+msgstr "ID verzie skopírované do schránky"
 
 #: src/controls.6/private/AboutDialog.qml:99 src/controls.6/TextField.qml:398
 #, kde-format
@@ -234,7 +234,7 @@ msgstr "Znovu"
 #: src/utils/mauiapp.cpp:44
 #, kde-format
 msgid "Multi-adaptable user interfaces."
-msgstr ""
+msgstr "Viacúčelové adaptovateľné používateľské rozhrania."
 
 #: src/utils/mauiapp.cpp:55
 #, kde-format

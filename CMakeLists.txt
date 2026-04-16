@@ -41,6 +41,9 @@ find_package(ECM ${REQUIRED_KF_VERSION} NO_MODULE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
 
 #DEFAULT COMPONENTS DEFINITIONS
+include(KDEInstallDirs)
+include(KDECMakeSettings)
+
 include(GenerateExportHeader)
 
 include(ECMGenerateHeaders)
@@ -49,8 +52,6 @@ include(ECMQmlModule)
 include(ECMSourceVersionControl)
 
 include(KDEClangFormat)
-include(KDEInstallDirs)
-include(KDECMakeSettings)
 include(ECMSetupVersion)
 include(CMakePackageConfigHelpers)
 

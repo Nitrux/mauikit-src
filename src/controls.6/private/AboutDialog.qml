@@ -67,17 +67,16 @@ Maui.PopupPage
         Layout.alignment: horizontalAlignment
         // Layout.fillWidth: true
         horizontalAlignment:Qt.AlignLeft
-        text: Maui.App.about.version + " [" + Maui.App.about.otherText+"]"
+        text: Maui.App.about.version + " " + Maui.App.about.otherText
         font.family: "Monospace"
-        font.pointSize: Maui.Style.fontSizes.small
-        font.letterSpacing: 2
+        opacity: 0.6
+        font.pointSize: Maui.Style.fontSizes.tiny
         padding: Maui.Style.space.small
-        color: Maui.Theme.backgroundColor
         background: Rectangle
         {
-            color: Maui.Theme.textColor
-            radius: 4
-            border.color: Qt.darker(color)
+            opacity: 0.5
+            color: "black"
+            radius: Maui.Style.radiusV
         }
 
         MouseArea

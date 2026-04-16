@@ -9,6 +9,7 @@
 #include "platformtheme.h"
 
 class ImageColors;
+class QEvent;
 
 namespace MauiKit
 {
@@ -153,9 +154,11 @@ public:
     void setAdaptiveColors();
     void setSystemPaletteColors();
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private:
     ImageColors *m_imgColors;
-
 
     struct LightColor
     {

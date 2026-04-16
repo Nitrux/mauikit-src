@@ -51,17 +51,6 @@ Style::Style(QObject *parent) : QObject(parent)
     ,m_accessibilitySettings( new MauiMan::AccessibilityManager(this))
 {
     qGuiApp->installEventFilter(this);
-    connect(qGuiApp, &QGuiApplication::fontChanged, [this](const QFont &font)
-            {
-                m_defaultFont = font;
-                setFontSizes();
-                Q_EMIT defaultFontChanged();
-                // Q_EMIT m_fontSizes->sizesChanged();
-                Q_EMIT fontSizesChanged();
-                Q_EMIT h1FontChanged();
-                Q_EMIT h2FontChanged();
-                Q_EMIT monospacedFontChanged();
-            });
 
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, [this](Qt::ColorScheme type)
             {
@@ -512,19 +501,31 @@ bool Style::playSounds() const
 bool Style::eventFilter(QObject *watched, QEvent *event)
 {
     // qDebug() << "EVENT HAPPENED" << event->type();
-    
+
+    if (watched == qGuiApp && event->type() == QEvent::ApplicationFontChange) {
+        m_defaultFont = qGuiApp->font();
+        setFontSizes();
+        Q_EMIT defaultFontChanged();
+        Q_EMIT fontSizesChanged();
+        Q_EMIT h1FontChanged();
+        Q_EMIT h2FontChanged();
+        Q_EMIT monospacedFontChanged();
+
+        return QObject::eventFilter(watched, event);
+    }
+
     if (event->type() == QEvent::StyleChange || event->type() == QEvent::WindowActivate) {
-        
+
         if(m_currentIconTheme != QIcon::themeName())
         {
-            
+
             m_currentIconTheme = QIcon::themeName();
             Q_EMIT currentIconThemeChanged( m_currentIconTheme);
             qDebug() << "ICON THEME CHANGED" << m_currentIconTheme;
         }
         return QObject::eventFilter(watched, event);
     }
-    
+
     return QObject::eventFilter(watched, event);
 }
 

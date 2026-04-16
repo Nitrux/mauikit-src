@@ -42,9 +42,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
 
 #DEFAULT COMPONENTS DEFINITIONS
 include(GenerateExportHeader)
-include(CMakePackageConfigHelpers)
 
-include(ECMSetupVersion)
 include(ECMGenerateHeaders)
 include(ECMFindQmlModule)
 include(ECMQmlModule)
@@ -53,6 +51,8 @@ include(ECMSourceVersionControl)
 include(KDEClangFormat)
 include(KDEInstallDirs)
 include(KDECMakeSettings)
+include(ECMSetupVersion)
+include(CMakePackageConfigHelpers)
 
 option(BUILD_DEMO "Build the MauiKit Demo application." OFF)
 option(BUNDLE_LUV_ICONS "Ship Luv icon bundled." OFF)

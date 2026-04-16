@@ -7,6 +7,7 @@
 
 #include "basictheme_p.h"
 
+#include <QEvent>
 #include <QFile>
 #include <QGuiApplication>
 #include <QPalette>
@@ -105,14 +106,9 @@ BasicThemeDefinition::BasicThemeDefinition(QObject *parent)
                 }
             });
 
-    connect(qGuiApp, &QGuiApplication::paletteChanged, [this, style](QPalette)
-            {
-                if(style->styleType() == Style::StyleType::Auto)
-                {
-                    setSystemPaletteColors();
-                    Q_EMIT this->changed();
-                }
-            });
+    if (qGuiApp) {
+        qGuiApp->installEventFilter(this);
+    }
 
     switch(style->styleType())
     {
@@ -148,6 +144,19 @@ BasicThemeDefinition::BasicThemeDefinition(QObject *parent)
         break;
     }
     }
+}
+
+bool BasicThemeDefinition::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == qGuiApp && event->type() == QEvent::ApplicationPaletteChange) {
+        auto style = Style::instance();
+        if (style->styleType() == Style::StyleType::Auto) {
+            setSystemPaletteColors();
+            Q_EMIT changed();
+        }
+    }
+
+    return QObject::eventFilter(watched, event);
 }
 
        // const char *colorProperty = "KDE_COLOR_SCHEME_PATH";

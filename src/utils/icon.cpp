@@ -23,6 +23,31 @@
 
 Q_GLOBAL_STATIC(ImageTexturesCache, s_iconImageCache)
 
+namespace
+{
+qreal effectiveDevicePixelRatio(const QQuickItem *item)
+{
+    if (item && item->window()) {
+        return item->window()->effectiveDevicePixelRatio();
+    }
+
+    return qGuiApp ? qGuiApp->devicePixelRatio() : 1.0;
+}
+
+QSize devicePixelSize(const QSize &size, qreal devicePixelRatio)
+{
+    return QSize(qMax(1, qRound(size.width() * devicePixelRatio)),
+                 qMax(1, qRound(size.height() * devicePixelRatio)));
+}
+
+QImage iconToImage(const QQuickItem *item, const QIcon &icon, const QSize &logicalSize, QIcon::Mode mode, QIcon::State state = QIcon::Off)
+{
+    const qreal devicePixelRatio = effectiveDevicePixelRatio(item);
+    const QSize actualSize = icon.actualSize(logicalSize, mode, state);
+    return icon.pixmap(devicePixelSize(actualSize, devicePixelRatio), devicePixelRatio, mode, state).toImage();
+}
+}
+
 Icon::Icon(QQuickItem *parent)
     : QQuickItem(parent)
     , m_changed(false)
@@ -33,8 +58,9 @@ Icon::Icon(QQuickItem *parent)
     setFlag(ItemHasContents, true);
     // Using 32 because Icon used to redefine implicitWidth and implicitHeight and hardcode them to 32
     setImplicitSize(32, 32);
-    // FIXME: not necessary anymore
-    connect(qApp, &QGuiApplication::paletteChanged, this, &QQuickItem::polish);
+    if (qGuiApp) {
+        qGuiApp->installEventFilter(this);
+    }
     connect(this, &QQuickItem::enabledChanged, this, &QQuickItem::polish);
     connect(this, &QQuickItem::smoothChanged, this, &QQuickItem::polish);
 
@@ -59,7 +85,7 @@ void Icon::setSource(const QVariant &icon)
         connect(m_theme, &MauiKit::Platform::PlatformTheme::PlatformTheme::colorsChanged, this, &QQuickItem::polish);
     }
 
-    if (icon.type() == QVariant::String) {
+    if (icon.typeId() == QMetaType::QString) {
         const QString iconSource = icon.toString();
         m_isMaskHeuristic = (iconSource.endsWith(QLatin1String("-symbolic")) //
                              || iconSource.endsWith(QLatin1String("-symbolic-rtl")) //
@@ -166,7 +192,7 @@ QSGNode *Icon::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData * 
     }
 
     if (m_changed || node == nullptr) {
-        const QSize itemSize(width(), height());
+        const QSize itemSize(qRound(width()), qRound(height()));
         QRect nodeRect(QPoint(0, 0), itemSize);
 
         ManagedTextureNode *mNode = dynamic_cast<ManagedTextureNode *>(node);
@@ -252,7 +278,7 @@ void Icon::handleFinished(QNetworkReply *reply)
 
         // broken image from data, inform the user of this with some useful broken-image thing...
         const QIcon icon = QIcon::fromTheme(m_fallback);
-        m_loadedImage = icon.pixmap(window(), icon.actualSize(size().toSize()), iconMode(), QIcon::On).toImage();
+        m_loadedImage = iconToImage(this, icon, size().toSize(), iconMode(), QIcon::On);
     }
 
     polish();
@@ -269,35 +295,32 @@ void Icon::updatePolish()
         return;
     }
 
-    const QSize itemSize(width(), height());
+    const QSize itemSize(qRound(width()), qRound(height()));
     if (itemSize.width() != 0 && itemSize.height() != 0) {
-        const auto multiplier = QCoreApplication::instance()->testAttribute(Qt::AA_UseHighDpiPixmaps)
-            ? 1
-            : (window() ? window()->effectiveDevicePixelRatio() : qGuiApp->devicePixelRatio());
-        const QSize size = itemSize * multiplier;
+        const QSize size = itemSize;
 
-        switch (m_source.type()) {
-        case QVariant::Pixmap:
+        switch (m_source.typeId()) {
+        case QMetaType::QPixmap:
             m_icon = m_source.value<QPixmap>().toImage();
             break;
-        case QVariant::Image:
+        case QMetaType::QImage:
             m_icon = m_source.value<QImage>();
             break;
-        case QVariant::Bitmap:
+        case QMetaType::QBitmap:
             m_icon = m_source.value<QBitmap>().toImage();
             break;
-        case QVariant::Icon: {
+        case QMetaType::QIcon: {
             const QIcon icon = m_source.value<QIcon>();
-            m_icon = icon.pixmap(window(), icon.actualSize(itemSize), iconMode(), QIcon::On).toImage();
+            m_icon = iconToImage(this, icon, itemSize, iconMode(), QIcon::On);
             break;
         }
-        case QVariant::Url:
-        case QVariant::String:
+        case QMetaType::QUrl:
+        case QMetaType::QString:
             m_icon = findIcon(size);
             break;
-        case QVariant::Brush:
+        case QMetaType::QBrush:
             // todo: fill here too?
-        case QVariant::Color:
+        case QMetaType::QColor:
             m_icon = QImage(size, QImage::Format_Alpha8);
             m_icon.fill(m_source.value<QColor>());
             break;
@@ -376,7 +399,7 @@ QImage Icon::findIcon(const QSize &size)
                     if (m_loadedImage.isNull()) {
                         // broken image from data, inform the user of this with some useful broken-image thing...
                         const QIcon icon = QIcon::fromTheme(m_fallback);
-                        m_loadedImage = icon.pixmap(window(), icon.actualSize(QSize(width(), height())), iconMode(), QIcon::On).toImage();
+                        m_loadedImage = iconToImage(this, icon, QSize(qRound(width()), qRound(height())), iconMode(), QIcon::On);
                         setStatus(Error);
                     } else {
                         setStatus(Ready);
@@ -387,7 +410,7 @@ QImage Icon::findIcon(const QSize &size)
             });
             // Temporary icon while we wait for the real image to load...
             const QIcon icon = QIcon::fromTheme(m_placeholder);
-            img = icon.pixmap(window(), icon.actualSize(size), iconMode(), QIcon::On).toImage();
+            img = iconToImage(this, icon, size, iconMode(), QIcon::On);
             break;
         }
         case QQmlImageProviderBase::Texture: {
@@ -398,7 +421,7 @@ QImage Icon::findIcon(const QSize &size)
             if (img.isNull()) {
                 // broken image from data, or the texture factory wasn't healthy, inform the user of this with some useful broken-image thing...
                 const QIcon icon = QIcon::fromTheme(m_fallback);
-                img = icon.pixmap(window(), icon.actualSize(QSize(width(), height())), iconMode(), QIcon::On).toImage();
+                img = iconToImage(this, icon, QSize(qRound(width()), qRound(height())), iconMode(), QIcon::On);
                 setStatus(Error);
             } else {
                 setStatus(Ready);
@@ -428,7 +451,7 @@ QImage Icon::findIcon(const QSize &size)
         }
         // Temporary icon while we wait for the real image to load...
         const QIcon icon = QIcon::fromTheme(m_placeholder);
-        img = icon.pixmap(window(), icon.actualSize(size), iconMode(), QIcon::On).toImage();
+        img = iconToImage(this, icon, size, iconMode(), QIcon::On);
     } else {
         if (iconSource.startsWith(QLatin1String("qrc:/"))) {
             iconSource = iconSource.mid(3);
@@ -446,7 +469,7 @@ QImage Icon::findIcon(const QSize &size)
             }
         }
         if (!icon.isNull()) {
-            img = icon.pixmap(window(), icon.actualSize(window(), size), iconMode(), QIcon::On).toImage();
+            img = iconToImage(this, icon, size, iconMode(), QIcon::On);
 
             setStatus(Ready);
             /*const QColor tintColor = !m_color.isValid() || m_color == Qt::transparent ? (m_selected ? m_theme->highlightedTextColor() : m_theme->textColor())
@@ -465,7 +488,7 @@ QImage Icon::findIcon(const QSize &size)
     if (!iconSource.isEmpty() && img.isNull()) {
         setStatus(Error);
         const QIcon icon = QIcon::fromTheme(m_fallback);
-        img = icon.pixmap(window(), icon.actualSize(size), iconMode(), QIcon::On).toImage();
+        img = iconToImage(this, icon, size, iconMode(), QIcon::On);
     }
     return img;
 }
@@ -625,6 +648,15 @@ void Icon::itemChange(QQuickItem::ItemChange change, const QQuickItem::ItemChang
         polish();
     }
     QQuickItem::itemChange(change, value);
+}
+
+bool Icon::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == qGuiApp && event->type() == QEvent::ApplicationPaletteChange) {
+        polish();
+    }
+
+    return QQuickItem::eventFilter(watched, event);
 }
 
 #include "moc_icon.cpp"

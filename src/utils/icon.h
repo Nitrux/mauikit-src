@@ -15,6 +15,7 @@
 #include <QVariant>
 
 class QNetworkReply;
+class QEvent;
 namespace Maui
 {
 class PlatformTheme;
@@ -221,6 +222,7 @@ protected:
     void updatePolish() override;
     void updatePaintedGeometry();
     void itemChange(QQuickItem::ItemChange change, const QQuickItem::ItemChangeData &value) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
     MauiKit::Platform::PlatformTheme *m_theme = nullptr;

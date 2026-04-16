@@ -39,7 +39,7 @@ private:
 #if defined(Q_OS_ANDROID)
         return QStringLiteral(":/qt/qml/org/mauikit/controls/") + filePath;
 #else
-        return baseUrl().toString() + QLatin1Char('/') + filePath;
+        return QStringLiteral("qrc:/qt/qml/org/mauikit/controls/") + filePath;
 #endif
     }
 

@@ -188,7 +188,7 @@ Maui.Page
     {
         active: control.splitIn === ToolBar.Header
         visible: control.split && control.splitIn === ToolBar.Header
-        width: parent.width
+        width: parent ? parent.width : 0
 
         sourceComponent: Maui.ToolBar
         {
@@ -260,7 +260,7 @@ Maui.Page
     {
         active: control.splitIn === ToolBar.Footer
         visible: control.split && control.splitIn === ToolBar.Footer
-        width: parent.width
+        width: parent ? parent.width : 0
 
         sourceComponent: Maui.ToolBar
         {

@@ -150,7 +150,7 @@ ApplicationWindow
         anchors.fill: parent
         asynchronous: true
         focus: false
-        focusPolicy: Qt.Nofocus
+        focusPolicy: Qt.NoFocus
 
         sourceComponent: Rectangle
         {
@@ -188,7 +188,7 @@ ApplicationWindow
         visible: active
         anchors.fill: parent
         focus: false
-        focusPolicy: Qt.Nofocus
+        focusPolicy: Qt.NoFocus
 
         sourceComponent: WindowResizeHandlers
         {

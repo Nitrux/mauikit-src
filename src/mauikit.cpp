@@ -54,7 +54,7 @@ MauiKit::MauiKit(QObject *parent) : QQmlExtensionPlugin(parent)
 
 QUrl MauiKit::componentUrl(const QString &fileName) const
 {
-    return QUrl(resolveFileUrl(fileName));
+    return QUrl(QStringLiteral("qrc:/qt/qml/org/mauikit/controls/") + fileName);
 }
 
 void MauiKit::initializeEngine(QQmlEngine* engine, const char* uri)

@@ -141,7 +141,12 @@ void MauiModel::setSort(const QString &sort)
     this->m_sort = sort;
     Q_EMIT this->sortChanged(this->m_sort);
     this->setSortRole(FMH::MODEL_NAME_KEY[sort]);
-    this->sort(0, this->m_sortOrder);
+    // Use invalidate() instead of sort() because when dynamicSortFilter is
+    // enabled, Qt's sort(column, order) early-returns when column and order
+    // are unchanged — ignoring a role change from setSortRole above.
+    // invalidate() clears the proxy mapping, forcing a full rebuild that
+    // honours the newly set sort role.
+    this->invalidate();
 }
 
 QString MauiModel::getSort() const
@@ -193,6 +198,21 @@ bool MauiModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent)
     }
 
     return false;
+}
+
+bool MauiModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
+{
+    if (this->sortRole() == FMH::MODEL_KEY::SIZE) {
+        bool leftOk = false;
+        bool rightOk = false;
+        const qint64 leftSize = this->sourceModel()->data(source_left, this->sortRole()).toLongLong(&leftOk);
+        const qint64 rightSize = this->sourceModel()->data(source_right, this->sortRole()).toLongLong(&rightOk);
+
+        if (leftOk && rightOk)
+            return leftSize < rightSize;
+    }
+
+    return QSortFilterProxyModel::lessThan(source_left, source_right);
 }
 
 MauiList *MauiModel::getList() const
@@ -444,4 +464,3 @@ bool MauiModel::moveRow(const QModelIndex &sourceParent, int sourceRow, const QM
     
     return true;
 }
-

@@ -135,7 +135,7 @@ Pane
     {
         id: _private
         property bool initial: true
-        property double position
+        property double position: 0
         property int resizeValue
 
         Binding on position
@@ -255,4 +255,3 @@ Pane
         }
     }
 }
-

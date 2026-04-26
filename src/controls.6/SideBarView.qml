@@ -209,7 +209,7 @@
                         yAxis.enabled: false
                         xAxis.enabled: true
                         target: null
-                        property int position : _private.position 
+                        property real position: _private.position || 0
                         readonly property int value : activeTranslation.x
                         property int distance : 0
                         acceptedPointerTypes: PointerDevice.Finger

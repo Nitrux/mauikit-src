@@ -78,7 +78,7 @@ T.Menu
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
     delegate: MenuItem
     {
-        Maui.Controls.status: action.Maui.Controls.status
+        Maui.Controls.status: action ? action.Maui.Controls.status : Maui.Controls.Normal
     }
 
     enter: Maui.Style.enableEffects ? (control.responsive ? _responsiveEnterTransition : _enterTransition) : null

@@ -243,10 +243,16 @@ static void renderShadow(QPainter *painter, const QRect &rect, qreal borderRadiu
 {
     const QSize inflation = calculateBlurExtent(radius);
     const QSize size = rect.size() + 2 * inflation;
+    if (!painter || size.isEmpty()) {
+        return;
+    }
 
     const qreal dpr = painter->device()->devicePixelRatioF();
 
     QImage shadow(size * dpr, QImage::Format_ARGB32_Premultiplied);
+    if (shadow.isNull()) {
+        return;
+    }
     shadow.setDevicePixelRatio(dpr);
     shadow.fill(Qt::transparent);
 
@@ -257,7 +263,9 @@ static void renderShadow(QPainter *painter, const QRect &rect, qreal borderRadiu
     const qreal yRadius = 2.0 * borderRadius / boxRect.height();
 
     QPainter shadowPainter;
-    shadowPainter.begin(&shadow);
+    if (!shadowPainter.begin(&shadow)) {
+        return;
+    }
     shadowPainter.setRenderHint(QPainter::Antialiasing);
     shadowPainter.setPen(Qt::NoPen);
     shadowPainter.setBrush(Qt::black);
@@ -272,7 +280,9 @@ static void renderShadow(QPainter *painter, const QRect &rect, qreal borderRadiu
     mirrorTopLeftQuadrant(shadow);
 
     // Give the shadow a tint of the desired color.
-    shadowPainter.begin(&shadow);
+    if (!shadowPainter.begin(&shadow)) {
+        return;
+    }
     shadowPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
     shadowPainter.fillRect(shadow.rect(), color);
     shadowPainter.end();

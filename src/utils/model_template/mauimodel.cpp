@@ -289,7 +289,13 @@ void MauiModel::PrivateAbstractListModel::setUpList()
             &MauiList::updateModel,
             this,
             [this](int index, QVector<int> roles) {
-                Q_EMIT this->dataChanged(this->m_model->index(index, 0), this->m_model->index(index, 0), roles);
+                const auto sourceIndex = this->m_model->index(index, 0);
+                const auto proxyIndex = this->m_model->mapFromSource(sourceIndex);
+                if (!proxyIndex.isValid()) {
+                    return;
+                }
+
+                Q_EMIT this->dataChanged(proxyIndex, proxyIndex, roles);
             },
             Qt::DirectConnection);
 

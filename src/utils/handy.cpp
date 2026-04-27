@@ -53,7 +53,6 @@ Handy::Handy(QObject *parent)
     ,m_accessibility(new MauiMan::AccessibilityManager(this))
     ,m_hasTransientTouchInput(false)
 {
-    qDebug() << "CREATING INSTANCE OF MAUI HANDY";
     // QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, false);
     // QApplication::setAttribute(Qt::AA_SynthesizeMouseForUnhandledTouchEvents, false);
     // QApplication::setAttribute(Qt::AA_SynthesizeMouseForUnhandledTabletEvents, false);
@@ -128,7 +127,6 @@ Handy::Handy(QObject *parent)
                     }
                 });
     }
-    qDebug() << "DONE CREATING INSTANCE OF MAUI HANDY";
 }
 
 
@@ -328,9 +326,19 @@ QVariantMap Handy::getClipboard()
 
 bool Handy::copyToClipboard(const QVariantMap &value, const bool &cut)
 {
+    QList<QUrl> urls;
+    if (value.contains("urls")) {
+        const auto rawUrls = value["urls"].toStringList();
+        urls.reserve(rawUrls.size());
+
+        for (const auto &url : rawUrls) {
+            urls << QUrl::fromUserInput(url, QStringLiteral("/"), QUrl::AssumeLocalFile);
+        }
+    }
+
 #ifdef Q_OS_ANDROID
     if (value.contains("urls"))
-        _clipboard.urls = QUrl::fromStringList(value["urls"].toStringList());
+        _clipboard.urls = urls;
 
     if (value.contains("text"))
         _clipboard.text = value["text"].toString();
@@ -343,7 +351,7 @@ bool Handy::copyToClipboard(const QVariantMap &value, const bool &cut)
     QMimeData *mimeData = new QMimeData();
 
     if (value.contains("urls"))
-        mimeData->setUrls(QUrl::fromStringList(value["urls"].toStringList()));
+        mimeData->setUrls(urls);
 
     if (value.contains("text"))
         mimeData->setText(value["text"].toString());

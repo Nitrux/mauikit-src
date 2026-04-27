@@ -80,7 +80,7 @@ SplitView
      */
     function addSplit(component, properties)
     {
-        const object = component.createObject(control.contentModel, properties);
+        const object = component.createObject(control, properties);
 
         control.addItem(object)
         control.currentIndex = Math.max(control.count -1, 0)

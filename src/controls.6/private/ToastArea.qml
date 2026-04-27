@@ -125,7 +125,7 @@ Control
 
             readonly property int mindex : ObjectModel.index
 
-            width: ListView.view.width
+            width: ListView.view ? ListView.view.width : 0
             height: _layout.implicitHeight + topPadding +bottomPadding
             
             hoverEnabled: true

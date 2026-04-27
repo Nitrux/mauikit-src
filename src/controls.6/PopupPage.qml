@@ -390,6 +390,7 @@ Maui.Popup
                 Layout.margins: Maui.Style.contentMargins
 
                 property bool isWide : control.width > (100 * control.actions.length)
+                readonly property real buttonWidth: columns > 0 ? Math.max(0, (width - ((columns - 1) * columnSpacing)) / columns) : 0
 
                 visible: control.actions.length
 
@@ -405,6 +406,7 @@ Maui.Popup
                         id: _actionButton
                         focus: true
                         Layout.fillWidth: true
+                        Layout.preferredWidth: _defaultButtonsLayout.buttonWidth
 
                         action: modelData
                         Maui.Controls.status: modelData.Maui.Controls.status

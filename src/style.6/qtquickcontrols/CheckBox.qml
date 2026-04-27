@@ -30,8 +30,17 @@ T.CheckBox
     opacity: enabled ? 1 : 0.5
     focus: true
     focusPolicy: Qt.TabFocus
-    implicitWidth: Math.max(contentItem.implicitWidth, indicator ? indicator.implicitWidth : 0) + leftPadding + rightPadding
-    implicitHeight: Math.max(contentItem.implicitHeight, indicator ? indicator.implicitHeight : 0) + topPadding + bottomPadding
+    readonly property bool hasText: control.text.length > 0
+    readonly property bool hasIcon: !!(control.icon.name || control.icon.source)
+    readonly property real indicatorImplicitWidth: indicator ? indicator.implicitWidth : 0
+    readonly property real indicatorImplicitHeight: indicator ? indicator.implicitHeight : 0
+    readonly property real iconImplicitWidth: hasIcon ? control.icon.width : 0
+    readonly property real iconImplicitHeight: hasIcon ? control.icon.height : 0
+    readonly property real contentSpacing: hasText && hasIcon ? control.spacing : 0
+    readonly property real contentImplicitWidth: iconImplicitWidth + contentSpacing + (hasText ? _textMetrics.advanceWidth : 0)
+    readonly property real contentImplicitHeight: Math.max(iconImplicitHeight, hasText ? _textMetrics.height : 0)
+    implicitWidth: indicatorImplicitWidth + ((hasText || hasIcon) && indicator ? control.spacing : 0) + contentImplicitWidth + leftPadding + rightPadding
+    implicitHeight: Math.max(contentImplicitHeight, indicatorImplicitHeight) + topPadding + bottomPadding
     
     padding: Maui.Style.defaultPadding
     spacing: Maui.Style.space.small
@@ -40,6 +49,13 @@ T.CheckBox
     icon.color: control.down || control.pressed || control.checked ? Maui.Theme.highlightedTextColor : Maui.Theme.textColor
     icon.width: Maui.Style.iconSize
     icon.height: Maui.Style.iconSize
+
+    TextMetrics
+    {
+        id: _textMetrics
+        font: control.font
+        text: control.text
+    }
     
     indicator: CheckIndicator
     {
@@ -50,8 +66,8 @@ T.CheckBox
     
     contentItem: Maui.IconLabel
     {
-        leftPadding: control.indicator && !control.mirrored ? control.indicator.width + control.spacing : 0
-        rightPadding: control.indicator && control.mirrored ? control.indicator.width + control.spacing : 0
+        leftPadding: control.indicator && !control.mirrored ? control.indicator.implicitWidth + control.spacing : 0
+        rightPadding: control.indicator && control.mirrored ? control.indicator.implicitWidth + control.spacing : 0
         text: control.text
         font: control.font
         // elide: Text.ElideRight

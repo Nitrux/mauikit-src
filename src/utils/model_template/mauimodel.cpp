@@ -222,6 +222,7 @@ MauiList *MauiModel::getList() const
 
 void MauiModel::PrivateAbstractListModel::setUpList()
 {
+    qDebug() << "MauiModel::setUpList() model=" << (void*)m_model << "list=" << (void*)m_model->getList();
     beginResetModel();
 
     if (m_model->getList())
@@ -328,14 +329,23 @@ void MauiModel::PrivateAbstractListModel::setUpList()
 
 void MauiModel::setList(MauiList *value)
 {
+    qDebug() << "MauiModel::setList() model=" << (void*)this << "oldList=" << (void*)m_list << "newList=" << (void*)value;
     if(value && value != this->m_list)
     {
+        MauiList *oldList = this->m_list;
         this->m_list = value;
         this->m_list->modelHooked();
-        
+
+        // Disconnect old list before setUpList so stale connections are cleaned up.
+        if (oldList && oldList != value)
+        {
+            qDebug() << "MauiModel::setList() disconnecting oldList=" << (void*)oldList;
+            oldList->disconnect(this->m_model);
+        }
+
         this->m_model->setUpList();
         Q_EMIT this->listChanged();
-        
+
         this->setSourceModel(this->m_model);
         this->setDynamicSortFilter(true);
     }

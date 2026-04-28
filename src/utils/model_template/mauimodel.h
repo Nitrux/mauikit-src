@@ -124,12 +124,12 @@ protected:
 private:
     class PrivateAbstractListModel;
     PrivateAbstractListModel *m_model;
-    MauiList *m_list;
+    MauiList *m_list = nullptr;
     
     QString m_filter;
     QStringList m_filters;
     QString m_filterRoleName;
-    Qt::SortOrder m_sortOrder;
+    Qt::SortOrder m_sortOrder = Qt::AscendingOrder;
     QString m_sort;
 
 public Q_SLOTS:

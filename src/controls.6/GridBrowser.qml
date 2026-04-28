@@ -347,6 +347,12 @@ Item
     property bool pinchEnabled : false
 
     /**
+     * @brief Whether Ctrl+wheel is allowed to resize the grid content.
+     * By default this is set to `true`.
+     */
+    property bool wheelResizeEnabled : true
+
+    /**
      * @brief The current item selected.
      * @property Item GridBrowser::currentItem
      */
@@ -575,7 +581,7 @@ Item
 
                     onWheel: (wheel) =>
                              {
-                                 if (wheel.modifiers & Qt.ControlModifier)
+                                 if (control.wheelResizeEnabled && (wheel.modifiers & Qt.ControlModifier))
                                  {
                                      if (wheel.angleDelta.y != 0)
                                      {

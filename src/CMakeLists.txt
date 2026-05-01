@@ -37,8 +37,8 @@ ecm_add_qml_module(MauiKit${MAUI_MAJOR_VERSION}
     ${_extra_options})
 
 set_target_properties(MauiKit${MAUI_MAJOR_VERSION} PROPERTIES
-    VERSION     ${PROJECT_VERSION}
-    SOVERSION   ${MAUI_MAJOR_VERSION}
+    VERSION     ${MAUIKIT_SO_VERSION}
+    SOVERSION   ${MAUIKIT_SO_VERSION}
     EXPORT_NAME "MauiKit${MAUI_MAJOR_VERSION}")
 
 add_library(MauiKit${MAUI_MAJOR_VERSION}::Controls ALIAS MauiKit${MAUI_MAJOR_VERSION})

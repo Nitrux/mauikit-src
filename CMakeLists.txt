@@ -32,16 +32,16 @@ set(AUTOMOC_MOC_OPTIONS -Muri=${MAUIKIT_URI})
 
 project(mauikit VERSION ${MAUIKIT_RELEASE_VERSION})
 
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    message(FATAL_ERROR "This project supports Linux only.")
+endif()
+
+
 ################# Disallow in-source build #################
 
 # if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 #    message(FATAL_ERROR "MauiKit requires an out of source build. Please create a separate build directory and run 'cmake path_to_mauikit [options]' there.")
 # endif()
-
-if(ANDROID)
-    set(ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/platforms/android)
-    set(ANDROID_ABIS "armeabi-v7a")
-endif()
 
 find_package(ECM ${REQUIRED_KF_VERSION} NO_MODULE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
@@ -63,10 +63,6 @@ include(CMakePackageConfigHelpers)
 
 option(BUILD_DEMO "Build the MauiKit Demo application." OFF)
 option(BUNDLE_LUV_ICONS "Ship Luv icon bundled." OFF)
-
-if(ANDROID OR WIN32 OR APPLE)
-    set(BUNDLE_LUV_ICONS ON)
-endif()
 
 find_package(Qt${QT_MAJOR_VERSION} ${REQUIRED_QT_VERSION} REQUIRED COMPONENTS
     Core
@@ -113,19 +109,13 @@ ecm_find_qmlmodule(QtQuick.Shapes 1.0)
 #    add_compile_options("-fno-lto")
 #endif()
 
-if(ANDROID)
-    find_package(Gradle REQUIRED)
-elseif(UNIX AND NOT ANDROID)
-    if(NOT APPLE)
-        find_package(KF${KF_MAJOR_VERSION} REQUIRED COMPONENTS WindowSystem)
+find_package(KF${KF_MAJOR_VERSION} REQUIRED COMPONENTS WindowSystem)
 
-        find_package(XCB 1.10 REQUIRED COMPONENTS
-            ICCCM
-            SHAPE
-            XCB)
-        set_package_properties(XCB PROPERTIES TYPE REQUIRED)
-    endif()
-endif()
+find_package(XCB 1.10 REQUIRED COMPONENTS
+    ICCCM
+    SHAPE
+    XCB)
+set_package_properties(XCB PROPERTIES TYPE REQUIRED)
 
 if(${ECM_SOURCE_UNDER_VERSION_CONTROL})
     execute_process(
@@ -185,7 +175,7 @@ add_compile_definitions(QT_DISABLE_DEPRECATED_UP_TO=0x050F00)
 
 add_subdirectory(src)
 
-if(BUILD_DEMO AND NOT ANDROID)
+if(BUILD_DEMO)
     add_subdirectory(demo.6)
 endif()
 
@@ -194,3 +184,14 @@ file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES *.cpp *.h)
 kde_clang_format(${ALL_CLANG_FORMAT_SOURCE_FILES})
 
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
+
+if(NOT TARGET uninstall)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+        IMMEDIATE
+        @ONLY)
+
+    add_custom_target(uninstall
+        COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+endif()

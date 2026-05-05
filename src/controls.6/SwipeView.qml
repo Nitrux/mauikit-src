@@ -231,7 +231,7 @@ Maui.Page
             
             Shortcut
             {
-                sequence: StandardKey.Back
+                sequences: [StandardKey.Back]
                 onActivated: control.goBack()
             }
             

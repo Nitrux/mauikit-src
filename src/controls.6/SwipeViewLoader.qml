@@ -62,7 +62,7 @@ Loader
     id: control
 
     asynchronous: true
-    active: (SwipeView.view.visible && SwipeView.isCurrentItem) || item
+    active: (SwipeView.view && SwipeView.view.visible && SwipeView.isCurrentItem) || item
 
     /**
      * @brief By default the single element declared as the child will be used as the component to be loaded.

@@ -335,7 +335,7 @@ AbstractButton
                 headerColumn: Maui.TextField
                 {
                     implicitHeight: control.height
-                    width: parent.width
+                    width: parent ? parent.width : control.width
                     
                     id: _textField
                     text: control.text

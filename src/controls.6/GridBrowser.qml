@@ -416,7 +416,6 @@ Item
 
     onItemSizeChanged :
     {
-        console.debug("GridBrowser itemSize changed", itemSize, "wheelResizeEnabled", control.wheelResizeEnabled, "adaptContent", control.adaptContent)
         controlView.size_ = itemSize
         control.itemWidth = itemSize
         control.cellWidth = itemWidth
@@ -562,20 +561,12 @@ Item
 
                 onWheel: (wheel) =>
                          {
-                             console.debug("GridBrowser top wheel area", "accepted-before", wheel.accepted, "modifiers", wheel.modifiers, "angleDeltaY", wheel.angleDelta.y, "pixelDeltaY", wheel.pixelDelta.y, "wheelResizeEnabled", control.wheelResizeEnabled)
-
                              if (control.wheelResizeEnabled && (wheel.modifiers & Qt.ControlModifier))
                              {
                                  if (wheel.angleDelta.y !== 0)
                                  {
                                      var factor = 1 + wheel.angleDelta.y / 600;
-                                     console.debug("GridBrowser top wheel resize", "factor", factor, "oldItemSize", control.itemSize)
                                      control.resizeContent(factor)
-                                     console.debug("GridBrowser top wheel resized", "newItemSize", control.itemSize)
-                                 }
-                                 else
-                                 {
-                                     console.debug("GridBrowser top wheel ignored because angleDelta.y is zero")
                                  }
 
                                  wheel.accepted = true
@@ -619,23 +610,15 @@ Item
 
                     onWheel: (wheel) =>
                              {
-                                 console.debug("GridBrowser onWheel", "accepted-before", wheel.accepted, "modifiers", wheel.modifiers, "angleDeltaY", wheel.angleDelta.y, "pixelDeltaY", wheel.pixelDelta.y, "wheelResizeEnabled", control.wheelResizeEnabled)
                                  if (control.wheelResizeEnabled && (wheel.modifiers & Qt.ControlModifier))
                                  {
                                      if (wheel.angleDelta.y != 0)
                                      {
                                          var factor = 1 + wheel.angleDelta.y / 600;
-                                         console.debug("GridBrowser resizing from wheel", "factor", factor, "oldItemSize", control.itemSize)
                                          control.resizeContent(factor)
-                                         console.debug("GridBrowser resized from wheel", "newItemSize", control.itemSize)
-                                     }
-                                     else
-                                     {
-                                         console.debug("GridBrowser wheel ignored because angleDelta.y is zero")
                                      }
                                  }else
                                  {
-                                     console.debug("GridBrowser wheel passed through", "ctrlPressed", Boolean(wheel.modifiers & Qt.ControlModifier))
                                      wheel.accepted = false
                                  }
                              }

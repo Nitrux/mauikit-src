@@ -101,7 +101,6 @@ void MauiModel::clearFilters()
     this->m_filters.clear();
     this->setFilterFixedString("");
     this->setFilterRegularExpression("");
-    this->invalidateFilter();
     Q_EMIT this->filtersChanged(this->m_filters);
     Q_EMIT this->filterChanged(this->m_filter);
     

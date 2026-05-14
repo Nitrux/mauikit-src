@@ -264,10 +264,13 @@ Control
                 
                 RowLayout
                 {
+                    id: _actionsLayout
                     Layout.preferredHeight: visible ? implicitHeight : -_layout.spacing
                     visible: _toast.actions.length > 0
                     Layout.fillWidth: true
                     spacing: Maui.Style.defaultSpacing
+                    readonly property int _actionsCount: _actionRepeater.count
+                    readonly property real _actionWidth: _actionsCount > 0 ? Math.max(0, (width - (spacing * (_actionsCount - 1))) / _actionsCount) : 0
 
                     Repeater
                     {
@@ -279,7 +282,9 @@ Control
                             focusPolicy: Qt.StrongFocus
                             action: modelData
                             Maui.Controls.status: modelData.Maui.Controls.status
-                            Layout.fillWidth: true
+                            Layout.minimumWidth: _actionsLayout._actionWidth
+                            Layout.preferredWidth: _actionsLayout._actionWidth
+                            Layout.maximumWidth: _actionsLayout._actionWidth
                             onClicked:
                             {
                                 // if(_toast.actions.length === 1)

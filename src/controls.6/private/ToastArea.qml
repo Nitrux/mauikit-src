@@ -136,7 +136,7 @@ Control
             property alias iconSource: _template.iconSource
             property alias imageSource: _template.imageSource
             property alias body: _template.label2.text
-            property list<Action> actions
+            property var actions: []
 
             property int timeout : 3500
             
@@ -270,7 +270,15 @@ Control
                     Layout.fillWidth: true
                     spacing: Maui.Style.defaultSpacing
                     readonly property int _actionsCount: _actionRepeater.count
-                    readonly property real _actionWidth: _actionsCount > 0 ? Math.max(0, (width - (spacing * (_actionsCount - 1))) / _actionsCount) : 0
+                    readonly property real _availableWidth: _layout.width
+                    readonly property real _actionWidth:
+                    {
+                        if (_actionsCount <= 0)
+                            return -1
+
+                        const availableWidth = _availableWidth - (spacing * (_actionsCount - 1))
+                        return availableWidth > 0 ? (availableWidth / _actionsCount) : -1
+                    }
 
                     Repeater
                     {
@@ -282,9 +290,9 @@ Control
                             focusPolicy: Qt.StrongFocus
                             action: modelData
                             Maui.Controls.status: modelData.Maui.Controls.status
-                            Layout.minimumWidth: _actionsLayout._actionWidth
-                            Layout.preferredWidth: _actionsLayout._actionWidth
-                            Layout.maximumWidth: _actionsLayout._actionWidth
+                            Layout.minimumWidth: _actionsLayout._actionWidth > 0 ? _actionsLayout._actionWidth : implicitWidth
+                            Layout.preferredWidth: _actionsLayout._actionWidth > 0 ? _actionsLayout._actionWidth : implicitWidth
+                            Layout.maximumWidth: _actionsLayout._actionWidth > 0 ? _actionsLayout._actionWidth : implicitWidth
                             onClicked:
                             {
                                 // if(_toast.actions.length === 1)
@@ -373,13 +381,51 @@ Control
         }
     }
 
+    function normalizeActions(actions)
+    {
+        if (actions === undefined || actions === null)
+            return []
+
+        const normalized = []
+
+        if (typeof actions.length === "number")
+        {
+            for (let i = 0; i < actions.length; ++i)
+            {
+                const candidate = actions[i]
+                if (candidate && typeof candidate.trigger === "function")
+                    normalized.push(candidate)
+            }
+
+            return normalized
+        }
+
+        if (typeof actions.count === "number")
+        {
+            for (let i = 0; i < actions.count; ++i)
+            {
+                const candidate = actions[i]
+                if (candidate && typeof candidate.trigger === "function")
+                    normalized.push(candidate)
+            }
+
+            return normalized
+        }
+
+        if (typeof actions.trigger === "function")
+            return [actions]
+
+        return []
+    }
+
     function add(icon, title, body, actions = [])
     {
+        const normalizedActions = normalizeActions(actions)
         const properties = ({
                                 'iconSource': icon,
                                 'title': title,
                                 'body': body,
-                                'actions': actions })
+                                'actions': normalizedActions })
 
         const object = _toastComponent.createObject(_listView.flickable, properties);
         _container.insertItem(0, object)

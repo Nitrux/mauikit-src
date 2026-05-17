@@ -339,7 +339,12 @@ void Icon::updatePolish()
             : m_color;
 
         // TODO: initialize m_isMask with icon.isMask()
-        if (tintColor.alpha() > 0 && (isMask() || guessMonochrome(m_icon))) {
+        // Heuristic monochrome guessing is useful for tiny symbolic-looking icons,
+        // but it can incorrectly recolor full-color medium/large artwork (for
+        // example low-saturation 32px device icons). Keep explicit mask handling
+        // at any size, and limit heuristic guessing to small icon sizes.
+        const bool allowMonochromeGuess = itemSize.width() <= 22 && itemSize.height() <= 22;
+        if (tintColor.alpha() > 0 && (isMask() || (allowMonochromeGuess && guessMonochrome(m_icon)))) {
             QPainter p(&m_icon);
             p.setCompositionMode(QPainter::CompositionMode_SourceIn);
             p.fillRect(m_icon.rect(), tintColor);

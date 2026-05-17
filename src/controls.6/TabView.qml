@@ -311,79 +311,29 @@ Pane
         id: _menu
         parent: control
         property int index //tabindex
-        property Item _openDefaultItem: null
-        property Item _closeDefaultItem: null
-
-        function syncDefaultEntries()
+        
+        MenuItem
         {
-            if (control.showDefaultMenuEntries)
+            visible: control.showDefaultMenuEntries
+            height: visible ? implicitHeight : -Maui.Style.defaultSpacing
+            text: i18nd("mauikit", "Open")
+            icon.name: "tab-new"
+            onTriggered:
             {
-                if (!_openDefaultItem)
-                {
-                    _openDefaultItem = _openTabMenuItemComponent.createObject(_menu)
-                    _menu.addItem(_openDefaultItem)
-                }
-
-                if (!_closeDefaultItem)
-                {
-                    _closeDefaultItem = _closeTabMenuItemComponent.createObject(_menu)
-                    _menu.addItem(_closeDefaultItem)
-                }
-            }
-            else
-            {
-                if (_openDefaultItem)
-                {
-                    _menu.removeItem(_openDefaultItem)
-                    _openDefaultItem.destroy()
-                    _openDefaultItem = null
-                }
-
-                if (_closeDefaultItem)
-                {
-                    _menu.removeItem(_closeDefaultItem)
-                    _closeDefaultItem.destroy()
-                    _closeDefaultItem = null
-                }
+                _listView.setCurrentIndex(_menu.index)
+                control.closeOverview()
             }
         }
-
-        Component.onCompleted: syncDefaultEntries()
-        Connections
+        
+        MenuItem
         {
-            target: control
-            function onShowDefaultMenuEntriesChanged()
+            visible: control.showDefaultMenuEntries
+            height: visible ? implicitHeight : -Maui.Style.defaultSpacing
+            text: i18nd("mauikit", "Close")
+            icon.name: "tab-close"
+            onTriggered:
             {
-                _menu.syncDefaultEntries()
-            }
-        }
-
-        Component
-        {
-            id: _openTabMenuItemComponent
-            MenuItem
-            {
-                text: i18nd("mauikit", "Open")
-                icon.name: "tab-new"
-                onTriggered:
-                {
-                    _listView.setCurrentIndex(_menu.index)
-                    control.closeOverview()
-                }
-            }
-        }
-
-        Component
-        {
-            id: _closeTabMenuItemComponent
-            MenuItem
-            {
-                text: i18nd("mauikit", "Close")
-                icon.name: "tab-close"
-                onTriggered:
-                {
-                    control.closeTabClicked(_menu.index)
-                }
+                control.closeTabClicked(_menu.index)
             }
         }
 

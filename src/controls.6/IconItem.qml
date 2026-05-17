@@ -217,7 +217,7 @@ Item
         horizontalAlignment: Qt.AlignHCenter
         verticalAlignment: Qt.AlignVCenter
 
-        cache: !Maui.Handy.isMobile
+        cache: !Maui.Handy.isMobile && !(source && source.toString().startsWith("image://thumbnailer/"))
         asynchronous: true
         smooth: control.smooth
         mipmap: false

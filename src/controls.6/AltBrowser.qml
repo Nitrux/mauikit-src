@@ -185,7 +185,8 @@ Maui.Page
         anchors.fill: parent
         visible: control.viewType === AltBrowser.ViewType.Grid
         currentIndex: control.currentIndex
-        model: control.model
+        // Detach the hidden view from the model to avoid duplicate delegate/image work.
+        model: visible ? control.model : null
         delegate: control.gridDelegate
         enableLassoSelection: control.enableLassoSelection
         selectionMode: control.selectionMode
@@ -210,7 +211,8 @@ Maui.Page
         focus: control.focus
         visible: control.viewType === AltBrowser.ViewType.List
         currentIndex: control.currentIndex
-        model: control.model
+        // Detach the hidden view from the model to avoid duplicate delegate/image work.
+        model: visible ? control.model : null
         delegate: control.listDelegate
         enableLassoSelection: control.enableLassoSelection
         selectionMode: control.selectionMode

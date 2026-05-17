@@ -365,6 +365,7 @@ Item
             id: _listView
             focus: true
             clip: control.clip
+            reuseItems: true
 
             property var selectedIndexes : []
 
@@ -372,8 +373,9 @@ Item
 
             snapMode: ListView.NoSnap
 
-            displayMarginBeginning: Maui.Style.toolBarHeight * 4
-            displayMarginEnd: Maui.Style.toolBarHeight * 4
+            displayMarginBeginning: Maui.Style.toolBarHeight
+            displayMarginEnd: Maui.Style.toolBarHeight
+            cacheBuffer: height
 
             boundsBehavior: Flickable.StopAtBounds
             boundsMovement: Flickable.StopAtBounds
@@ -557,5 +559,3 @@ Item
         }
     }
 }
-
-

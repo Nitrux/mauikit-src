@@ -442,6 +442,7 @@ Item
         {
             id: controlView
             focus: true
+            reuseItems: true
 
             parent: _scrollView
             /**
@@ -473,9 +474,9 @@ Item
             flow: GridView.FlowLeftToRight
             clip: control.clip
 
-            displayMarginBeginning: Maui.Style.effectsEnabled ? Maui.Style.toolBarHeight * 4 : 0
+            displayMarginBeginning: Maui.Style.effectsEnabled ? Maui.Style.toolBarHeight : 0
             displayMarginEnd: displayMarginBeginning
-            cacheBuffer: control.itemHeight * 4
+            cacheBuffer: control.itemHeight
 
             cellWidth: control.itemWidth
             cellHeight: control.itemHeight

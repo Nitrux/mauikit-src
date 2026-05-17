@@ -127,7 +127,6 @@ bool Icon::active() const
 
 bool Icon::valid() const
 {
-    // TODO: should this be return m_status == Ready?
     // Consider an empty URL invalid, even though isNull() will say false
     if (m_source.canConvert<QUrl>() && m_source.toUrl().isEmpty()) {
         return false;
@@ -338,10 +337,9 @@ void Icon::updatePolish()
             ? (m_selected ? m_theme->highlightedTextColor() : m_theme->textColor())
             : m_color;
 
-        // TODO: initialize m_isMask with icon.isMask()
         // Heuristic monochrome guessing is useful for tiny symbolic-looking icons,
         // but it can incorrectly recolor full-color medium/large artwork (for
-        // example low-saturation 32px device icons). Keep explicit mask handling
+        // example low-saturation 32px icons). Keep explicit mask handling
         // at any size, and limit heuristic guessing to small icon sizes.
         const bool allowMonochromeGuess = itemSize.width() <= 22 && itemSize.height() <= 22;
         if (tintColor.alpha() > 0 && (isMask() || (allowMonochromeGuess && guessMonochrome(m_icon)))) {

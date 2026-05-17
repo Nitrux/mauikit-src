@@ -260,7 +260,7 @@ QQC.TabBar
 
                     moveDisplaced: Transition
                     {
-                        NumberAnimation { properties: "x"; duration: Maui.Style.shortDuration }
+                        NumberAnimation { properties: "x"; duration: Maui.Style.units.shortDuration }
                     }
 
                     Behavior on opacity

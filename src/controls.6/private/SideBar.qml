@@ -19,6 +19,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Window
 import QtQml
 import org.mauikit.controls as Maui
 
@@ -91,10 +92,30 @@ Pane
     property bool autoShow: true
 
     /**
+     * @brief Width baseline used to constrain the sidebar.
+     * Prefer the parent width to avoid binding loops when SideBarView.width is
+     * itself influenced by sidebar geometry during implicit-size evaluation.
+     */
+    readonly property real _viewWidth:
+    {
+        if (Window.window && Window.window.width > 0)
+            return Window.window.width
+
+        if (!control.sideBarView)
+            return control.preferredWidth
+
+        const parentWidth = control.sideBarView.parent ? control.sideBarView.parent.width : 0
+        if (parentWidth > 0)
+            return parentWidth
+
+        return control.preferredWidth
+    }
+
+    /**
      * @brief The actual size of the width that the sidebar will have in order to reserve a right margin to never exceed the SideBarView full width.
      * Most of the time this value will be the same as the sidebar preferred width
      */
-    readonly property int constrainedWidth : Math.min(control.preferredWidth, control.sideBarView.width*0.9)
+    readonly property int constrainedWidth : Math.min(control.preferredWidth, _viewWidth * 0.9)
 
     /**
      * @brief The preferred width of the sidebar in the expanded state.

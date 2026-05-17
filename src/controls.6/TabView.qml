@@ -227,6 +227,12 @@ Pane
     property list<Action> menuActions
 
     /**
+         * @brief Whether the built-in "Open" and "Close" entries should be shown
+         * in the tab contextual menu.
+         */
+    property bool showDefaultMenuEntries: true
+
+    /**
          * @brief The component to be used as the tab button in the tab bar. This can be changed to any other item, but it is recommend it to use TabViewButton as the base of the new custom control for the better integration.
          * @see TabViewButton
          */
@@ -305,6 +311,81 @@ Pane
         id: _menu
         parent: control
         property int index //tabindex
+        property Item _openDefaultItem: null
+        property Item _closeDefaultItem: null
+
+        function syncDefaultEntries()
+        {
+            if (control.showDefaultMenuEntries)
+            {
+                if (!_openDefaultItem)
+                {
+                    _openDefaultItem = _openTabMenuItemComponent.createObject(_menu)
+                    _menu.addItem(_openDefaultItem)
+                }
+
+                if (!_closeDefaultItem)
+                {
+                    _closeDefaultItem = _closeTabMenuItemComponent.createObject(_menu)
+                    _menu.addItem(_closeDefaultItem)
+                }
+            }
+            else
+            {
+                if (_openDefaultItem)
+                {
+                    _menu.removeItem(_openDefaultItem)
+                    _openDefaultItem.destroy()
+                    _openDefaultItem = null
+                }
+
+                if (_closeDefaultItem)
+                {
+                    _menu.removeItem(_closeDefaultItem)
+                    _closeDefaultItem.destroy()
+                    _closeDefaultItem = null
+                }
+            }
+        }
+
+        Component.onCompleted: syncDefaultEntries()
+        Connections
+        {
+            target: control
+            function onShowDefaultMenuEntriesChanged()
+            {
+                _menu.syncDefaultEntries()
+            }
+        }
+
+        Component
+        {
+            id: _openTabMenuItemComponent
+            MenuItem
+            {
+                text: i18nd("mauikit", "Open")
+                icon.name: "tab-new"
+                onTriggered:
+                {
+                    _listView.setCurrentIndex(_menu.index)
+                    control.closeOverview()
+                }
+            }
+        }
+
+        Component
+        {
+            id: _closeTabMenuItemComponent
+            MenuItem
+            {
+                text: i18nd("mauikit", "Close")
+                icon.name: "tab-close"
+                onTriggered:
+                {
+                    control.closeTabClicked(_menu.index)
+                }
+            }
+        }
 
         Repeater
         {
@@ -312,29 +393,12 @@ Pane
             delegate: MenuItem
             {
                 action: modelData
+                readonly property bool hideWhenDisabled: action && action.hideWhenDisabled === true
+                visible: action ? (hideWhenDisabled ? action.enabled : true) : true
+                height: visible ? implicitHeight : -Maui.Style.defaultSpacing
             }
         }
 
-        MenuItem
-        {
-            text: i18nd("mauikit", "Open")
-            icon.name: "tab-new"
-            onTriggered:
-            {
-                _listView.setCurrentIndex(_menu.index)
-                control.closeOverview()
-            }
-        }
-
-        MenuItem
-        {
-            text: i18nd("mauikit", "Close")
-            icon.name: "tab-close"
-            onTriggered:
-            {
-                control.closeTabClicked(_menu.index)
-            }
-        }
     }
 
     data: Loader
@@ -973,8 +1037,15 @@ Pane
          */
     function moveTab(from, to)
     {
+        if (from < 0 || to < 0 || from >= _listView.count || to >= _listView.count || from === to)
+        {
+            return
+        }
+
         _listView.moveItem(from, to)
-        _tabBar.moveItem(from, to)
+        // Tab buttons are produced by a Repeater over the content model.
+        // Reordering the content model is enough; forcing TabBar.moveItem() here
+        // can desync visual/header state and triggers stackBefore/stackAfter warnings.
 
         _listView.setCurrentIndex(to)
         _tabBar.setCurrentIndex(_listView.currentIndex)
@@ -982,7 +1053,8 @@ Pane
         _listView2.positionViewAtIndex(_listView.currentIndex, ListView.Contain)
 
         _listView.currentItemChanged()
-        _listView.currentItem.forceActiveFocus()
+        if (_listView.currentItem)
+            _listView.currentItem.forceActiveFocus()
     }
 
     /**

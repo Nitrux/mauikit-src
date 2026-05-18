@@ -93,22 +93,16 @@ Pane
 
     /**
      * @brief Width baseline used to constrain the sidebar.
-     * Prefer the parent width to avoid binding loops when SideBarView.width is
-     * itself influenced by sidebar geometry during implicit-size evaluation.
+     * Use the top-level window width when available and otherwise return a
+     * fallback that keeps constrainedWidth equal to preferredWidth.
+     * This avoids dependency chains through ancestor implicit sizes.
      */
     readonly property real _viewWidth:
     {
         if (Window.window && Window.window.width > 0)
             return Window.window.width
 
-        if (!control.sideBarView)
-            return control.preferredWidth
-
-        const parentWidth = control.sideBarView.parent ? control.sideBarView.parent.width : 0
-        if (parentWidth > 0)
-            return parentWidth
-
-        return control.preferredWidth
+        return control.preferredWidth / 0.9
     }
 
     /**
@@ -220,17 +214,28 @@ Pane
                 target: null
                 cursorShape: Qt.SizeHorCursor
 
-                readonly property int value : control.constrainedWidth + centroid.position.x
+                property real dragStartWidth: control.constrainedWidth
 
-                onValueChanged:
+                onActiveChanged:
                 {
-                    if(value > control.maximumWidth)
+                    if (active)
+                        dragStartWidth = control.constrainedWidth
+                }
+
+                onActiveTranslationChanged:
+                {
+                    if (!active)
+                        return
+
+                    const value = Math.round(dragStartWidth + activeTranslation.x)
+
+                    if (value > control.maximumWidth)
                     {
                         control.preferredWidth = control.maximumWidth
                         return
                     }
 
-                    if( value < control.minimumWidth)
+                    if (value < control.minimumWidth)
                     {
                         control.preferredWidth = control.minimumWidth
                         return

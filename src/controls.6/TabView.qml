@@ -293,9 +293,12 @@ Pane
     Keys.enabled: true
     Keys.onPressed: (event) =>
                     {
-                        if((event.key === Qt.Key_H) && (event.modifiers & Qt.ControlModifier))
+                        if ((event.key === Qt.Key_Y)
+                                && (event.modifiers === (Qt.ControlModifier | Qt.AltModifier | Qt.ShiftModifier)))
                         {
                             control.findTab()
+                            event.accepted = true
+                            return
                         }
 
                         if(event.key == Qt.Key_Return)

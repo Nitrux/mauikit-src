@@ -83,7 +83,7 @@ Style::Style(QObject *parent) : QObject(parent)
                 Q_EMIT styleTypeChanged(m_styleType);
             });
     
-    connect(m_themeSettings, &MauiMan::ThemeManager::accentColorChanged, [this](QString color)
+    connect(m_themeSettings, &MauiMan::ThemeManager::accentColorChanged, [this](const QColor &color)
             {
                 m_accentColor = color;
                 Q_EMIT this->accentColorChanged(m_accentColor);
@@ -528,5 +528,4 @@ bool Style::eventFilter(QObject *watched, QEvent *event)
 
     return QObject::eventFilter(watched, event);
 }
-
 

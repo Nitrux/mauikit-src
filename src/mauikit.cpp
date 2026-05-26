@@ -65,13 +65,11 @@ void MauiKit::initializeEngine(QQmlEngine* engine, const char* uri)
 
 void MauiKit::registerTypes(const char *uri)
 {
-    qDebug() << "REGISTER MAUIKIT TYPES <<<<<<<<<<<<<<<<<<<<<<";
 #if defined(Q_OS_ANDROID)
     QResource::registerResource(QStringLiteral("assets:/android_rcc_bundle.rcc"));
 #endif
 
     Q_ASSERT(QLatin1String(uri) == QLatin1String("org.mauikit.controls"));
-    qDebug() << "REGISTER MAUIKIT TYPES 2<<<<<<<<<<<<<<<<<<<<<<";
 
            // @uri org.mauikit.controls
     qmlRegisterType(componentUrl(QStringLiteral("ToolBar.qml")), uri, 1, 0, "ToolBar");
@@ -179,8 +177,6 @@ void MauiKit::registerTypes(const char *uri)
     qmlRegisterType(componentUrl(QStringLiteral("CSDControls.qml")), uri, 1, 1, "CSDControls");
     qmlRegisterType(componentUrl(QStringLiteral("private/linux/WindowControls.qml")), uri, 1, 1, "WindowControls");
 #endif
-    qDebug() << "REGISTER MAUIKIT TYPES 3<<<<<<<<<<<<<<<<<<<<<<";
-
            // qmlProtectModule(uri, 3);
 }
 

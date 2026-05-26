@@ -246,16 +246,16 @@ QQC.ToolBar
     {
         asynchronous: true
         width: Maui.Style.iconSizes.medium
-        height: parent.height
-        active: !mainFlickable.atXEnd && !control.fits
+        height: parent ? parent.height : 0
+        active: control.background && !mainFlickable.atXEnd && !control.fits
         visible: active
         z: 999
-        parent: control.background
+        parent: control.background || control
         anchors
         {
-            right: parent.right
-            top: parent.top
-            bottom: parent.bottom
+            right: parent ? parent.right : undefined
+            top: parent ? parent.top : undefined
+            bottom: parent ? parent.bottom : undefined
         }
 
         sourceComponent: Maui.EdgeShadow
@@ -266,18 +266,18 @@ QQC.ToolBar
 
     Loader
     {
-        parent: control.background
+        parent: control.background || control
         asynchronous: true
         width: Maui.Style.iconSizes.medium
-        height: parent.height
-        active: !mainFlickable.atXBeginning && !control.fits
+        height: parent ? parent.height : 0
+        active: control.background && !mainFlickable.atXBeginning && !control.fits
         visible: active
         z: 999
         anchors
         {
-            left: parent.left
-            top: parent.top
-            bottom: parent.bottom
+            left: parent ? parent.left : undefined
+            top: parent ? parent.top : undefined
+            bottom: parent ? parent.bottom : undefined
         }
 
         sourceComponent: Maui.EdgeShadow

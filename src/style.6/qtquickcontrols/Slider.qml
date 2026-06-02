@@ -127,7 +127,8 @@ T.Slider
             
             acceptedButtons: Qt.NoButton
             
-            onWheel: {
+            function onWheel(wheel)
+            {
                 const lastValue = control.value
                 const delta = wheel.angleDelta.y || wheel.angleDelta.x
                 wheelDelta += delta;

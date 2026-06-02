@@ -41,7 +41,7 @@ Maui.PopupPage
 
     Maui.SectionItem
     {
-        imageSource: Maui.App.iconName
+        iconSource: Maui.App.iconName
 
         template.fillMode: Image.PreserveAspectFit
 

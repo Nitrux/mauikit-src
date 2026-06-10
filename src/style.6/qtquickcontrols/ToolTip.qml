@@ -32,7 +32,10 @@ T.ToolTip
     Maui.Theme.colorSet: Maui.Theme.Tooltip
     Maui.Theme.inherit: false
 
-    x: parent ? (parent.width - implicitWidth) / 2 : 0
+    x: {
+        const p = controlRoot.parent
+        return (p && p.width !== undefined) ? (p.width - controlRoot.implicitWidth) / 2 : 0
+    }
     y: -implicitHeight - 3
 
     implicitWidth: contentItem.implicitWidth + leftPadding + rightPadding

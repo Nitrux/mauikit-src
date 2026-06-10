@@ -917,7 +917,8 @@ Pane
         // _tabBar.removeItem(_tabBar.itemAt(index))
 
         _listView.currentItemChanged()
-        _listView.currentItem.forceActiveFocus()
+        if (_listView.currentItem)
+            _listView.currentItem.forceActiveFocus()
     }
 
     /**
@@ -1007,6 +1008,7 @@ Pane
 
         _listView.currentItemChanged()
         if (_listView.currentItem)
+            if (_listView.currentItem)
             _listView.currentItem.forceActiveFocus()
     }
 
@@ -1018,7 +1020,8 @@ Pane
     {
         _tabBar.setCurrentIndex(index)
         _listView.setCurrentIndex(index)
-        _listView.currentItem.forceActiveFocus()
+        if (_listView.currentItem)
+            _listView.currentItem.forceActiveFocus()
     }
 
     /**

@@ -490,7 +490,7 @@ bool Style::menusHaveIcons() const
 uint Style::scrollBarPolicy() const
 {
     //    return m_accessibilitySettings->scrollBarPolicy();
-    return 2;
+    return 1;
 }
 
 bool Style::playSounds() const

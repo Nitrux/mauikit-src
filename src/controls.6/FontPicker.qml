@@ -73,6 +73,11 @@ Control
      * @property font FontPicker::mfont
      */
     property alias mfont : _model.font
+
+    /**
+     *  Whether the style selector should be shown.
+     */
+    property bool showStyle: true
     
     spacing: Maui.Style.space.medium
     
@@ -117,6 +122,7 @@ Control
         
         Maui.FlexSectionItem
         {
+            visible: control.showStyle
             label1.text: i18n("Style")
             label2.text: i18n("Font style.")
             wide: control.width > 600

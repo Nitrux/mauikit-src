@@ -234,6 +234,8 @@ QQC.TabBar
 
                     orientation: ListView.Horizontal
 
+                    cacheBuffer: width * 2
+
                     spacing: control.spacing
 
                     model: control.contentModel
@@ -257,12 +259,6 @@ QQC.TabBar
                         const newIndex = indexAt(contentX, contentY)
                         control.newTabFocused(newIndex)
                     }
-
-                    moveDisplaced: Transition
-                    {
-                        NumberAnimation { properties: "x"; duration: Maui.Style.units.shortDuration }
-                    }
-
                     Behavior on opacity
                     {
                         NumberAnimation

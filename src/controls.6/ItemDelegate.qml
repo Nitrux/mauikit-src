@@ -66,13 +66,22 @@ Control
     ToolTip.delay: 1000
     ToolTip.timeout: 5000
     ToolTip.visible: control.hovered && control.tooltipText
-    ToolTip.text: control.tooltipText
+    ToolTip.text: control._sanitizeTooltip(control.tooltipText)
     
     /**
      * @brief The text used for the tool-tip, revealed when the item is hovered with the mouse cursor.
      * This type of text usually presents to the user with some extra information about the item.
      */
     property string tooltipText
+
+    function _sanitizeTooltip(text)
+    {
+        const value = text ? text.toString() : ""
+        if (value.startsWith("file://"))
+            return decodeURIComponent(value.substring(7))
+
+        return value
+    }
     
     
     /**

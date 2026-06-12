@@ -33,11 +33,24 @@
 #endif
 
 #include <QQuickStyle>
+#include <QMessageLogContext>
+#include <QDebug>
 
 #include "../mauikit_version.h"
 #include "moduleinfo.h"
 
 Q_GLOBAL_STATIC(MauiApp, appInstance)
+
+static QtMessageHandler s_prevMessageHandler = nullptr;
+
+static void mauiMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &message)
+{
+    if (type == QtWarningMsg && message.startsWith(QStringLiteral("QPainter::")))
+        return;
+
+    if (s_prevMessageHandler)
+        s_prevMessageHandler(type, context, message);
+}
 
 KAboutComponent MauiApp::aboutMauiKit()
 {
@@ -47,7 +60,8 @@ KAboutComponent MauiApp::aboutMauiKit()
 MauiApp::MauiApp(QObject *parent)
     : QObject(parent)
 {
-    qDebug() << "CREATING INSTANCE OF MAUI APP";
+    if (!s_prevMessageHandler)
+        s_prevMessageHandler = qInstallMessageHandler(mauiMessageHandler);
 
     KAboutData aboutData(KAboutData::applicationData());
     if (aboutData.translators().isEmpty())
@@ -147,7 +161,6 @@ MauiApp *MauiApp::instance()
 
 void MauiApp::setRootComponent(QObject *item)
 {
-    qDebug() << "Setting the MauiApp root component" << item;
     if(m_rootComponent == item)
         return;
 

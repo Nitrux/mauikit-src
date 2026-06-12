@@ -301,6 +301,13 @@ Pane
                             return
                         }
 
+                        if(event.key === Qt.Key_Escape && control.overviewMode)
+                        {
+                            control.closeOverview()
+                            event.accepted = true
+                            return
+                        }
+
                         if(event.key == Qt.Key_Return)
                         {
                             control.closeOverview()
@@ -709,7 +716,7 @@ Pane
 
                     background: Rectangle
                     {
-                        color: Maui.Theme.backgroundColor
+                        color: Qt.rgba(Maui.Theme.backgroundColor.r, Maui.Theme.backgroundColor.g, Maui.Theme.backgroundColor.b, 0.0)
                         Loader
                         {
                             active: !Maui.Handy.isMobile
@@ -745,7 +752,20 @@ Pane
                             anchors.margins: Maui.Style.space.big
                             sourceComponent: Maui.FloatingButton
                             {
+                                id: _newTabButton
+                                width: 32
+                                height: 32
+                                padding: Maui.Style.space.medium
                                 icon.name: "list-add"
+                                icon.width: 16
+                                icon.height: 16
+
+                                background: Rectangle
+                                {
+                                    radius: 9
+                                    color: _newTabButton.color
+                                }
+
                                 onClicked: control.newTabClicked()
                             }
                         }
@@ -804,77 +824,96 @@ Pane
 
                                 tooltipText:  _listView.contentModel.get(index).Maui.Controls.toolTipText
 
-                                Rectangle
-                                {
-                                    parent: _delegate.background
-                                    color:  _listView.contentModel.get(index).Maui.Controls.color
-                                    height: 2
-                                    width: parent.width*0.9
-                                    anchors.bottom: parent.bottom
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                }
-
-                                onRightClicked:
-                                {
-                                    _listView.setCurrentIndex(index)
-                                    openTabMenu(_listView.currentIndex)
-                                }
-
                                 onClicked:
                                 {
                                     control.closeOverview()
                                     _listView.setCurrentIndex(index)
                                 }
 
-                                onPressAndHold:
-                                {
-                                    _listView.setCurrentIndex(index)
-                                    openTabMenu(control.currentIndex)
-                                }
 
-                                template.iconComponent: Rectangle
+                                template.iconComponent: Item
                                 {
+                                    id: _previewFrame
                                     Maui.Theme.colorSet: Maui.Theme.View
                                     Maui.Theme.inherit: false
-                                    clip: true
-                                    color: Maui.Theme.backgroundColor
-                                    radius: Maui.Style.radiusV
+                                    property int previewFrameRadius: 3
+                                    property int previewMaskRadius: 0
+                                    property bool previewDebug: false
 
-                                    ShaderEffectSource
+                                    Rectangle
                                     {
-                                        id: _effect
+                                        id: _previewClip
+                                        anchors.fill: parent
+                                        clip: true
+                                        color: Maui.Theme.backgroundColor
+                                        radius: _previewFrame.previewFrameRadius
+                                        border.width: previewDebug ? 2 : 0
+                                        border.color: previewDebug ? Qt.rgba(0.1, 1.0, 0.2, 0.95) : "transparent"
 
-                                        anchors.centerIn: parent
-
-                                        readonly property double m_scale: Math.min(parent.height/sourceItem.height, parent.width/sourceItem.width)
-
-                                        height: sourceItem.height * m_scale
-                                        width: sourceItem.width * m_scale
-
-                                        hideSource: false
-                                        live: false
-                                        smooth: true
-
-                                        textureSize: Qt.size(width,height)
-                                        sourceItem: _listView.contentModel.get(index)
-                                        layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software && Maui.Style.enableEffects
-                                        layer.smooth: true
-                                        layer.effect: MultiEffect
+                                        ShaderEffectSource
                                         {
-                                            maskEnabled: true
-                                            maskThresholdMin: 0.5
-                                            maskSpreadAtMin: 1.0
-                                            maskSpreadAtMax: 0.0
-                                            maskThresholdMax: 1.0
-                                            maskSource: ShaderEffectSource
+                                            id: _effect
+
+                                            anchors.centerIn: parent
+
+                                            property real previewScale: 1
+                                            property int previewSourceWidth: 0
+                                            property int previewSourceHeight: 0
+
+                                            onWidthChanged: if (parent.previewDebug) console.log("TabView preview effect width", width, "height", height, "scale", previewScale)
+                                            onHeightChanged: if (parent.previewDebug) console.log("TabView preview effect height", width, "height", height, "scale", previewScale)
+                                            Component.onCompleted:
                                             {
-                                                sourceItem: Rectangle
+                                                if (sourceItem.width > 0 && sourceItem.height > 0)
                                                 {
-                                                    width: _effect.width
-                                                    height: _effect.height
-                                                    radius: Maui.Style.radiusV
+                                                    previewSourceWidth = sourceItem.width
+                                                    previewSourceHeight = sourceItem.height
+                                                    previewScale = Math.min(parent.height/previewSourceHeight, parent.width/previewSourceWidth)
+                                                }
+
+                                                if (parent.previewDebug)
+                                                {
+                                                    console.log("TabView preview effect ready", width, height, "scale", previewScale, "source", sourceItem ? sourceItem.width + "x" + sourceItem.height : "none")
                                                 }
                                             }
+
+                                            height: previewSourceHeight > 0 ? previewSourceHeight * previewScale : sourceItem.height * previewScale
+                                            width: previewSourceWidth > 0 ? previewSourceWidth * previewScale : sourceItem.width * previewScale
+
+                                            hideSource: false
+                                            live: false
+                                            smooth: true
+
+                                            textureSize: Qt.size(width,height)
+                                            sourceItem: _listView.contentModel.get(index)
+                                            layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software && Maui.Style.enableEffects
+                                            layer.smooth: true
+                                            layer.effect: MultiEffect
+                                            {
+                                                maskEnabled: true
+                                                maskThresholdMin: 0.5
+                                                maskSpreadAtMin: 1.0
+                                                maskSpreadAtMax: 0.0
+                                                maskThresholdMax: 1.0
+                                                maskSource: ShaderEffectSource
+                                                {
+                                                    sourceItem: Rectangle
+                                                    {
+                                                        width: _effect.width
+                                                        height: _effect.height
+                                                        radius: _previewFrame.previewMaskRadius
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        Rectangle
+                                        {
+                                            visible: previewDebug
+                                            anchors.fill: _effect
+                                            color: "transparent"
+                                            border.width: 1
+                                            border.color: Qt.rgba(1.0, 0.3, 0.1, 0.9)
                                         }
                                     }
 
@@ -882,9 +921,15 @@ Pane
                                     {
                                         id: _closeButton
                                         visible: _delegate.isCurrentItem || _delegate.hovered || Maui.Handy.isMobile
-                                        anchors.top: parent.top
-                                        anchors.right: parent.right
-                                        //                                         anchors.margins: Maui.Style.space.small
+                                        width: 18
+                                        height: 18
+                                        anchors.top: _previewFrame.top
+                                        anchors.right: _previewFrame.right
+                                        anchors.topMargin: -Maui.Style.space.small
+                                        anchors.rightMargin: -Maui.Style.space.small
+                                        padding: 0
+                                        icon.width: 14
+                                        icon.height: 14
 
                                         onClicked: control.closeTabClicked(index)
 

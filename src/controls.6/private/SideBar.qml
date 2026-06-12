@@ -254,6 +254,7 @@ Pane
     function open()
     {
         _private.position = 1
+        opened()
     }
 
     /**
@@ -262,9 +263,11 @@ Pane
     function close(cb)
     {
         _private.position = 0
-        
+
         if(cb)
             cb()
+
+        closed()
     }
 
     /**

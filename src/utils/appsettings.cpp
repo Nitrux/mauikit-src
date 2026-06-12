@@ -76,6 +76,8 @@ void AppSettings::save(const QString &key, const QVariant &value, const QString 
     m_settings->beginGroup(group);
     m_settings->setValue(key, value);
     m_settings->endGroup();
+    m_settings->sync();
+
     Q_EMIT this->settingChanged(url(), key, value, group);
 }
 

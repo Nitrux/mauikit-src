@@ -128,7 +128,6 @@ void WindowBlur::updateBlur()
 
     if(KWindowSystem::isPlatformWayland())
     {
-        qDebug() << "SETTING BLURRED WINDOW BG WAYLAND KDE;" << m_enabled << m_view;
         KWindowEffects::enableBlurBehind(m_view, m_enabled, m_rect);
         KWindowEffects::enableBackgroundContrast(m_view, m_enabled);
     }

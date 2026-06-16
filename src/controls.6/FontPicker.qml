@@ -119,14 +119,14 @@ Control
                 }
             }
         }
-        
+
         Maui.FlexSectionItem
         {
             visible: control.showStyle
             label1.text: i18n("Style")
             label2.text: i18n("Font style.")
             wide: control.width > 600
-            
+
             ComboBox
             {
                 Layout.fillWidth: true
@@ -140,7 +140,7 @@ Control
                 }
             }
         }
-        
+
         Maui.FlexSectionItem
         {
             label1.text: i18n("Size")
@@ -152,7 +152,7 @@ Control
                 Layout.fillWidth: true
                 model: _model.sizes
                 Component.onCompleted: currentIndex = find(control.mfont.pointSize, Qt.MatchExactly)
-               Maui.Controls.iconName: "font-size-down"
+                Maui.Controls.iconName: "font-size-down"
                 onActivated:
                 {
                     control.mfont.pointSize = currentText

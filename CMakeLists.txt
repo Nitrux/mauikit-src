@@ -72,6 +72,8 @@ find_package(Qt${QT_MAJOR_VERSION} ${REQUIRED_QT_VERSION} REQUIRED COMPONENTS
     Qml
     Quick
     QuickControls2
+    WaylandClient
+    WaylandClientPrivate
     Svg
     Widgets)
 
@@ -79,6 +81,18 @@ find_package(KF${KF_MAJOR_VERSION} ${REQUIRED_KF_VERSION} REQUIRED COMPONENTS
     I18n
     CoreAddons
     Notifications)
+
+find_package(PkgConfig REQUIRED)
+find_package(WaylandScanner REQUIRED)
+pkg_check_modules(wayland REQUIRED IMPORTED_TARGET wayland-client)
+
+if(NOT TARGET Wayland::Scanner)
+    message(FATAL_ERROR "Wayland::Scanner target not found. You might be missing the WaylandScanner CMake package.")
+endif()
+
+if(NOT TARGET Qt6::qtwaylandscanner)
+    message(FATAL_ERROR "qtwaylandscanner executable not found. Most likely there is an issue with your Qt installation.")
+endif()
 
 find_package(MauiMan${MAUI_MAJOR_VERSION} ${MAUIKIT_VERSION} REQUIRED)
 set_package_properties(MauiMan${MAUI_MAJOR_VERSION} PROPERTIES

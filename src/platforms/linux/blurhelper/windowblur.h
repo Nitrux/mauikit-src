@@ -6,7 +6,7 @@
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * any later version.
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,13 +19,17 @@
 
 #pragma once
 
-#include <QApplication>
-#include <QObject>
+#include <memory>
+
+#include <QRect>
+#include <QRegion>
 #include <QQmlEngine>
 #include <QQmlParserStatus>
-#include <QRect>
+#include <QObject>
 #include <QWindow>
-#include <QVector>
+
+namespace QtWaylandClient { class QWaylandWindow; }
+class BackgroundEffectSurface;
 
 class WindowBlur : public QObject, public QQmlParserStatus
 {
@@ -59,9 +63,13 @@ public:
 
 private Q_SLOTS:
     void onViewVisibleChanged(bool);
+    void onWaylandSurfaceCreated();
+    void onWaylandSurfaceDestroyed();
 
 private:
     void updateBlur();
+    void updateWaylandWindow();
+    static QRegion roundedBlurRegion(const QRect &rect, qreal radius);
 
 Q_SIGNALS:
     void viewChanged();
@@ -70,8 +78,10 @@ Q_SIGNALS:
     void geometryChanged();
 
 private:
-    QWindow *m_view;
+    QWindow *m_view = nullptr;
+    QtWaylandClient::QWaylandWindow *m_waylandWindow = nullptr;
     QRect m_rect;
-    bool m_enabled;
-    qreal m_windowRadius;
+    bool m_enabled = false;
+    qreal m_windowRadius = 0.0;
+    std::unique_ptr<BackgroundEffectSurface> m_backgroundEffectSurface;
 };

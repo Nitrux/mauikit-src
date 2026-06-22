@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="ext_background_effect_v1">
+  <copyright>
+    Copyright 2024 The Quickshell authors.
+    SPDX-License-Identifier: MIT
+  </copyright>
+
+  <description summary="background effects for surfaces">
+    This protocol lets clients attach blur regions to their wl_surfaces.
+  </description>
+
+  <interface name="ext_background_effect_manager_v1" version="1">
+    <description summary="manager for background effect objects">
+      This interface allows a client to create background effect objects for a given surface.
+    </description>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy the background effect manager"/>
+    </request>
+
+    <request name="get_background_effect">
+      <description summary="create a background effect object for a surface"/>
+      <arg name="id" type="new_id" interface="ext_background_effect_surface_v1"/>
+      <arg name="surface" type="object" interface="wl_surface"/>
+    </request>
+
+    <event name="capabilities">
+      <description summary="report compositor capabilities"/>
+      <arg name="capabilities" type="uint" enum="capability"/>
+    </event>
+
+    <enum name="capability">
+      <entry name="blur" value="1" summary="surface blur is supported"/>
+    </enum>
+  </interface>
+
+  <interface name="ext_background_effect_surface_v1" version="1">
+    <description summary="background effect surface">
+      This interface controls background effects for a surface.
+    </description>
+
+    <request name="set_blur_region">
+      <description summary="set the blur region for the surface">
+        Sets the region that should blur the content behind the surface.
+      </description>
+      <arg name="region" type="object" interface="wl_region" allow-null="true"/>
+    </request>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy the background effect surface"/>
+    </request>
+  </interface>
+</protocol>

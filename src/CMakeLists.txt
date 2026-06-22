@@ -157,8 +157,92 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/platforms/linux/shadowhelper
     ${CMAKE_CURRENT_BINARY_DIR}/platforms/linux/shadowhelper)
 
+function(wl_proto target name dir)
+    set(PROTO_BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/wl-proto/${name})
+    file(MAKE_DIRECTORY ${PROTO_BUILD_PATH})
+
+    set(WS_CLIENT_HEADER "${PROTO_BUILD_PATH}/wayland-${name}-client-protocol.h")
+    set(WS_CLIENT_CODE "${PROTO_BUILD_PATH}/wayland-${name}.c")
+    set(QWS_CLIENT_HEADER "${PROTO_BUILD_PATH}/qwayland-${name}.h")
+    set(QWS_CLIENT_CODE "${PROTO_BUILD_PATH}/qwayland-${name}.cpp")
+    set(PATH "${dir}/${name}.xml")
+    set(QWAYLAND_SCAN_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/wl-proto-generate.cmake")
+
+    file(WRITE "${QWAYLAND_SCAN_SCRIPT}" [[
+if(NOT DEFINED QTWAYLANDSCANNER)
+    message(FATAL_ERROR "QTWAYLANDSCANNER is not defined")
+endif()
+if(NOT DEFINED INPUT)
+    message(FATAL_ERROR "INPUT is not defined")
+endif()
+if(NOT DEFINED OUTPUT)
+    message(FATAL_ERROR "OUTPUT is not defined")
+endif()
+if(NOT DEFINED MODE)
+    message(FATAL_ERROR "MODE is not defined")
+endif()
+
+get_filename_component(_output_dir "${OUTPUT}" DIRECTORY)
+file(MAKE_DIRECTORY "${_output_dir}")
+execute_process(
+    COMMAND "${QTWAYLANDSCANNER}" "${MODE}" "${INPUT}"
+    OUTPUT_FILE "${OUTPUT}"
+    RESULT_VARIABLE _result
+)
+if(NOT _result EQUAL 0)
+    message(FATAL_ERROR "qtwaylandscanner failed for ${OUTPUT} with code ${_result}")
+endif()
+]])
+
+    add_custom_command(
+        OUTPUT "${WS_CLIENT_HEADER}"
+        COMMAND Wayland::Scanner client-header "${PATH}" "${WS_CLIENT_HEADER}"
+        DEPENDS Wayland::Scanner "${PATH}"
+    )
+
+    add_custom_command(
+        OUTPUT "${WS_CLIENT_CODE}"
+        COMMAND Wayland::Scanner private-code "${PATH}" "${WS_CLIENT_CODE}"
+        DEPENDS Wayland::Scanner "${PATH}"
+    )
+
+    add_custom_command(
+        OUTPUT "${QWS_CLIENT_HEADER}"
+        COMMAND ${CMAKE_COMMAND}
+                -DQTWAYLANDSCANNER=$<TARGET_FILE:Qt6::qtwaylandscanner>
+                -DINPUT=${PATH}
+                -DOUTPUT=${QWS_CLIENT_HEADER}
+                -DMODE=client-header
+                -P ${QWAYLAND_SCAN_SCRIPT}
+        DEPENDS Qt6::qtwaylandscanner "${PATH}" ${QWAYLAND_SCAN_SCRIPT}
+    )
+
+    add_custom_command(
+        OUTPUT "${QWS_CLIENT_CODE}"
+        COMMAND ${CMAKE_COMMAND}
+                -DQTWAYLANDSCANNER=$<TARGET_FILE:Qt6::qtwaylandscanner>
+                -DINPUT=${PATH}
+                -DOUTPUT=${QWS_CLIENT_CODE}
+                -DMODE=client-code
+                -P ${QWAYLAND_SCAN_SCRIPT}
+        DEPENDS Qt6::qtwaylandscanner "${PATH}" ${QWAYLAND_SCAN_SCRIPT}
+    )
+
+    add_library(wl-proto-${name}-wl STATIC ${WS_CLIENT_HEADER} ${WS_CLIENT_CODE})
+    add_library(${target} STATIC ${QWS_CLIENT_HEADER} ${QWS_CLIENT_CODE})
+
+    set_target_properties(wl-proto-${name}-wl ${target} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+    target_include_directories(${target} INTERFACE ${PROTO_BUILD_PATH})
+    target_link_libraries(${target} wl-proto-${name}-wl Qt6::WaylandClient Qt6::WaylandClientPrivate PkgConfig::wayland)
+    target_link_libraries(wl-proto-${name}-wl PUBLIC PkgConfig::wayland)
+    target_compile_options(wl-proto-${name}-wl PRIVATE ${wayland_CFLAGS})
+endfunction()
+
 set(mauikit_PLATFORM_HDRS
     platforms/linux/mauilinux.h)
+
+wl_proto(wlp-background-effect ext-background-effect-v1 ${CMAKE_CURRENT_SOURCE_DIR}/platforms/linux/blurhelper)
 
 target_sources(MauiKit${MAUI_MAJOR_VERSION}
 
@@ -310,7 +394,10 @@ target_include_directories(MauiKit${MAUI_MAJOR_VERSION} PRIVATE platforms/linux)
 
 target_link_libraries(MauiKit${MAUI_MAJOR_VERSION}
     PRIVATE
-    KF${KF_MAJOR_VERSION}::WindowSystem)
+    KF${KF_MAJOR_VERSION}::WindowSystem
+    Qt${QT_MAJOR_VERSION}::WaylandClient
+    Qt${QT_MAJOR_VERSION}::WaylandClientPrivate
+    wlp-background-effect)
 
 target_link_libraries(MauiKit${MAUI_MAJOR_VERSION}
     PUBLIC

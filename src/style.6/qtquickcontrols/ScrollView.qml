@@ -52,8 +52,8 @@ T.ScrollView
     clip: false
 
     padding: 0
-    rightPadding: padding + (Maui.Style.scrollBarPolicy === Maui.Style.AutoHide ? 0 : ScrollBar.vertical.width)
-    leftPadding: padding
+    rightPadding: control.locale.textDirection === Qt.RightToLeft ? padding : padding + (Maui.Style.scrollBarPolicy === Maui.Style.AutoHide ? 0 : ScrollBar.vertical.width)
+    leftPadding: control.locale.textDirection === Qt.RightToLeft ? padding + (Maui.Style.scrollBarPolicy === Maui.Style.AutoHide ? 0 : ScrollBar.vertical.width) : padding
     topPadding: padding
     bottomPadding: padding + (Maui.Style.scrollBarPolicy === Maui.Style.AutoHide ? 0 :ScrollBar.horizontal.height)
     
@@ -68,7 +68,7 @@ T.ScrollView
     {
         parent: control
         width: visible ? implicitWidth : 0
-        x: control.mirrored ? 0 : control.width - width - 2
+        x: control.locale.textDirection === Qt.RightToLeft ? 0 : control.width - width - 2
         y: control.topPadding
         height: control.availableHeight
         active: control.ScrollBar.vertical.active

@@ -334,7 +334,7 @@ Control
             hoverEnabled: true
             
             width: Math.min(400, parent.width)
-            height: Math.min( _listView.implicitHeight + topPadding + bottomPadding, 500)
+            height: Math.min(_listView.contentHeight + _listView.topPadding + _listView.bottomPadding, 500)
             
             anchors.bottom: parent.bottom
             anchors.horizontalCenter: parent.horizontalCenter

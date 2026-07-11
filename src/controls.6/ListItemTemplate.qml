@@ -216,9 +216,9 @@ Item
 
           /**
            * @see IconItem::isMask
-           * By default this is set to evaluate `true` for icons equal or smaller in size then 16 pixels.
+           * By default this is set to evaluate `true` for icons smaller than 24 pixels.
            */
-          property bool isMask : iconSizeHint <= Maui.Style.iconSizes.medium
+          property bool isMask : iconSizeHint < 24
 
           /**
            * @brief Whether the control should be styled as being hovered by a cursor.

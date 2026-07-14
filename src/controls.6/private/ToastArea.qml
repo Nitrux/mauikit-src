@@ -332,10 +332,19 @@ Control
             id: _container
             clip: false
             hoverEnabled: true
-            
+
+            property int toastHeight: 120
+            readonly property int maxToastHeight: 500
+
+            function updateToastHeight()
+            {
+                const calculatedHeight = _listView.contentHeight + _listView.topPadding + _listView.bottomPadding
+                toastHeight = Math.min(maxToastHeight, Math.max(120, calculatedHeight))
+            }
+
             width: Math.min(400, parent.width)
-            height: Math.min(_listView.contentHeight + _listView.topPadding + _listView.bottomPadding, 500)
-            
+            height: toastHeight
+
             anchors.bottom: parent.bottom
             anchors.horizontalCenter: parent.horizontalCenter
 
@@ -352,6 +361,11 @@ Control
                 snapMode: ListView.SnapOneItem
 
                 spacing: Maui.Style.space.medium
+
+                Component.onCompleted: _container.updateToastHeight()
+                onContentHeightChanged: _container.updateToastHeight()
+                onTopPaddingChanged: _container.updateToastHeight()
+                onBottomPaddingChanged: _container.updateToastHeight()
 
                 Keys.enabled: true
                 Keys.forwardTo: currentItem

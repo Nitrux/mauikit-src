@@ -271,7 +271,6 @@ Control
                              //            {
                              //                drag.target = null
                              //            }
-                             console.log("DROPPING DRAG", _mouseArea.pressAndHoldIgnored)
 
                              if(_mouseArea.pressAndHoldIgnored)
                              {

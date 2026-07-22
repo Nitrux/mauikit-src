@@ -67,8 +67,12 @@ Maui.PopupPage
      * @brief The current font object selected.
      * @property font FontPickerDialog::mfont
      */
-    property alias mfont : _picker.mfont   
-    
+    property alias mfont : _picker.mfont
+
+    /**
+     *  Whether the font style combobox should be shown in the embedded picker.
+     */
+    property bool showStyle: true
     /**
      * @brief An alias to expose the font picker model and its properties.
      * @see FontModel
@@ -88,6 +92,7 @@ Maui.PopupPage
     {
         id: _picker
         Layout.fillWidth: true
+        showStyle: control.showStyle
     }
     
     actions: [        

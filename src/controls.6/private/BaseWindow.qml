@@ -272,12 +272,12 @@ ApplicationWindow
          * @param body the message body of the notification
          * @param actions a list of possible callback actions, this is represented as a button
          **/
-    function notify(icon, title, body, actions)
+    function notify(icon, title, body, actions, playSound = true)
     {
         if(!_toastAreaLoader.item)
         {
             _toastAreaLoader.setSource("ToastArea.qml")
         }
-        _toastAreaLoader.item.add(icon, title, body, actions)
+        _toastAreaLoader.item.add(icon, title, body, actions, playSound)
     }
 }

@@ -42,16 +42,11 @@ Control
     
     property bool autoClose :  Window.window.active
         
-    SoundEffect
+    Loader
     {
-        id: playSound
-        source: "qrc:/assets/notification_simple-01.wav"
-    }
-    
-    SoundEffect
-    {
-        id: _dismissSound
-        source: "qrc:/assets/notification_simple-02.wav"
+        id: _soundEffectLoader
+        active: false
+        sourceComponent: SoundEffect {}
     }
     
     Keys.enabled: true
@@ -355,6 +350,8 @@ Control
             {
                 id: _listView
 
+                implicitHeight: 0
+
                 property bool expanded : true
                 clip: false
                 orientation: ListView.Vertical
@@ -432,7 +429,14 @@ Control
         return []
     }
 
-    function add(icon, title, body, actions = [])
+    function playSound(source)
+    {
+        _soundEffectLoader.active = true
+        _soundEffectLoader.item.source = source
+        _soundEffectLoader.item.play()
+    }
+
+    function add(icon, title, body, actions = [], soundEnabled = true)
     {
         const normalizedActions = normalizeActions(actions)
         const properties = ({
@@ -443,7 +447,8 @@ Control
 
         const object = _toastComponent.createObject(_listView.flickable, properties);
         _container.insertItem(0, object)
-        playSound.play()
+        if (soundEnabled)
+            playSound("qrc:/assets/notification_simple-01.wav")
         control.forceActiveFocus()
     }
 
@@ -461,7 +466,8 @@ Control
             _container.removeItem(j)
         }
 
-        _dismissSound.play()
+        if (_soundEffectLoader.active)
+            playSound("qrc:/assets/notification_simple-02.wav")
     }
 
     function remove(index)

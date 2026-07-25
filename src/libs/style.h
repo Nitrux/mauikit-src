@@ -11,8 +11,6 @@
 namespace MauiMan
 {
 class ThemeManager;
-class BackgroundManager;
-class AccessibilityManager;
 }
 
 /**
@@ -207,7 +205,7 @@ class Style : public QObject
     /**
      * The source for picking up the application color palette when the style type is set to Style.Adaptive.
      * The source can be an image URL, and QQC2 Image, or a QQC2 Item, or even an icon name.
-     * By default the source for this is set to the MauiMan wallpaper source preference.
+     * No source is selected by default; applications can provide one explicitly.
      */
     Q_PROPERTY(QVariant adaptiveColorSchemeSource READ adaptiveColorSchemeSource WRITE setAdaptiveColorSchemeSource NOTIFY adaptiveColorSchemeSourceChanged RESET unsetAdaptiveColorSchemeSource)
 
@@ -247,7 +245,7 @@ class Style : public QObject
     
     /**
      * Whether the user desires for the application to play sounds or not.
-     * @note This property is read-only. It can only be modified from the MauiMan global preferences.
+     * @note This property is read-only and enabled by default.
      */
     Q_PROPERTY(bool playSounds READ playSounds NOTIFY playSoundsChanged FINAL)
 
@@ -406,8 +404,6 @@ private:
     bool m_styleType_blocked = false;
 
     MauiMan::ThemeManager *m_themeSettings;
-    MauiMan::BackgroundManager *m_backgroundSettings;
-    MauiMan::AccessibilityManager *m_accessibilitySettings;
     
     bool m_enableEffects = true;
     bool m_translucencyAvailable = false;
@@ -444,4 +440,3 @@ Q_SIGNALS:
 };
 
 QML_DECLARE_TYPEINFO(Style, QML_HAS_ATTACHED_PROPERTIES)
-

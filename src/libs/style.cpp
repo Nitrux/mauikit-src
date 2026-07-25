@@ -10,9 +10,8 @@
 #include <QWidget>
 #include <QMainWindow>
 #include <QToolBar>
+#include <MauiMan4/mauimanutils.h>
 #include <MauiMan4/thememanager.h>
-#include <MauiMan4/backgroundmanager.h>
-#include <MauiMan4/accessibilitymanager.h>
 
 Q_GLOBAL_STATIC(Style, styleInstance)
 
@@ -47,8 +46,6 @@ Style::Style(QObject *parent) : QObject(parent)
     ,m_units(new Units(this))
     ,m_accentColor(QColor("#26c6da"))
     ,m_themeSettings( new MauiMan::ThemeManager(this))
-    ,m_backgroundSettings( new MauiMan::BackgroundManager(this))
-    ,m_accessibilitySettings( new MauiMan::AccessibilityManager(this))
 {
     qGuiApp->installEventFilter(this);
 
@@ -126,24 +123,12 @@ Style::Style(QObject *parent) : QObject(parent)
                 Q_EMIT this->enableEffectsChanged(m_enableEffects);
             });
     
-    connect(m_backgroundSettings, &MauiMan::BackgroundManager::wallpaperSourceChanged, [this](QString source)
-            {
-                m_adaptiveColorSchemeSource = QUrl::fromUserInput(source).toLocalFile();
-                Q_EMIT this->adaptiveColorSchemeSourceChanged(m_adaptiveColorSchemeSource);
-            });
-    
     connect(m_themeSettings, &MauiMan::ThemeManager::enableEffectsChanged, [this](bool value)
             {
                 m_enableEffects = value;
                 Q_EMIT this->enableEffectsChanged(m_enableEffects);
             });
     
-    connect(m_accessibilitySettings, &MauiMan::AccessibilityManager::scrollBarPolicyChanged, [this](uint state)
-            {
-                qDebug() << "SCROLBAR POLICY CHANGED" << state;
-                Q_EMIT scrollBarPolicyChanged(state);
-            });
-
     if(MauiManUtils::isMauiSession())
     {
         connect(m_themeSettings, &MauiMan::ThemeManager::iconThemeChanged, [this](QString name)
@@ -214,7 +199,6 @@ Style::Style(QObject *parent) : QObject(parent)
 
     m_styleType = static_cast<Style::StyleType>(styleType);
 
-    m_adaptiveColorSchemeSource = QUrl::fromUserInput(m_backgroundSettings->wallpaperSource()).toLocalFile();
     m_enableEffects = m_themeSettings->enableEffects();
 }
 
@@ -392,7 +376,7 @@ void Style::setAdaptiveColorSchemeSource(const QVariant& source)
 void Style::unsetAdaptiveColorSchemeSource()
 {
     m_adaptiveColorSchemeSource_blocked = false;
-    m_adaptiveColorSchemeSource = QUrl::fromUserInput(m_backgroundSettings->wallpaperSource()).toLocalFile();
+    m_adaptiveColorSchemeSource = QVariant();
     Q_EMIT adaptiveColorSchemeSourceChanged(m_adaptiveColorSchemeSource);
 }
 
@@ -489,13 +473,12 @@ bool Style::menusHaveIcons() const
 
 uint Style::scrollBarPolicy() const
 {
-    //    return m_accessibilitySettings->scrollBarPolicy();
     return 1;
 }
 
 bool Style::playSounds() const
 {
-    return m_accessibilitySettings->playSounds();
+    return true;
 }
 
 bool Style::eventFilter(QObject *watched, QEvent *event)
@@ -528,4 +511,3 @@ bool Style::eventFilter(QObject *watched, QEvent *event)
 
     return QObject::eventFilter(watched, event);
 }
-

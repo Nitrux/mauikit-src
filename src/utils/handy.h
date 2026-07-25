@@ -26,7 +26,6 @@
 namespace MauiMan
 {
     class FormFactorManager;
-    class AccessibilityManager;
 }
 
 /**
@@ -97,8 +96,9 @@ class Handy : public QObject
     Q_PROPERTY(bool isIOS READ isIOS CONSTANT FINAL)
 
     /**
-     * Whether the system preference is to open/trigger items with a single click
-     * @note This preference is taken from MauiMan global preference. 
+     * Whether items should be opened or triggered with a single click.
+     * The default follows the platform style hint; mobile mode always uses
+     * single-click activation.
      */
     Q_PROPERTY(bool singleClick READ singleClick WRITE setSingleClick RESET resetSingleClick NOTIFY singleClickChanged)
     
@@ -171,15 +171,12 @@ protected:
 private:    
 
     MauiMan::FormFactorManager *m_formFactor;
-    MauiMan::AccessibilityManager *m_accessibility;
     
     FFactor m_ffactor = FFactor::Desktop;
     bool m_isTouch = false;
     bool m_singleClick = true;
     bool m_mobile = 1;
     bool m_hasTransientTouchInput = 1;
-
-    bool m_singleClick_blocked = false;
 
 public Q_SLOTS:
     
@@ -302,4 +299,3 @@ Q_SIGNALS:
     void isTouchChanged();
 };
 QML_DECLARE_TYPEINFO(Handy, QML_HAS_ATTACHED_PROPERTIES)
-

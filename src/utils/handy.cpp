@@ -27,6 +27,7 @@
 #include <QMimeData>
 #include <QOperatingSystemVersion>
 #include <QStandardPaths>
+#include <QStyleHints>
 #include <QWindow>
 #include <QMouseEvent>
 #include <QRegularExpression>
@@ -42,7 +43,6 @@
 #endif
 
 #include <MauiMan4/formfactormanager.h>
-#include <MauiMan4/accessibilitymanager.h>
 #include <MauiMan4/mauimanutils.h>
 
 Q_GLOBAL_STATIC(Handy, handyInstance)
@@ -50,23 +50,11 @@ Q_GLOBAL_STATIC(Handy, handyInstance)
 Handy::Handy(QObject *parent)
     : QObject(parent)
     ,m_formFactor(new MauiMan::FormFactorManager(this))
-    ,m_accessibility(new MauiMan::AccessibilityManager(this))
     ,m_hasTransientTouchInput(false)
 {
     // QApplication::setAttribute(Qt::AA_SynthesizeTouchForUnhandledMouseEvents, false);
     // QApplication::setAttribute(Qt::AA_SynthesizeMouseForUnhandledTouchEvents, false);
     // QApplication::setAttribute(Qt::AA_SynthesizeMouseForUnhandledTabletEvents, false);
-
-    connect(m_accessibility, &MauiMan::AccessibilityManager::singleClickChanged, [&](bool value)
-            {
-                if(m_singleClick_blocked)
-                    return;
-
-                m_singleClick = value;
-                Q_EMIT singleClickChanged();
-            });
-
-    m_singleClick = m_accessibility->singleClick();
 
     // #ifdef FORMFACTOR_FOUND //TODO check here for Cask desktop enviroment
 
@@ -110,6 +98,8 @@ Handy::Handy(QObject *parent)
         }
 #endif
     }
+
+    m_singleClick = m_mobile || QGuiApplication::styleHints()->singleClickActivation();
 
 #ifdef Q_OS_ANDROID
     m_isTouch = true;
@@ -156,15 +146,13 @@ void Handy::setSingleClick(bool value)
     if( value == m_singleClick)
         return;
 
-    m_singleClick_blocked = true;
     m_singleClick = value;
     Q_EMIT singleClickChanged();
 }
 
 void Handy::resetSingleClick()
 {
-    m_singleClick_blocked = false;
-    m_singleClick = m_accessibility->singleClick();
+    m_singleClick = m_mobile || QGuiApplication::styleHints()->singleClickActivation();
     Q_EMIT singleClickChanged();
 }
 

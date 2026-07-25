@@ -42,7 +42,25 @@ ApplicationWindow
     minimumWidth: Maui.Handy.isMobile ? 0 : Math.min(200, Screen.desktopAvailableWidth)
     
     color: "transparent"
-    flags: Maui.CSD.enabled? (Qt.FramelessWindowHint | (control.isDialog ? Qt.Dialog : Qt.Window) ): ((control.isDialog ? Qt.Dialog : Qt.Window) & ~Qt.FramelessWindowHint)
+
+    // Removing FramelessWindowHint from an existing Wayland window can make
+    // Qt create its fallback decoration. Once a window enters CSD mode, keep
+    // it frameless for the rest of its lifetime; disabling CSD then leaves an
+    // undecorated window instead of adding a second title bar.
+    property bool _useFramelessWindowHint: Maui.CSD.enabled
+
+    flags: _useFramelessWindowHint ? (Qt.FramelessWindowHint | (control.isDialog ? Qt.Dialog : Qt.Window)) : ((control.isDialog ? Qt.Dialog : Qt.Window) & ~Qt.FramelessWindowHint)
+
+    Connections
+    {
+        target: Maui.CSD
+
+        function onEnableCSDChanged()
+        {
+            if (Maui.CSD.enabled)
+                control._useFramelessWindowHint = true
+        }
+    }
     
     // Window shadows for CSD
     Loader
@@ -228,6 +246,9 @@ ApplicationWindow
 
     Component.onCompleted:
     {
+        // Keep the initial decoration mode from tracking CSD back to false.
+        control._useFramelessWindowHint = control._useFramelessWindowHint
+
         // Explicitly break the binding as we need this to be set only at startup.
         // if the bindings are active, after this the window is resized by the
         // compositor and then the bindings are reevaluated, then the window

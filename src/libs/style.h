@@ -242,6 +242,12 @@ class Style : public QObject
      * @note This property is read-only. This is picked by from the QPA Qt Theme integration platform, so its default value will depend on the desktop shell being used.
      */
     Q_PROPERTY(uint scrollBarPolicy READ scrollBarPolicy NOTIFY scrollBarPolicyChanged FINAL)
+
+    /**
+     * Whether vertical scroll bars should be positioned on the left side.
+     * The default is `false` and the value is provided by MauiMan.
+     */
+    Q_PROPERTY(bool scrollBarOnLeft READ scrollBarOnLeft NOTIFY scrollBarOnLeftChanged FINAL)
     
     /**
      * Whether the user desires for the application to play sounds or not.
@@ -358,6 +364,7 @@ public:
     bool menusHaveIcons() const;
     bool playSounds() const;
     uint scrollBarPolicy() const;
+    bool scrollBarOnLeft() const;
 
     bool translucencyAvailable() const;
     void setTranslucencyAvailable(const bool &value);
@@ -406,6 +413,7 @@ private:
     MauiMan::ThemeManager *m_themeSettings;
     
     bool m_enableEffects = true;
+    bool m_scrollBarOnLeft = false;
     bool m_translucencyAvailable = false;
 
     QString m_currentIconTheme;
@@ -435,6 +443,7 @@ Q_SIGNALS:
     void currentIconThemeChanged(QString currentIconTheme);
     void defaultSpacingChanged();
     void scrollBarPolicyChanged(uint);
+    void scrollBarOnLeftChanged(bool);
     void playSoundsChanged(bool);
     void translucencyAvailableChanged(bool translucencyAvailable);
 };

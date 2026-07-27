@@ -129,6 +129,12 @@ Style::Style(QObject *parent) : QObject(parent)
                 Q_EMIT this->enableEffectsChanged(m_enableEffects);
             });
     
+    connect(m_themeSettings, &MauiMan::ThemeManager::scrollBarOnLeftChanged, [this](bool value)
+            {
+                m_scrollBarOnLeft = value;
+                Q_EMIT this->scrollBarOnLeftChanged(m_scrollBarOnLeft);
+            });
+
     if(MauiManUtils::isMauiSession())
     {
         connect(m_themeSettings, &MauiMan::ThemeManager::iconThemeChanged, [this](QString name)
@@ -158,6 +164,7 @@ Style::Style(QObject *parent) : QObject(parent)
     m_contentMargins = m_themeSettings->marginSize();
     m_defaultPadding = m_themeSettings->paddingSize();
     m_defaultSpacing = m_themeSettings->spacingSize();
+    m_scrollBarOnLeft = m_themeSettings->scrollBarOnLeft();
 
     m_currentIconTheme = QIcon::themeName();
 
@@ -474,6 +481,11 @@ bool Style::menusHaveIcons() const
 uint Style::scrollBarPolicy() const
 {
     return 1;
+}
+
+bool Style::scrollBarOnLeft() const
+{
+    return m_scrollBarOnLeft;
 }
 
 bool Style::playSounds() const

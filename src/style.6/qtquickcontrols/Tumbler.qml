@@ -100,7 +100,7 @@ T.Tumbler
             
             acceptedButtons: Qt.NoButton
             
-            onWheel:
+            onWheel: (wheel) =>
             {
                 var delta = wheel.angleDelta.y || wheel.angleDelta.x
                 wheelDelta += delta;

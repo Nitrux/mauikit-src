@@ -80,7 +80,7 @@ Handy::Handy(QObject *parent)
 
     m_ffactor = static_cast<FFactor>(m_formFactor->preferredMode());
 
-    if(MauiManUtils::isMauiSession())
+    if(MauiManUtils::instance()->serverRunning())
     {
         m_mobile = m_ffactor == FFactor::Phone || m_ffactor == FFactor::Tablet;
     }

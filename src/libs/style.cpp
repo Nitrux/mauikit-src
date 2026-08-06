@@ -135,7 +135,7 @@ Style::Style(QObject *parent) : QObject(parent)
                 Q_EMIT this->scrollBarOnLeftChanged(m_scrollBarOnLeft);
             });
 
-    if(MauiManUtils::isMauiSession())
+    if(MauiManUtils::instance()->serverRunning())
     {
         connect(m_themeSettings, &MauiMan::ThemeManager::iconThemeChanged, [this](QString name)
                 {
@@ -172,7 +172,7 @@ Style::Style(QObject *parent) : QObject(parent)
 
            //For Maui Session we want to use MauiMan
            //Hold this back until a stable maui session is released
-           // if(!MauiManUtils::isMauiSession())
+           // if(!MauiManUtils::instance()->serverRunning())
            // {
            //     switch(QGuiApplication::styleHints()->colorScheme())
            //     {

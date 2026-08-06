@@ -187,7 +187,7 @@ T.ComboBox
         y: finalY
         x: control.responsive ? Math.round(control.parentWindow.width/2 - width/2) : 0
         
-        implicitWidth:  Math.min(control.parentWindow.width, Math.max(preferredWidth, implicitContentWidth + leftPadding + rightPadding ))
+        implicitWidth: Math.min(control.parentWindow.width, Math.max(preferredWidth, control.width))
         
         implicitHeight: Math.min(implicitContentHeight + topPadding + bottomPadding, (control.responsive ? control.parentWindow.height *0.7 : control.parentWindow.height))
         
@@ -246,17 +246,11 @@ T.ComboBox
             }
         }
         
-        contentItem: Maui.ListBrowser
+        contentItem: ListView
         {
             clip: true
-            
-            implicitWidth: {
-                var maxWidth = 0;
-                for (var i = 0; i < contentItem.children.length; ++i) {
-                    maxWidth = Math.max(maxWidth, contentItem.children[i].implicitWidth);
-                }
-                return Math.min(250, maxWidth);
-            }
+
+            implicitHeight: contentHeight
             
             model: control.delegateModel
             spacing: control.spacing

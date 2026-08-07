@@ -37,6 +37,7 @@ Flickable
     }
     
     readonly property bool zooming: contentHeight != height || contentWidth != width
+    readonly property real maximumZoomFactor: 4
 
     /**
      * @brief This an alias to the actual control painting the image. 
@@ -120,7 +121,8 @@ Flickable
             flick.contentY += pinch.previousCenter.y - pinch.center.y
             
             // resize content
-            flick.resizeContent(Math.max(flick.width*0.7, initialWidth * pinch.scale), Math.max(flick.height*0.7, initialHeight * pinch.scale), pinch.center)
+            flick.resizeContent(Math.min(flick.width * flick.maximumZoomFactor, Math.max(flick.width * 0.7, initialWidth * pinch.scale)),
+                                Math.min(flick.height * flick.maximumZoomFactor, Math.max(flick.height * 0.7, initialHeight * pinch.scale)), pinch.center)
         }
         
         onPinchFinished: {
@@ -233,8 +235,8 @@ Flickable
                             var factor = 1 + wheel.angleDelta.y / 600;
                             zoomAnim.running = false;
                             
-                            zoomAnim.width = Math.min(Math.max(flick.width, zoomAnim.width * factor), flick.width * 4);
-                            zoomAnim.height = Math.min(Math.max(flick.height, zoomAnim.height * factor), flick.height * 4);
+                            zoomAnim.width = Math.min(Math.max(flick.width, zoomAnim.width * factor), flick.width * flick.maximumZoomFactor);
+                            zoomAnim.height = Math.min(Math.max(flick.height, zoomAnim.height * factor), flick.height * flick.maximumZoomFactor);
                             
                             //actual factors, may be less than factor
                             var xFactor = zoomAnim.width / flick.contentWidth;
@@ -245,8 +247,8 @@ Flickable
                             zoomAnim.running = true;
                             
                         } else if (wheel.pixelDelta.y != 0) {
-                            flick.resizeContent(Math.min(Math.max(flick.width, flick.contentWidth + wheel.pixelDelta.y), flick.width * 4),
-                                                Math.min(Math.max(flick.height, flick.contentHeight + wheel.pixelDelta.y), flick.height * 4),
+                            flick.resizeContent(Math.min(Math.max(flick.width, flick.contentWidth + wheel.pixelDelta.y), flick.width * flick.maximumZoomFactor),
+                                                Math.min(Math.max(flick.height, flick.contentHeight + wheel.pixelDelta.y), flick.height * flick.maximumZoomFactor),
                                                 wheel);
                         }
                     } else {

@@ -129,6 +129,8 @@ Item
      * @property int GridBrowser::itemSize
      */
     property alias itemSize: controlView.itemSize
+    readonly property list<real> zoomLevels: [0.75, 1.0, 1.33, 1.7]
+    property real zoomBaseSize: 0
 
     /**
      * @brief The width of the element in the cell. This value will vary even if `adaptContent` is enabled.
@@ -416,6 +418,9 @@ Item
 
     onItemSizeChanged :
     {
+        if(zoomBaseSize <= 0)
+            zoomBaseSize = itemSize
+
         controlView.size_ = itemSize
         control.itemWidth = itemSize
         control.cellWidth = itemWidth
@@ -763,7 +768,45 @@ Item
      */
     function resizeContent(factor)
     {
-        const newSize = control.itemSize * factor
+        if(zoomBaseSize <= 0)
+            zoomBaseSize = control.itemSize
+
+        const targetSize = control.itemSize * factor
+        var level = 0
+        var distance = Number.POSITIVE_INFINITY
+        for(var i = 0; i < control.zoomLevels.length; ++i)
+        {
+            var candidate = zoomBaseSize * control.zoomLevels[i]
+            var candidateDistance = Math.abs(candidate - targetSize)
+            if(candidateDistance < distance)
+            {
+                level = i
+                distance = candidateDistance
+            }
+        }
+
+        var currentLevel = 0
+        var currentDistance = Number.POSITIVE_INFINITY
+        for(var j = 0; j < control.zoomLevels.length; ++j)
+        {
+            var currentCandidate = zoomBaseSize * control.zoomLevels[j]
+            var currentCandidateDistance = Math.abs(currentCandidate - control.itemSize)
+            if(currentCandidateDistance < currentDistance)
+            {
+                currentLevel = j
+                currentDistance = currentCandidateDistance
+            }
+        }
+
+        if(level === currentLevel)
+        {
+            if(factor > 1)
+                level = Math.min(currentLevel + 1, control.zoomLevels.length - 1)
+            else if(factor < 1)
+                level = Math.max(currentLevel - 1, 0)
+        }
+
+        const newSize = zoomBaseSize * control.zoomLevels[level]
 
         if(newSize > control.itemSize)
         {

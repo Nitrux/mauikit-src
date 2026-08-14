@@ -47,6 +47,7 @@ T.MenuItem
     opacity: control.enabled ? 1 : 0.5
 
     Maui.Theme.colorSet: Maui.Theme.Button
+    Maui.Theme.inherit: false
     
     hoverEnabled: !Maui.Handy.isMobile
     
@@ -114,7 +115,7 @@ T.MenuItem
             icon: control.showIcon ? control.icon : null
             text: control.text
             font: control.font
-            color: control.icon.color
+            color: control.setTextColor(control)
         }
         
         Loader

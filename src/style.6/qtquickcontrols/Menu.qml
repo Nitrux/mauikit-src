@@ -157,6 +157,10 @@ T.Menu
         focus: true
         contentWidth: availableWidth
         padding: Maui.Style.contentMargins
+        // Keep menu entries symmetrically padded when the vertical scrollbar
+        // is active. ScrollView otherwise adds its width to the right padding.
+        leftPadding: Maui.Style.contentMargins
+        rightPadding: Maui.Style.contentMargins
 
         implicitHeight: _listView.contentHeight + topPadding + bottomPadding
         Maui.Theme.colorSet: control.Maui.Theme.colorSet

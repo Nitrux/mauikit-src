@@ -12,6 +12,7 @@
 #include <QBitmap>
 #include <QDebug>
 #include <QGuiApplication>
+#include <QHash>
 #include <QIcon>
 #include <QPainter>
 #include <QQuickImageProvider>
@@ -20,6 +21,8 @@
 #include <QSGTexture>
 #include <QScreen>
 #include <QtQml>
+
+#include <cmath>
 
 Q_GLOBAL_STATIC(ImageTexturesCache, s_iconImageCache)
 
@@ -40,6 +43,13 @@ QSize devicePixelSize(const QSize &size, qreal devicePixelRatio)
                  qMax(1, qRound(size.height() * devicePixelRatio)));
 }
 
+bool isMaskSize(const QSize &logicalSize)
+{
+    // Use logical dimensions so 2x icon buffers retain their 16, 22, or 24 px classification.
+    const int nominalSize = qMax(logicalSize.width(), logicalSize.height());
+    return nominalSize == 16 || nominalSize == 22 || nominalSize == 24;
+}
+
 QImage iconToImage(const QQuickItem *item, const QIcon &icon, const QSize &logicalSize, QIcon::Mode mode, QIcon::State state = QIcon::Off)
 {
     const qreal devicePixelRatio = effectiveDevicePixelRatio(item);
@@ -53,7 +63,6 @@ Icon::Icon(QQuickItem *parent)
     , m_changed(false)
     , m_active(false)
     , m_selected(false)
-    , m_isMask(false)
 {
     setFlag(ItemHasContents, true);
     // Using 32 because Icon used to redefine implicitWidth and implicitHeight and hardcode them to 32
@@ -76,21 +85,13 @@ void Icon::setSource(const QVariant &icon)
         return;
     }
     m_source = icon;
-    m_monochromeHeuristics.clear();
+    setIsMask(false);
 
     if (!m_theme) {
         m_theme = static_cast<MauiKit::Platform::PlatformTheme *>(qmlAttachedPropertiesObject<MauiKit::Platform::PlatformTheme>(this, true));
         Q_ASSERT(m_theme);
 
         connect(m_theme, &MauiKit::Platform::PlatformTheme::PlatformTheme::colorsChanged, this, &QQuickItem::polish);
-    }
-
-    if (icon.typeId() == QMetaType::QString) {
-        const QString iconSource = icon.toString();
-        m_isMaskHeuristic = (iconSource.endsWith(QLatin1String("-symbolic")) //
-                             || iconSource.endsWith(QLatin1String("-symbolic-rtl")) //
-                             || iconSource.endsWith(QLatin1String("-symbolic-ltr")));
-        Q_EMIT isMaskChanged();
     }
 
     if (m_networkReply) {
@@ -150,6 +151,11 @@ bool Icon::selected() const
     return m_selected;
 }
 
+bool Icon::isMask() const
+{
+    return m_isMask;
+}
+
 void Icon::setIsMask(bool mask)
 {
     if (m_isMask == mask) {
@@ -157,14 +163,7 @@ void Icon::setIsMask(bool mask)
     }
 
     m_isMask = mask;
-    m_isMaskHeuristic = mask;
-    polish();
     Q_EMIT isMaskChanged();
-}
-
-bool Icon::isMask() const
-{
-    return m_isMask || m_isMaskHeuristic;
 }
 
 void Icon::setColor(const QColor &color)
@@ -288,6 +287,7 @@ void Icon::updatePolish()
     QQuickItem::updatePolish();
 
     if (m_source.isNull()) {
+        setIsMask(false);
         setStatus(Ready);
         updatePaintedGeometry();
         update();
@@ -332,22 +332,24 @@ void Icon::updatePolish()
             m_icon.fill(Qt::transparent);
         }
 
-        const QColor tintColor = //
-            !m_color.isValid() || m_color == Qt::transparent //
-            ? (m_selected ? m_theme->highlightedTextColor() : m_theme->textColor())
-            : m_color;
+        const bool shouldMask = isMaskSize(itemSize)
+            && !m_theme->supportsIconColoring()
+            && guessMonochrome(m_icon);
+        setIsMask(shouldMask);
 
-        // Heuristic monochrome guessing is useful for tiny symbolic-looking icons,
-        // but it can incorrectly recolor full-color medium/large artwork (for
-        // example low-saturation 32px icons). Keep explicit mask handling
-        // at any size, and limit heuristic guessing to small icon sizes.
-        const bool allowMonochromeGuess = itemSize.width() <= 22 && itemSize.height() <= 22;
-        if (tintColor.alpha() > 0 && (isMask() || (allowMonochromeGuess && guessMonochrome(m_icon)))) {
-            QPainter p(&m_icon);
-            p.setCompositionMode(QPainter::CompositionMode_SourceIn);
-            p.fillRect(m_icon.rect(), tintColor);
-            p.end();
+        if (shouldMask) {
+            const QColor tintColor = !m_color.isValid() || m_color == Qt::transparent
+                ? (m_selected ? m_theme->highlightedTextColor() : m_theme->textColor())
+                : m_color;
+
+            if (tintColor.alpha() > 0) {
+                QPainter painter(&m_icon);
+                painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+                painter.fillRect(m_icon.rect(), tintColor);
+            }
         }
+    } else {
+        setIsMask(false);
     }
     m_changed = true;
     updatePaintedGeometry();
@@ -475,16 +477,6 @@ QImage Icon::findIcon(const QSize &size)
             img = iconToImage(this, icon, size, iconMode(), QIcon::On);
 
             setStatus(Ready);
-            /*const QColor tintColor = !m_color.isValid() || m_color == Qt::transparent ? (m_selected ? m_theme->highlightedTextColor() : m_theme->textColor())
-            : m_color;
-
-            if (m_isMask || icon.isMask() || iconSource.endsWith(QLatin1String("-symbolic")) || iconSource.endsWith(QLatin1String("-symbolic-rtl")) ||
-            iconSource.endsWith(QLatin1String("-symbolic-ltr")) || guessMonochrome(img)) { //
-                QPainter p(&img);
-                p.setCompositionMode(QPainter::CompositionMode_SourceIn);
-                p.fillRect(img.rect(), tintColor);
-                p.end();
-            }*/
         }
     }
 
@@ -508,64 +500,42 @@ QIcon::Mode Icon::iconMode() const
     return QIcon::Normal;
 }
 
-bool Icon::guessMonochrome(const QImage &img)
+bool Icon::guessMonochrome(const QImage &image) const
 {
-    // don't try for too big images
-    if (img.width() >= 256 || m_theme->supportsIconColoring()) {
+    if (image.isNull()) {
         return false;
     }
-    // round size to a standard size. hardcode as we can't use KIconLoader
-    int stdSize;
-    if (img.width() <= 16) {
-        stdSize = 16;
-    } else if (img.width() <= 22) {
-        stdSize = 22;
-    } else if (img.width() <= 24) {
-        stdSize = 24;
-    } else if (img.width() <= 32) {
-        stdSize = 32;
-    } else if (img.width() <= 48) {
-        stdSize = 48;
-    } else if (img.width() <= 64) {
-        stdSize = 64;
-    } else {
-        stdSize = 128;
-    }
 
-    auto findIt = m_monochromeHeuristics.constFind(stdSize);
-    if (findIt != m_monochromeHeuristics.constEnd()) {
-        return findIt.value();
-    }
-
-    QHash<int, int> dist;
-    int transparentPixels = 0;
+    QHash<int, int> luminanceDistribution;
+    int opaquePixels = 0;
     int saturatedPixels = 0;
-    for (int x = 0; x < img.width(); x++) {
-        for (int y = 0; y < img.height(); y++) {
-            QColor color = QColor::fromRgba(qUnpremultiply(img.pixel(x, y)));
+
+    for (int x = 0; x < image.width(); ++x) {
+        for (int y = 0; y < image.height(); ++y) {
+            const QColor color = QColor::fromRgba(qUnpremultiply(image.pixel(x, y)));
             if (color.alpha() < 100) {
-                ++transparentPixels;
                 continue;
-            } else if (color.saturation() > 84) {
+            }
+
+            ++opaquePixels;
+            if (color.saturation() > 84) {
                 ++saturatedPixels;
             }
-            dist[qGray(color.rgb())]++;
+            ++luminanceDistribution[qGray(color.rgb())];
         }
     }
 
-    QMultiMap<int, int> reverseDist;
-    auto it = dist.constBegin();
-    qreal entropy = 0;
-    while (it != dist.constEnd()) {
-        reverseDist.insert(it.value(), it.key());
-        qreal probability = qreal(it.value()) / qreal(img.size().width() * img.size().height() - transparentPixels);
-        entropy -= probability * log(probability) / log(255);
-        ++it;
+    if (opaquePixels == 0) {
+        return false;
     }
 
-    // Arbitrarily low values of entropy and colored pixels
-    m_monochromeHeuristics[stdSize] = saturatedPixels <= (img.size().width() * img.size().height() - transparentPixels) * 0.3 && entropy <= 0.3;
-    return m_monochromeHeuristics[stdSize];
+    qreal entropy = 0.0;
+    for (auto it = luminanceDistribution.cbegin(); it != luminanceDistribution.cend(); ++it) {
+        const qreal probability = qreal(it.value()) / qreal(opaquePixels);
+        entropy -= probability * std::log(probability) / std::log(255.0);
+    }
+
+    return saturatedPixels <= opaquePixels * 0.3 && entropy <= 0.3;
 }
 
 QString Icon::fallback() const

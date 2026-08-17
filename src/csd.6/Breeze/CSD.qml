@@ -65,7 +65,6 @@ Control
             {
                 smooth: true
                 source: button.source
-                isMask: false
             }
             
             onClicked: buttonClicked(button.type)

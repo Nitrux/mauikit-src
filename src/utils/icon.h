@@ -115,19 +115,15 @@ class Icon : public QQuickItem
     Q_PROPERTY(bool selected READ selected WRITE setSelected NOTIFY selectedChanged)
 
     /**
-     * Whether this icon will be treated as a mask. When an icon is being used
-     * as a mask, all non-transparent colors are replaced with the color provided in the Icon's
-     * @link Icon::color color @endlink property.
-     *
-     * @see color
+     * Whether this icon is currently being rendered as a monochrome mask.
+     * Masking is determined centrally from the logical icon size and image
+     * content; applications cannot force or disable it.
      */
-    Q_PROPERTY(bool isMask READ isMask WRITE setIsMask NOTIFY isMaskChanged)
+    Q_PROPERTY(bool isMask READ isMask NOTIFY isMaskChanged)
 
     /**
-     * The color to use when drawing this icon when `isMask` is enabled.
-     * If this property is not set or is `Qt::transparent`, the icon will use
-     * the text or the selected text color, depending on if `selected` is set to
-     * true.
+     * The color used when drawing a masked icon. If unset or transparent, the
+     * current text or selected-text color is used.
      */
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
@@ -177,7 +173,6 @@ public:
     void setSelected(bool selected = true);
     bool selected() const;
 
-    void setIsMask(bool mask);
     bool isMask() const;
 
     void setColor(const QColor &color);
@@ -217,7 +212,7 @@ protected:
     void handleFinished(QNetworkReply *reply);
     void handleRedirect(QNetworkReply *reply);
     QIcon::Mode iconMode() const;
-    bool guessMonochrome(const QImage &img);
+    bool guessMonochrome(const QImage &image) const;
     void setStatus(Status status);
     void updatePolish() override;
     void updatePaintedGeometry();
@@ -225,16 +220,15 @@ protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
+    void setIsMask(bool mask);
     MauiKit::Platform::PlatformTheme *m_theme = nullptr;
     QPointer<QNetworkReply> m_networkReply;
-    QHash<int, bool> m_monochromeHeuristics;
     QVariant m_source;
     Status m_status = Null;
     bool m_changed;
     bool m_active;
     bool m_selected;
-    bool m_isMask;
-    bool m_isMaskHeuristic = false;
+    bool m_isMask = false;
     QImage m_loadedImage;
     QColor m_color = Qt::transparent;
     QString m_fallback = QStringLiteral("unknown");

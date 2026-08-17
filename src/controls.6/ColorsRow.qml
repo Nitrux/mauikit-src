@@ -108,7 +108,6 @@ Flow
                         height: Math.round(parent.height * 0.9)
                         width: height
                         opacity: checked || hovered ? 1 : 0
-                        isMask: true
                         
                         source: "qrc:/assets/checkmark.svg"
                         

@@ -36,8 +36,6 @@ Item
             
             opacity: control.checked ? 1 : 0
             
-            isMask: true
-            
             source: "qrc:/assets/checkmark.svg"
             
             Behavior on opacity

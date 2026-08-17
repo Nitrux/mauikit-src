@@ -170,10 +170,10 @@ Item
     property int imageHeight: -1
 
     /**
-           * @see IconItem::isMask
-           * By default this is set to evaluate `true` for icons equal or smaller in size then 16 pixels.
-           */
-    property bool isMask : iconSizeHint <= Maui.Style.iconSizes.small
+     * @brief Whether the loaded icon is currently rendered as a monochrome mask.
+     * This state is computed by MauiKit and cannot be overridden.
+     */
+    readonly property bool isMask: _iconLoader.item && _iconLoader.item.isMask === true
 
     /**
            * @brief Whether the control should be styled as being hovered by a cursor.
@@ -231,7 +231,6 @@ Item
             imageWidth: control.imageWidth
             imageHeight: control.imageHeight
 
-            isMask: control.isMask
             image.autoTransform: control.autoTransform
 
             alignment: control.alignment

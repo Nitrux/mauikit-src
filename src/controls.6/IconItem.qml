@@ -78,7 +78,7 @@ Item
     /**
      * @brief Whether the control should be styled as being highlighted by some external event.
      * By default this is set to `false`.
-     * @note When highlighted a monochromatic icon will take the color fo the accent color.
+     * @note Automatically masked monochrome icons use the highlighted text color.
      */
     property bool highlighted: false
 
@@ -144,9 +144,10 @@ Item
     property int imageHeight : -1
 
     /**
-     * @brief Whether the icon should be masked and tinted with the text color, this is used for monochromatic icons. If you plan to use a colorful icon, consider setting this property to `false`.
+     * @brief Whether the icon is currently being rendered as a monochrome mask.
+     * This is computed centrally from the logical icon size and image content.
      */
-    property alias isMask : icon.isMask
+    readonly property alias isMask: icon.isMask
 
     /**
      * @brief An alias to the QQC2 Image control for displaying the image.
@@ -163,10 +164,9 @@ Item
     readonly property alias icon: icon
 
     /**
-     * @brief The desired color for tinting the monochromatic icons.
-     * By default this is set to check the `isMask` property, and then decide base on the `highlighted` property is use the text color or accent color.
+     * @brief The color used when the icon is rendered as a monochrome mask.
      */
-    property color color : isMask ? (control.highlighted ? Maui.Theme.highlightedTextColor : Maui.Theme.textColor) : "transparent"
+    property color color: control.highlighted ? Maui.Theme.highlightedTextColor : Maui.Theme.textColor
 
     /**
      * @brief The aligment of the image in the container.
@@ -189,7 +189,6 @@ Item
         height: visible ? Math.min(parent.height, control.iconSizeHint) : 0
         width: height
         color: control.color
-        isMask: (height <= Maui.Style.iconSizes.medium)
     }
 
     Image

@@ -132,7 +132,7 @@ T.SpinBox
         
         Maui.Icon
         {
-            source: "value-increase-symbolic"
+            source: "go-up"
             anchors.centerIn: parent
             width: Maui.Style.iconSizes.small
             height: width
@@ -148,7 +148,7 @@ T.SpinBox
         
         Maui.Icon
         {
-            source: "value-decrease-symbolic"
+            source: "go-down"
             anchors.centerIn: parent
             width: Maui.Style.iconSizes.small
             height: width

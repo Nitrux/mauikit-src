@@ -215,10 +215,10 @@ Item
           property Component iconComponent : _iconComponent
 
           /**
-           * @see IconItem::isMask
-           * By default this is set to evaluate `true` for icons smaller than 24 pixels.
+           * @brief Whether the loaded icon is currently rendered as a monochrome mask.
+           * This state is computed by MauiKit and cannot be overridden.
            */
-          property bool isMask : iconSizeHint < 24
+          readonly property bool isMask: _iconLoader.item && _iconLoader.item.isMask === true
 
           /**
            * @brief Whether the control should be styled as being hovered by a cursor.
@@ -251,7 +251,6 @@ Item
                     fillMode: control.fillMode
                     maskRadius: control.maskRadius
 
-                    isMask: control.isMask
                }
           }
 

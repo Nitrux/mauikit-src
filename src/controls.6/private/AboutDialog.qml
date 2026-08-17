@@ -47,7 +47,6 @@ Maui.PopupPage
 
         template.iconSizeHint: Maui.Style.iconSizes.huge
         template.imageSizeHint: template.iconSizeHint
-        template.isMask: false
         template.headerSizeHint: template.iconSizeHint
 
         // spacing: Maui.Style.space.big
@@ -132,7 +131,6 @@ Maui.PopupPage
         visible: Maui.App.about.authors.length > 0
 
         // iconSource: "view-media-artist"
-        template.isMask: true
         template.iconSizeHint: Maui.Style.iconSize
 
         Repeater
@@ -168,7 +166,6 @@ Maui.PopupPage
         label1.text: i18nd("mauikit", "Translators")
         visible: Maui.App.about.translators.length > 0
         // iconSource: "folder-language"
-        template.isMask: true
         template.iconSizeHint: Maui.Style.iconSize
 
         Repeater
@@ -203,7 +200,6 @@ Maui.PopupPage
         label1.text: i18nd("mauikit", "Credits")
         visible: Maui.App.about.credits.length > 0
         // iconSource: "love"
-        template.isMask: true
         template.iconSizeHint: Maui.Style.iconSize
         Repeater
         {
@@ -236,8 +232,6 @@ Maui.PopupPage
     {
         visible: Maui.App.about.licenses.length > 0
         // iconSource: "license"
-
-        template.isMask: true
         template.iconSizeHint: Maui.Style.iconSize
 
         label1.text: i18nd("mauikit", "Licenses")
@@ -257,7 +251,6 @@ Maui.PopupPage
     {
         // iconSource: "code-context"
         visible: Maui.App.about.components.length > 0
-        template.isMask: true
         template.iconSizeHint: Maui.Style.iconSize
 
         label1.text: i18nd("mauikit", "Components")
@@ -306,7 +299,6 @@ Maui.PopupPage
             Layout.alignment: Qt.AlignCenter
             source: "qrc:/assets/mauikit.svg"
             color: Maui.Theme.textColor
-            isMask: true
             implicitHeight: Maui.Style.iconSizes.big
             implicitWidth: implicitHeight
         }
@@ -314,7 +306,6 @@ Maui.PopupPage
         Maui.ListItemTemplate
         {
             Layout.fillWidth: true
-            isMask: true
 
             iconSizeHint: Maui.Style.iconSizes.medium
             //                     headerSizeHint: iconSizeHint + Maui.Style.space.medium

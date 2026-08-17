@@ -81,7 +81,7 @@
      *            anchors.fill: parent
      *            title: "Page"
      *            body: "Page main content."
-     *            emoji: "application-x-addon-symbolic"
+     *            emoji: "plugins"
      *        }
      *    }
      * }

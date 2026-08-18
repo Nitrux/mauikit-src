@@ -425,7 +425,6 @@ Item
 
                         onClicked: (mouse) =>
                                    {
-                                       console.log("Area clicked")
 
                                        control.areaClicked(mouse)
                                        // control.forceActiveFocus()

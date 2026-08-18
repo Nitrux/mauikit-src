@@ -248,7 +248,7 @@ Maui.ItemDelegate
         {
             anchors.fill: parent
             radius: control.radius
-            color:  control.Maui.Theme.backgroundColor
+            color: "transparent"
             border.color: control.Maui.Theme.highlightColor
             visible: parent.containsDrag
         }

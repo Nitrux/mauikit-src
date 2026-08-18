@@ -603,7 +603,6 @@ Item
 
                     onClicked: (mouse) =>
                                {
-                                   console.log("Area clicked")
                                    control.areaClicked(mouse)
                                    control.forceActiveFocus()
 
@@ -631,7 +630,6 @@ Item
 
                     onPositionChanged: (mouse) =>
                                        {
-                                           console.log("Area clicked >>> Moving")
 
                                            if(_mouseArea.pressed && control.enableLassoSelection && selectLayer.visible)
                                            {

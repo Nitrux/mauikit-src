@@ -237,13 +237,9 @@ Maui.ItemDelegate
         height: parent.height
         radius: control.radius
         visible: control.containsDrag
-        color:  control.Maui.Theme.backgroundColor
+        color: "transparent"
         border.color: control.Maui.Theme.highlightColor
 
-        Behavior on color
-        {
-          Maui.ColorTransition{}
-        }
       }
 
       Behavior on color

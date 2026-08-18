@@ -15,7 +15,6 @@ CSDControls::CSDControls(QObject *parent) : QObject (parent)
 {       
     connect(m_themeSettings, &MauiMan::ThemeManager::enableCSDChanged, [this](bool enabled)
     {
-        qDebug() << "CSD ENABLED CHANGED<<<<" << enabled;
         
         getWindowControlsSettings();
     });
@@ -47,8 +46,6 @@ void CSDControls::setStyle()
         m_source = dir.toString()+"/"+ conf.value("Source").toString();
         conf.endGroup ();
     }
-    
-    qDebug() << "CSD QML SOURCXE" << m_source;
     m_rightWindowControls =  QStringList {"I", "A", "X"};
 }
 

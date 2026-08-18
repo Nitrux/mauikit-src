@@ -60,7 +60,6 @@ void MauiModel::setFilter(const QString &filter)
     this->m_filter = filter;
     this->setFilterRegularExpression(this->m_filter);
     Q_EMIT this->filterChanged(this->m_filter);
-    qDebug() << "Setting model filter" << m_filter;
 
 }
 
@@ -83,7 +82,6 @@ void MauiModel::setFilters(const QStringList& filters)
             rx += '|';
         rx += filter;
     }
-    qDebug() << "FILTERS" << filters << m_filters << m_filter << rx << filterCaseSensitivity() << ( filterCaseSensitivity() == Qt::CaseSensitivity::CaseSensitive);
     QRegularExpression reg(rx, filterCaseSensitivity() == Qt::CaseSensitivity::CaseInsensitive ? QRegularExpression::CaseInsensitiveOption : QRegularExpression::NoPatternOption);
 //    reg.setCaseSensitivity(filterCaseSensitivity());
     this->setFilterRegularExpression(reg);
@@ -221,7 +219,6 @@ MauiList *MauiModel::getList() const
 
 void MauiModel::PrivateAbstractListModel::setUpList()
 {
-    qDebug() << "MauiModel::setUpList() model=" << (void*)m_model << "list=" << (void*)m_model->getList();
     beginResetModel();
 
     if (m_model->getList())
@@ -328,7 +325,6 @@ void MauiModel::PrivateAbstractListModel::setUpList()
 
 void MauiModel::setList(MauiList *value)
 {
-    qDebug() << "MauiModel::setList() model=" << (void*)this << "oldList=" << (void*)m_list << "newList=" << (void*)value;
     if(value && value != this->m_list)
     {
         MauiList *oldList = this->m_list;
@@ -338,7 +334,6 @@ void MauiModel::setList(MauiList *value)
         // Disconnect old list before setUpList so stale connections are cleaned up.
         if (oldList && oldList != value)
         {
-            qDebug() << "MauiModel::setList() disconnecting oldList=" << (void*)oldList;
             oldList->disconnect(this->m_model);
         }
 

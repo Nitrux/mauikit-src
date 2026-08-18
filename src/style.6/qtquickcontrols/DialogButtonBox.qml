@@ -40,14 +40,17 @@ T.DialogButtonBox
     {
         focus: true
         Layout.fillWidth: true
+        Layout.preferredWidth: buttonLayout.buttonWidth
     }
 
     contentItem: GridLayout
     {
+        id: buttonLayout
         rowSpacing: control.spacing
         columnSpacing: control.spacing
 
         property bool isWide : control.width > (100 * _repeater.count)
+        readonly property real buttonWidth: columns > 0 ? Math.max(0, (width - ((columns - 1) * columnSpacing)) / columns) : 0
 
         //        visible: control.defaultButtons || control.actions.length
 

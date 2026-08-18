@@ -41,7 +41,6 @@ Platform::Platform(QObject *parent)
 
     connect(qApp, &QCoreApplication::aboutToQuit, this, []()
     {
-        qDebug() << "Lets remove MauiApp singleton instance";
         delete m_instance;
         m_instance = nullptr;
     });

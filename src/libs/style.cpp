@@ -19,7 +19,6 @@ void Style::styleChanged()
 {
     // It should be safe to use qApp->style() unguarded here, because the signal
     // will only have been connected if qApp is a QApplication.
-    qDebug() << "STYLE HAS CHANGED EMITTED";
     
     Q_ASSERT(qobject_cast<QApplication *>(QCoreApplication::instance()));
     
@@ -66,7 +65,6 @@ Style::Style(QObject *parent) : QObject(parent)
                     m_styleType = Style::StyleType::Dark;
                     break;
                 }
-                qDebug() << "Color schem style type changed<<"<< type << m_styleType;
 
                 Q_EMIT styleTypeChanged(m_styleType);
             });
@@ -106,7 +104,6 @@ Style::Style(QObject *parent) : QObject(parent)
 
     connect(m_themeSettings, &MauiMan::ThemeManager::marginSizeChanged, [this](uint size)
             {
-                qDebug() << "ContentMARGINS CHANGED" << size;
                 m_contentMargins = size;
                 Q_EMIT this->contentMarginsChanged();
             });
@@ -139,7 +136,6 @@ Style::Style(QObject *parent) : QObject(parent)
     {
         connect(m_themeSettings, &MauiMan::ThemeManager::iconThemeChanged, [this](QString name)
                 {
-                    qDebug() << "Ask to change the icon theme";
                     m_currentIconTheme = name;
                     Q_EMIT currentIconThemeChanged(m_currentIconTheme);
                 });
@@ -211,7 +207,6 @@ Style::Style(QObject *parent) : QObject(parent)
 
 void Style::setFontSizes()
 {
-    qDebug() << m_defaultFont << m_defaultFont.pointSize();
 
     m_defaultFontSize = m_defaultFont.pointSize () > 0 ? m_defaultFont.pointSize () : m_defaultFont.pixelSize();
 
@@ -516,7 +511,6 @@ bool Style::eventFilter(QObject *watched, QEvent *event)
 
             m_currentIconTheme = QIcon::themeName();
             Q_EMIT currentIconThemeChanged( m_currentIconTheme);
-            qDebug() << "ICON THEME CHANGED" << m_currentIconTheme;
         }
         return QObject::eventFilter(watched, event);
     }

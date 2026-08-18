@@ -132,7 +132,7 @@ T.SpinBox
         
         Maui.Icon
         {
-            source: "go-up"
+            source: "list-add"
             anchors.centerIn: parent
             width: Maui.Style.iconSizes.small
             height: width
@@ -148,7 +148,7 @@ T.SpinBox
         
         Maui.Icon
         {
-            source: "go-down"
+            source: "list-remove"
             anchors.centerIn: parent
             width: Maui.Style.iconSizes.small
             height: width

@@ -183,5 +183,13 @@ void MauiApp::aboutDialog()
 
 int MauiApp::windowsOpened()
 {
-    return QGuiApplication::allWindows().count();
+    int count = 0;
+
+    for (const auto *window : QGuiApplication::topLevelWindows())
+    {
+        if (window && window->isVisible() && !window->transientParent())
+            ++count;
+    }
+
+    return count;
 }

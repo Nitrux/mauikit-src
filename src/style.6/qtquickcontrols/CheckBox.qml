@@ -61,7 +61,7 @@ T.CheckBox
     {
         x: control.text ? (control.mirrored ? control.width - width - control.rightPadding : control.leftPadding) : control.leftPadding + (control.availableWidth - width) / 2
         y: control.topPadding + (control.availableHeight - height) / 2
-        control: control
+        targetControl: control
     }
     
     contentItem: Maui.IconLabel

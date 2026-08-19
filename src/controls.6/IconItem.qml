@@ -166,7 +166,7 @@ Item
     /**
      * @brief The color used when the icon is rendered as a monochrome mask.
      */
-    property color color: control.highlighted ? Maui.Theme.highlightedTextColor : Maui.Theme.textColor
+    property color color: Maui.Theme.textColor
 
     /**
      * @brief The aligment of the image in the container.

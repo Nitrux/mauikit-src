@@ -39,10 +39,10 @@ import org.mauikit.controls as Maui
 
 Maui.CheckBoxItem 
 {   
-    checked: control.checked
-    checkable: control.checkable
-    autoExclusive: control.autoExclusive
-    hovered: control.hovered
+    checked: targetControl.checked
+    checkable: targetControl.checkable
+    autoExclusive: targetControl.autoExclusive
+    hovered: targetControl.hovered
     
-    property Item control    
+    property Item targetControl
 }

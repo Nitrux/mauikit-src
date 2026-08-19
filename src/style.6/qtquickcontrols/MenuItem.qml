@@ -54,9 +54,11 @@ T.MenuItem
     implicitWidth: ListView.view ? ListView.view.width : Math.max(implicitBackgroundWidth + leftInset + rightInset, implicitContentWidth + leftPadding + rightPadding)
     
     width: implicitWidth
-    
+
+    // Menu content is laid out by the ListView in Menu.qml. Keep each
+    // delegate large enough for its content and its optional indicator.
     implicitHeight: Math.floor(Math.max(implicitContentHeight + topPadding + bottomPadding,
-                                        implicitIndicatorHeight + topPadding + bottomPadding) )
+                                        implicitIndicatorHeight + topPadding + bottomPadding))
     
     padding: Maui.Style.defaultPadding
     spacing: Maui.Style.space.small
@@ -77,12 +79,35 @@ T.MenuItem
         sequence: control.action ? control.action.shortcut : ""
     }
     
-    indicator: CheckIndicator
+    indicator: Loader
     {
+        id: _indicatorLoader
         x: control.width - width - control.rightPadding
         y: control.topPadding + (control.availableHeight - height) / 2
         visible: control.checkable
-        control: control
+        sourceComponent: control.autoExclusive ? _radioIndicatorComponent : _checkIndicatorComponent
+        width: item ? item.implicitWidth : Maui.Style.iconSize
+        height: item ? item.implicitHeight : Maui.Style.iconSize
+    }
+
+    Component
+    {
+        id: _checkIndicatorComponent
+
+        CheckIndicator
+        {
+            targetControl: control
+        }
+    }
+
+    Component
+    {
+        id: _radioIndicatorComponent
+
+        RadioIndicator
+        {
+            targetControl: control
+        }
     }
     
     arrow: Maui.Icon
@@ -99,12 +124,14 @@ T.MenuItem
     }
     
     contentItem: RowLayout
-    {   
+    {
+        implicitHeight: Maui.Style.iconSize
         spacing: control.spacing
         Maui.IconLabel
         {
+            id: _menuLabel
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            Layout.alignment: Qt.AlignVCenter
             
             spacing: control.spacing
             

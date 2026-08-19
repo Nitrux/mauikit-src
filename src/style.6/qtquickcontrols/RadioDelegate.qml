@@ -56,7 +56,7 @@ T.RadioDelegate {
         x: controlRoot.mirrored ? controlRoot.leftPadding : controlRoot.width - width - controlRoot.rightPadding
         y: controlRoot.topPadding + (controlRoot.availableHeight - height) / 2
 
-        control: controlRoot
+        targetControl: controlRoot
     }
 
     background: DefaultListItemBackground {}

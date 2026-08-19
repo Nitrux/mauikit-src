@@ -315,11 +315,43 @@ Control
         }
     }
 
+    function contrastTextColor(backgroundColor)
+    {
+        function linear(channel)
+        {
+            return channel <= 0.03928 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4)
+        }
+
+        const luminance = 0.2126 * linear(backgroundColor.r)
+                         + 0.7152 * linear(backgroundColor.g)
+                         + 0.0722 * linear(backgroundColor.b)
+        return luminance > 0.179 ? "#111111" : "#ffffff"
+    }
+
     background: Rectangle
     {
-        color: control.isCurrentItem || control.containsPress ? Maui.Theme.highlightColor : ( control.hovered ? Maui.Theme.hoverColor : "transparent")
+        color: "transparent"
+        border.color: control.isCurrentItem || control.hovered || control.containsPress ? Maui.Theme.highlightColor : "transparent"
+        border.width: control.isCurrentItem || control.hovered || control.containsPress ? 2 : 0
 
         radius: control.radius
+
+        Rectangle
+        {
+            anchors.fill: parent
+            radius: parent.radius
+            color: Maui.Theme.highlightColor
+            opacity: control.containsPress ? 1 : (control.hovered ? 0.25 : 0)
+
+            Behavior on opacity
+            {
+                NumberAnimation
+                {
+                    duration: Maui.Style.enableEffects ? Maui.Style.units.shortDuration : 0
+                    easing.type: Easing.InOutQuad
+                }
+            }
+        }
     }
 }
 

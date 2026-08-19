@@ -227,9 +227,28 @@ Maui.ItemDelegate
 
     background: Rectangle
     {
-      color: (control.isCurrentItem || control.containsPress ? Maui.Theme.highlightColor : ( control.hovered ? Maui.Theme.hoverColor : (control.flat ? "transparent" : Maui.Theme.alternateBackgroundColor)))
+      color: control.flat ? "transparent" : Maui.Theme.alternateBackgroundColor
+      border.color: control.isCurrentItem || control.hovered || control.containsPress ? Maui.Theme.highlightColor : "transparent"
+      border.width: control.isCurrentItem || control.hovered || control.containsPress ? 2 : 0
 
       radius: control.radius
+
+      Rectangle
+      {
+        anchors.fill: parent
+        radius: parent.radius
+        color: Maui.Theme.highlightColor
+        opacity: control.containsPress ? 1 : (control.hovered ? 0.25 : 0)
+
+        Behavior on opacity
+        {
+          NumberAnimation
+          {
+            duration: Maui.Style.enableEffects ? Maui.Style.units.shortDuration : 0
+            easing.type: Easing.InOutQuad
+          }
+        }
+      }
 
       Rectangle
       {
@@ -242,11 +261,6 @@ Maui.ItemDelegate
 
       }
 
-      Behavior on color
-      {
-        enabled: !control.flat
-        Maui.ColorTransition{}
-      }
     }
 
     DropArea
@@ -276,7 +290,7 @@ Maui.ItemDelegate
       Loader
       {
         asynchronous: true
-        active: control.checkable || control.checked
+        active: control.checked
         visible: active
 
         Layout.alignment: Qt.AlignCenter
@@ -294,6 +308,16 @@ Maui.ItemDelegate
 
         sourceComponent: CheckBox
         {
+          indicator: Maui.Icon
+          {
+            source: "emblem-select-remove"
+            width: Maui.Style.iconSizes.small
+            height: width
+          }
+          background: null
+          padding: 0
+          spacing: 0
+
           checkable: control.checkable
           autoExclusive: control.autoExclusive
 
@@ -317,6 +341,8 @@ Maui.ItemDelegate
         spacing: control.spacing
 
         hovered: control.hovered
+        pressed: control.containsPress
+        pressedTextColor: control.contrastTextColor(Maui.Theme.highlightColor)
         isCurrentItem : control.isCurrentItem
         highlighted: control.containsPress
       }

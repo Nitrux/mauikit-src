@@ -39,6 +39,8 @@ import org.mauikit.controls as Maui
 Item
 {
      id: control
+    property bool pressed: false
+    property color pressedTextColor: Maui.Theme.textColor
      focus: false
      focusPolicy: Qt.NoFocus
      implicitHeight: _layout.implicitHeight
@@ -242,7 +244,8 @@ Item
                     iconSource: control.iconSource
                     imageSource: control.imageSource
 
-                    highlighted: control.isCurrentItem || control.highlighted
+                    highlighted: false
+                    color: control.pressed ? control.pressedTextColor : control.Maui.Theme.textColor
                     hovered: control.hovered
 
                     iconSizeHint: control.iconSizeHint
@@ -260,7 +263,7 @@ Item
                anchors.fill: parent
                spacing: Maui.Style.space.small
 
-               readonly property color labelColor: control.isCurrentItem || control.highlighted? Maui.Theme.highlightedTextColor : Maui.Theme.textColor
+               readonly property color labelColor: control.pressed ? control.pressedTextColor : Maui.Theme.textColor
 
                Loader
                {

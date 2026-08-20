@@ -541,7 +541,7 @@ Item
                 opacity: 0.7
 
                 borderColor: control.Maui.Theme.highlightColor
-                borderWidth: 2
+                borderWidth: 1
                 solidBorder: false
 
                 function reset()

@@ -228,8 +228,8 @@ Maui.ItemDelegate
     background: Rectangle
     {
       color: control.flat ? "transparent" : Maui.Theme.alternateBackgroundColor
-      border.color: control.isCurrentItem || control.hovered || control.containsPress ? Maui.Theme.highlightColor : "transparent"
-      border.width: control.isCurrentItem || control.hovered || control.containsPress ? 2 : 0
+      border.color: control.isCurrentItem || control.containsPress ? Maui.Theme.highlightColor : "transparent"
+      border.width: control.isCurrentItem || control.containsPress ? 1 : 0
 
       radius: control.radius
 
@@ -238,7 +238,7 @@ Maui.ItemDelegate
         anchors.fill: parent
         radius: parent.radius
         color: Maui.Theme.highlightColor
-        opacity: control.containsPress ? 1 : (control.hovered ? 0.25 : 0)
+        opacity: control.containsPress ? 1 : (control.isCurrentItem ? 0.25 : (control.hovered ? 0.2 : 0))
 
         Behavior on opacity
         {

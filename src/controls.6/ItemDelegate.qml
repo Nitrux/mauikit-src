@@ -250,10 +250,11 @@ Control
                            if(control.draggable && mouse.source !== Qt.MouseEventSynthesizedByQt)
                            {
                                drag.target = _mouseArea
+                               control.Drag.imageSource = ""
                                control.grabToImage(function(result)
                                {
                                    control.Drag.imageSource = result.url
-                               })
+                               }, Qt.size(Math.ceil(control.width), Math.ceil(control.height)))
                            }else
                            {
                                drag.target = null
@@ -288,11 +289,11 @@ Control
                                  if(control.draggable && mouse.source === Qt.MouseEventSynthesizedByQt)
                                  {
                                      drag.target = _mouseArea
-                                     console.log("GETTING DRAG", _mouseArea.pressAndHoldIgnored)
+                                     control.Drag.imageSource = ""
                                      control.grabToImage(function(result)
                                      {
                                          control.Drag.imageSource = result.url
-                                     })
+                                     }, Qt.size(Math.ceil(control.width), Math.ceil(control.height)))
 
                                  }else
                                  {

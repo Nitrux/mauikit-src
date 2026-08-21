@@ -214,6 +214,8 @@ QQC.TabBar
             QQC.ScrollView
             {
                 Layout.fillWidth: true
+                Layout.minimumWidth: 0
+                implicitWidth: 0
 
                 Maui.Controls.orientation : Qt.Horizontal
 

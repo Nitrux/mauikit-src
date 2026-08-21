@@ -236,6 +236,7 @@ Maui.ItemDelegate
 
         Rectangle
         {
+            id: _pressHighlight
             anchors.fill: parent
             radius: parent.radius
             color: Maui.Theme.highlightColor
@@ -266,7 +267,7 @@ Maui.ItemDelegate
             visible: parent.containsDrag
         }
 
-        onDropped:
+        onDropped: (drop) =>
         {
             control.contentDropped(drop)
         }
@@ -282,7 +283,7 @@ Maui.ItemDelegate
         spacing: control.spacing
         isCurrentItem: control.isCurrentItem
         pressed: control.containsPress
-        pressedTextColor: control.contrastTextColor(Maui.Theme.highlightColor)
+        pressedTextColor: _pressHighlight.opacity >= 0.5 ? control.contrastTextColor(Maui.Theme.highlightColor) : Maui.Theme.textColor
         highlighted: control.containsPress
     }
 

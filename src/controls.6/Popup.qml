@@ -18,6 +18,8 @@
  */
 
 import QtQuick as Q
+import QtQml
+import QtQuick.Window
 import QtQuick.Controls as QQC
 
 import org.mauikit.controls as Maui
@@ -38,6 +40,43 @@ QQC.Popup
     id: control
 
     objectName: "MauiKit Popup"
+
+    property Q.Item _focusItemBeforeOpen: null
+    property QtObject _focusRestoration: Connections
+    {
+        target: control
+
+        function onAboutToShow()
+        {
+            const window = control.parent ? control.parent.Window.window : null
+            control._focusItemBeforeOpen = window ? window.activeFocusItem : null
+        }
+
+        function onClosed()
+        {
+            const item = control._focusItemBeforeOpen
+            control._focusItemBeforeOpen = null
+
+            if (!item)
+                return
+
+            Qt.callLater(() => {
+                if (!item)
+                    return
+
+                var ancestor = item
+                while (ancestor)
+                {
+                    if (ancestor.visible === false || ancestor.enabled === false)
+                        return
+
+                    ancestor = ancestor.parent
+                }
+
+                item.forceActiveFocus()
+            })
+        }
+    }
 
     width: (filling ? parent.width  : mWidth)
     height: (filling ? parent.height : mHeight)

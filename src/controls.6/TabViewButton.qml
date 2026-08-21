@@ -98,12 +98,13 @@ Maui.TabButton
             control.clicked()
         }
 
-        onPositionChanged:
+        onPressed:
         {
+            control.Drag.imageSource = ""
             control.grabToImage(function(result)
             {
-                control.Drag.imageSource = result.url;
-            })
+                control.Drag.imageSource = result.url
+            }, Qt.size(Math.ceil(control.width), Math.ceil(control.height)))
         }
     }
 

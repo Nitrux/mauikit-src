@@ -21,6 +21,8 @@
 
 
 import QtQuick
+import QtQml
+import QtQuick.Window
 import QtQuick.Layouts
 import QtQuick.Effects
 import QtQuick.Templates as T
@@ -29,6 +31,43 @@ import org.mauikit.controls as Maui
 T.Dialog
 {
     id: control
+
+    property Item _focusItemBeforeOpen: null
+    property QtObject _focusRestoration: Connections
+    {
+        target: control
+
+        function onAboutToShow()
+        {
+            const window = control.parent ? control.parent.Window.window : null
+            control._focusItemBeforeOpen = window ? window.activeFocusItem : null
+        }
+
+        function onClosed()
+        {
+            const item = control._focusItemBeforeOpen
+            control._focusItemBeforeOpen = null
+
+            if (!item)
+                return
+
+            Qt.callLater(() => {
+                if (!item)
+                    return
+
+                var ancestor = item
+                while (ancestor)
+                {
+                    if (ancestor.visible === false || ancestor.enabled === false)
+                        return
+
+                    ancestor = ancestor.parent
+                }
+
+                item.forceActiveFocus()
+            })
+        }
+    }
 
     Maui.Theme.colorSet: Maui.Theme.Window
     Maui.Theme.inherit: false

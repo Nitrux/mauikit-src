@@ -388,6 +388,12 @@ Item
             keyNavigationEnabled : false // Causes many issues with the keyboard navigation
             keyNavigationWraps : true
 
+            onCountChanged:
+            {
+                if(count > 0 && currentIndex < 0)
+                    currentIndex = 0
+            }
+
             Keys.enabled: true
             Keys.onUpPressed: _listView.decrementCurrentIndex()
             Keys.onDownPressed: _listView.incrementCurrentIndex()

@@ -35,12 +35,17 @@
 ****************************************************************************/
 
 import QtQuick 2.15
+import QtQuick.Window
 import QtQuick.Templates 2.15 as T
 import org.mauikit.controls as Maui
 
 T.ScrollBar
 {
     id: control
+
+    opacity: Maui.Style.scrollBarPolicy === Maui.Style.AutoHide
+             && control.Window.window
+             && !control.Window.window.active ? 0 : 1
 
     implicitWidth: implicitContentWidth + rightPadding + leftPadding
     implicitHeight: implicitContentHeight + topPadding + bottomPadding

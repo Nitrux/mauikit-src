@@ -85,7 +85,7 @@ T.ComboBox
     {
         x: control.mirrored ? control.leftPadding : control.width - width - control.rightPadding
         y: (control.topPadding + (control.availableHeight - height) / 2) - 2
-        color: Maui.Theme.textColor
+        color: control.Maui.Theme.textColor
         source: "qrc:/assets/arrow-down.svg"
         height: 8
         width: 8

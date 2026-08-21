@@ -509,10 +509,11 @@ Item
                                          if( mouse.source !== Qt.MouseEventSynthesizedByQt)
                                          {
                                               drag.target = _counter
+                                              _mouseArea.Drag.imageSource = ""
                                               _counter.grabToImage(function(result)
                                               {
                                                    _mouseArea.Drag.imageSource = result.url
-                                              })
+                                              }, Qt.size(Math.ceil(_counter.width), Math.ceil(_counter.height)))
 
                                               _mouseArea.Drag.mimeData = { "text/uri-list": control.uris}
 

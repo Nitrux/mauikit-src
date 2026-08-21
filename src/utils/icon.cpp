@@ -45,9 +45,9 @@ QSize devicePixelSize(const QSize &size, qreal devicePixelRatio)
 
 bool isMaskSize(const QSize &logicalSize)
 {
-    // Use logical dimensions so 2x icon buffers retain their 16, 22, or 24 px classification.
+    // Use logical dimensions so 2x icon buffers retain their standard-size classification.
     const int nominalSize = qMax(logicalSize.width(), logicalSize.height());
-    return nominalSize == 16 || nominalSize == 22 || nominalSize == 24;
+    return nominalSize == 8 || nominalSize == 16 || nominalSize == 22 || nominalSize == 24;
 }
 
 QImage iconToImage(const QQuickItem *item, const QIcon &icon, const QSize &logicalSize, QIcon::Mode mode, QIcon::State state = QIcon::Off)

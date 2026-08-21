@@ -495,7 +495,14 @@ Item
             interactive: Maui.Handy.hasTransientTouchInput
 
             onWidthChanged: if(adaptContent) control.adaptGrid()
-            onCountChanged: if(adaptContent) control.adaptGrid()
+            onCountChanged:
+            {
+                if(adaptContent)
+                    control.adaptGrid()
+
+                if(count > 0 && currentIndex < 0)
+                    currentIndex = 0
+            }
 
             keyNavigationEnabled : false // Causes many issues with the keyboard navigation
             keyNavigationWraps : true
@@ -503,11 +510,7 @@ Item
             Keys.enabled: true
             Keys.onLeftPressed: controlView.moveCurrentIndexLeft()
             Keys.onRightPressed: controlView.moveCurrentIndexRight()
-            Keys.onUpPressed:
-            {
-                console.log("GO UP gridBrowser")
-                controlView.moveCurrentIndexUp()
-            }
+            Keys.onUpPressed: controlView.moveCurrentIndexUp()
 
             Keys.onDownPressed: controlView.moveCurrentIndexDown()
 

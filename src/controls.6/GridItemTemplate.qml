@@ -93,9 +93,10 @@ Item
            * @property Item GridItemTemplate::iconItem
            */
     readonly property alias iconItem : _iconLoader.item
-    property color iconColor : Maui.Theme.textColor
     property bool pressed: false
     property color pressedTextColor: Maui.Theme.textColor
+    property color foregroundColor: control.pressed ? control.pressedTextColor : Maui.Theme.textColor
+    property color iconColor: control.foregroundColor
 
     /**
            * @brief The container for the icon header section. This is handled by a QQC2 Loader.
@@ -222,7 +223,7 @@ Item
             imageSource: control.imageSource
 
             highlighted: false
-            color: control.pressed ? control.pressedTextColor : control.Maui.Theme.textColor
+            color: control.iconColor
             hovered: control.hovered
             smooth: control.smooth
             iconSizeHint: control.iconSizeHint
@@ -254,7 +255,7 @@ Item
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            asynchronous: true
+            asynchronous: false
             active: visible
             sourceComponent: control.iconComponent
 
@@ -298,7 +299,7 @@ Item
 
                     elide: Qt.ElideRight
                     wrapMode: Text.Wrap
-                    color: control.pressed ? control.pressedTextColor : control.Maui.Theme.textColor
+                    color: control.foregroundColor
                 }
 
                 Label
@@ -315,7 +316,7 @@ Item
 
                     elide: Qt.ElideRight
                     wrapMode: Text.NoWrap
-                    color: control.pressed ? control.pressedTextColor : control.Maui.Theme.textColor
+                    color: control.foregroundColor
                     opacity: control.isCurrentItem ? 0.8 : 0.6
                 }
             }

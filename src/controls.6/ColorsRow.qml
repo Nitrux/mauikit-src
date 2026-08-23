@@ -109,7 +109,7 @@ Flow
                         width: height
                         opacity: checked || hovered ? 1 : 0
                         
-                        source: "qrc:/assets/checkmark.svg"
+                        source: "checkmark"
                         
                         Behavior on opacity
                         {

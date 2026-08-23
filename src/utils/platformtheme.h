@@ -30,6 +30,33 @@ class PlatformThemePrivate;
  * \brief This class is the base for color management in MauiKit,
  * different platforms can reimplement this class to integrate
  * with system platform colors of a given platform.
+ *
+ * Theme provides semantic colors through an attached property. The available
+ * color roles are grouped as follows:
+ *
+ * \list
+ * \li Foregrounds: \c textColor, \c disabledTextColor,
+ *     \c highlightedTextColor, \c activeTextColor, \c linkColor,
+ *     \c visitedLinkColor, \c negativeTextColor, \c neutralTextColor, and
+ *     \c positiveTextColor.
+ * \li Backgrounds: \c backgroundColor, \c alternateBackgroundColor,
+ *     \c highlightColor, \c activeBackgroundColor, \c linkBackgroundColor,
+ *     \c visitedLinkBackgroundColor, \c negativeBackgroundColor,
+ *     \c neutralBackgroundColor, and \c positiveBackgroundColor.
+ * \li Decorations: \c focusColor and \c hoverColor.
+ * \endlist
+ *
+ * The meaning of the generic text, background, alternate-background, hover,
+ * and focus roles depends on \l colorSet. For example, setting \c colorSet to
+ * \c Theme.View makes \c backgroundColor resolve to the view background
+ * instead of the window background. Other semantic roles, such as the link
+ * and positive/neutral/negative roles, do not vary with the color set.
+ *
+ * In the automatic style, the basic MauiKit theme derives its colors from the
+ * application QPalette. The platform integration supplies that palette, so on
+ * KDE Plasma it normally reflects the active KDE color scheme. The Light,
+ * Dark, TrueBlack, Inverted, and Adaptive MauiKit styles generate their own
+ * palettes and therefore do not necessarily match the system palette.
  */
 
 /*!
@@ -40,6 +67,21 @@ class PlatformThemePrivate;
  * \brief This class is the base for color management in MauiKit,
  * different platforms can reimplement this class to integrate with
  * system platform colors of a given platform.
+ *
+ * The theme exposes semantic foreground, background, and decoration colors.
+ * Foreground roles comprise text, disabled text, highlighted text, active
+ * text, link, visited-link, negative, neutral, and positive colors. Background
+ * roles comprise the normal, alternate, highlight, active, link, visited-link,
+ * negative, neutral, and positive colors. Focus and hover are decoration roles.
+ *
+ * The generic text, background, alternate-background, hover, and focus roles
+ * are selected according to \l colorSet. Other semantic roles do not vary with
+ * the color set.
+ *
+ * In the automatic style, the basic MauiKit theme derives its colors from the
+ * application QPalette. The platform integration supplies that palette, so on
+ * KDE Plasma it normally reflects the active KDE color scheme. Other MauiKit
+ * style modes may generate their own palettes instead.
  */
 class PlatformTheme : public QObject
 {
@@ -54,6 +96,18 @@ class PlatformTheme : public QObject
      *
      * Color sets define a color "environment", suitable for drawing all parts of a
      * given region. Colors from different sets should not be combined.
+     *
+     * The selected set affects textColor, backgroundColor,
+     * alternateBackgroundColor, hoverColor, and focusColor. It allows the same
+     * role names to represent, for example, window, view, button, or tooltip
+     * colors.
+     *
+     * \qml
+     * Rectangle {
+     *     Maui.Theme.colorSet: Maui.Theme.View
+     *     color: Maui.Theme.backgroundColor
+     * }
+     * \endqml
      */
     /*!
      * \property MauiKit::Platform::PlatformTheme::colorSet
@@ -61,6 +115,11 @@ class PlatformTheme : public QObject
      *
      * Color sets define a color "environment", suitable for drawing all parts of a
      * given region. Colors from different sets should not be combined.
+     *
+     * The selected set affects textColor, backgroundColor,
+     * alternateBackgroundColor, hoverColor, and focusColor. It allows the same
+     * role names to represent, for example, window, view, button, or tooltip
+     * colors.
      */
     Q_PROPERTY(ColorSet colorSet READ colorSet WRITE setColorSet NOTIFY colorSetChanged FINAL)
 
@@ -210,7 +269,7 @@ class PlatformTheme : public QObject
      * Success messages, trusted content.
      */
     /*!
-     * \property Kirigami::Platform::PlatformTheme::positiveTextColor
+     * \property MauiKit::Platform::PlatformTheme::positiveTextColor
      *
      * Success messages, trusted content.
      */
@@ -644,8 +703,8 @@ private:
 
 /*!
  * \brief A class that tracks changes to PlatformTheme properties and emits signals at the right moment.
- * \inheaderfile Kirigami/Platform/PlatformTheme
- * \inmodule KirigamiPlatform
+ * \inheaderfile MauiKit/Platform/PlatformTheme
+ * \inmodule MauiKitPlatform
  *
  * This should be used by PlatformTheme implementations to ensure that multiple
  * changes to a PlatformTheme's properties do not emit multiple change signals,
@@ -660,7 +719,7 @@ class MAUIKIT_EXPORT PlatformThemeChangeTracker
 {
 public:
     /*!
-     * \enum Kirigami::Platform::PlatformThemeChangeTracker::PropertyChange
+     * \enum MauiKit::Platform::PlatformThemeChangeTracker::PropertyChange
      * \brief Flags used to indicate changes made to certain properties.
      *
      * \value None
@@ -684,9 +743,15 @@ public:
     };
     Q_DECLARE_FLAGS(PropertyChanges, PropertyChange)
 
+    /**
+     * Begins a change-tracking scope for @p theme and records @p changes.
+     * Nested trackers for the same theme share one pending change set.
+     */
     PlatformThemeChangeTracker(PlatformTheme *theme, PropertyChanges changes = PropertyChange::None);
+    /** Emits the accumulated notifications when the outermost scope ends. */
     ~PlatformThemeChangeTracker();
 
+    /** Adds @p changes to the notifications pending for the current scope. */
     void markDirty(PropertyChanges changes);
 
 private:
@@ -706,18 +771,18 @@ private:
     inline static QHash<PlatformTheme *, std::weak_ptr<Data>> s_blockedChanges;
 };
 
+/*!
+ * \namespace MauiKit::Platform::PlatformThemeEvents
+ * \internal
+ * \brief Change events used by PlatformTheme implementations.
+ *
+ * These custom events communicate exactly which values changed without adding
+ * virtual functions to PlatformTheme and breaking binary compatibility.
+ * Subclasses can handle them by overriding QObject::event(). The override must
+ * call PlatformTheme::event() so the base class can complete its processing.
+ */
 namespace PlatformThemeEvents
 {
-// TODO qdoc document this?
-// To avoid the overhead of Qt's signal/slot connections, we use custom events
-// to communicate with subclasses. This way, we can indicate what actually
-// changed without needing to add new virtual functions to PlatformTheme which
-// would break binary compatibility.
-//
-// To handle these events in your subclass, override QObject::event() and check
-// if you receive one of these events, then do what is needed. Finally, make
-// sure to call PlatformTheme::event() since that will also do some processing
-// of these events.
 
 template<typename T>
 class MAUIKIT_EXPORT PropertyChangedEvent : public QEvent

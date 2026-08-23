@@ -8,11 +8,24 @@
 #include "mauikit_export.h"
 #include <QCoreApplication>
 
+/**
+ * @brief Identifies one value in the local application settings.
+ *
+ * A setting is addressed by a key within a group. value() reads the persisted
+ * value and falls back to defaultValue when no value has been stored;
+ * setValue() persists a replacement through AppSettings::local().
+ */
 class SettingSection : public QObject
 {
     Q_OBJECT
+
+    /** The key of the setting within group. */
     Q_PROPERTY(QString key READ key WRITE setKey NOTIFY keyChanged)
+
+    /** The settings group containing key. */
     Q_PROPERTY(QString group READ group WRITE setGroup NOTIFY groupChanged)
+
+    /** The value returned when the setting has not been stored. */
     Q_PROPERTY(QVariant defaultValue READ defaultValue WRITE setDefaultValue NOTIFY defaultValueChanged)
 
 private:
@@ -40,16 +53,19 @@ Q_SIGNALS:
 };
 
 /**
- * @brief The AppSettings class
+ * @brief Provides structured access to persistent application settings.
+ *
+ * AppSettings stores values with QSettings. Values are addressed by a key and
+ * group, and save() synchronizes each change before emitting settingChanged().
+ * Use local() for the current application namespace or global() for settings
+ * shared under the Maui Project namespace.
  */
-
 class MAUIKIT_EXPORT AppSettings : public QObject
 {
     Q_OBJECT
 public:
     /**
-     * @brief local
-     * @return
+     * Returns the settings store for the current application and organization.
      */
     static AppSettings &local()
     {
@@ -58,8 +74,8 @@ public:
     }
 
     /**
-     * @brief global
-     * @return
+     * Returns the settings store shared under the Maui Project application
+     * namespace.
      */
     static AppSettings &global()
     {
@@ -73,25 +89,21 @@ public:
     AppSettings &operator=(AppSettings &&) = delete;
 
     /**
-     * @brief url
-     * @return
+     * Returns the local URL of the file used by the underlying settings store.
      */
     QUrl url() const;
 
     /**
-     * @brief load
-     * @param key
-     * @param group
-     * @param defaultValue
-     * @return
+     * Returns the value stored for @p key in @p group.
+     *
+     * @param key The setting name.
+     * @param group The group containing the setting.
+     * @param defaultValue The value returned when the key does not exist.
      */
     QVariant load(const QString &key, const QString &group, const QVariant &defaultValue) const;
 
     /**
-     * @brief save
-     * @param key
-     * @param value
-     * @param group
+     * Stores @p value for @p key in @p group and synchronizes the settings file.
      */
     void save(const QString &key, const QVariant &value, const QString &group);
 
@@ -104,11 +116,12 @@ private:
 
 Q_SIGNALS:
     /**
-     * @brief settingChanged
-     * @param url
-     * @param key
-     * @param value
-     * @param group
+     * Emitted after a value has been saved and synchronized.
+     *
+     * @param url The settings file that changed.
+     * @param key The changed setting name.
+     * @param value The newly stored value.
+     * @param group The group containing the setting.
      */
     void settingChanged(QUrl url, QString key, QVariant value, QString group);
 };

@@ -199,25 +199,36 @@ class Controls : public QObject
      * @image html controls_item_menu_header.png "A Menu with a custom header via `Maui.Controls.component` attached property"
      */
     Q_PROPERTY(QQmlComponent *component READ component WRITE setComponent NOTIFY componentChanged)
+
+    /**
+     * An optional item associated with the control. Consumers may use this as
+     * an already-instantiated counterpart to component.
+     */
     Q_PROPERTY(QQuickItem *item READ item WRITE setItem NOTIFY itemChanged)
-    
+
+    /**
+     * The preferred orientation for controls that support horizontal and
+     * vertical layouts, such as browser views and scroll views.
+     */
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation NOTIFY orientationChanged)
 
 public:
 
+    /** Describes the visual hierarchy of a control surface. */
     enum Level
     {
-        Undefined,
-        Primary,
-        Secondary
+        Undefined, ///< No explicit hierarchy level has been assigned.
+        Primary, ///< The primary surface or toolbar level.
+        Secondary ///< A subordinate surface or toolbar level.
     }; Q_ENUM(Level)
 
+    /** Describes the semantic status communicated by a control. */
     enum Status
     {
-        Normal,
-        Positive,
-        Negative,
-        Neutral
+        Normal, ///< The normal, non-semantic state.
+        Positive, ///< A successful, safe, or affirmative state.
+        Negative, ///< An error, destructive, or dangerous state.
+        Neutral ///< A warning or otherwise attention-worthy state.
     }; Q_ENUM(Status)
 
     explicit Controls(QObject *parent = nullptr);

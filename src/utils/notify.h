@@ -25,12 +25,25 @@
 #include <QQmlEngine>
 
 class Notify;
+
+/**
+ * @brief An action associated with a system notification.
+ *
+ * NotifyAction stores the user-visible action label and emits triggered() when
+ * the notification backend reports that the action was activated.
+ *
+ * @note Notification action forwarding is not currently enabled by the Linux
+ * backend, so actions attached to Notify are not displayed or triggered there.
+ */
 class NotifyAction : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
     Q_DISABLE_COPY(NotifyAction)
-    
+
+    /**
+     * The user-visible label for the notification action.
+     */
     Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
     
 public:
@@ -42,29 +55,80 @@ private:
     QString m_text;
     
 Q_SIGNALS:
+    /** Emitted when this action is activated for @p notify. */
     void triggered(Notify* notify);
     void textChanged();
 };
 
 class KNotification;
+
 /**
- * @todo write docs
+ * @brief Describes and sends a system notification.
+ *
+ * Set the required eventId and any desired presentation properties, then call
+ * send(). The event identifier and component name are interpreted by the
+ * platform notification backend; on Linux this is KNotification.
+ *
+ * Notify instances describe notifications but do not retain or manage a sent
+ * notification after send() returns.
  */
 class Notify : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
     Q_DISABLE_COPY(Notify)
-    
+
+    /**
+     * The notification component or application identifier understood by the
+     * platform backend.
+     */
     Q_PROPERTY(QString componentName READ componentName WRITE setComponentName NOTIFY componentNameChanged)
+
+    /**
+     * The required event identifier used to select the notification event.
+     */
     Q_PROPERTY(QString eventId READ eventId WRITE setEventId REQUIRED)
+
+    /**
+     * The notification title.
+     */
     Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)
+
+    /**
+     * The notification body text.
+     */
     Q_PROPERTY(QString message READ message WRITE setMessage NOTIFY messageChanged)
+
+    /**
+     * The name of the themed icon representing the notification.
+     */
     Q_PROPERTY(QString iconName READ iconName WRITE setIconName NOTIFY iconNameChanged)
 
+    /**
+     * An optional image source to display with the notification.
+     */
     Q_PROPERTY(QUrl imageSource READ imageSource WRITE setImageSource NOTIFY imageSourceChanged)
+
+    /**
+     * The additional actions associated with the notification.
+     *
+     * @note The current implementation does not expose a writable action list
+     * to QML, and the Linux backend does not forward notification actions.
+     */
     Q_PROPERTY(QQmlListProperty<NotifyAction> actions READ actions)
+
+    /**
+     * The action to trigger when the notification itself is activated.
+     *
+     * @note The current Linux backend does not forward or trigger the default
+     * action.
+     */
     Q_PROPERTY(NotifyAction * defaultAction READ defaultAction WRITE setDefaultAction NOTIFY defaulActionChanged)
+
+    /**
+     * URLs associated with the notification, such as files relevant to the
+     * event.
+     */
     Q_PROPERTY(QList<QUrl> urls READ urls WRITE setUrls NOTIFY urlsChanged)
 
 public:
@@ -107,6 +171,10 @@ private Q_SLOTS:
     void actionActivated(int index);
 
 public Q_SLOTS:
+    /**
+     * Sends a notification using the currently configured properties.
+     * Each invocation creates and submits a new notification event.
+     */
     void send();
 //    void send(const QString &title, const QString &message, const QString &iconName);
 

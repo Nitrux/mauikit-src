@@ -521,10 +521,13 @@ Pane
 
                     position: control.altTabBar ? TabBar.Footer : TabBar.Header
 
-                    Repeater
+                    Instantiator
                     {
                         model: control.count
                         delegate: control.tabViewButton
+
+                        onObjectAdded: (index, object) => _tabBar.insertItem(index, object)
+                        onObjectRemoved: (index, object) => _tabBar.removeItem(object)
                     }
 
                     background: Rectangle
@@ -1042,7 +1045,7 @@ Pane
         }
 
         _listView.moveItem(from, to)
-        // Tab buttons are produced by a Repeater over the content model.
+        // Tab buttons are synchronized by the Instantiator from the content count.
         // Reordering the content model is enough; forcing TabBar.moveItem() here
         // can desync visual/header state and triggers stackBefore/stackAfter warnings.
 

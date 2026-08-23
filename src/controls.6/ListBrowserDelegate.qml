@@ -225,43 +225,17 @@ Maui.ItemDelegate
     signal toggled(bool state)
 
 
-    background: Rectangle
+    Rectangle
     {
-      color: control.flat ? "transparent" : Maui.Theme.alternateBackgroundColor
-      border.color: control.isCurrentItem || control.containsPress ? Maui.Theme.highlightColor : "transparent"
-      border.width: control.isCurrentItem || control.containsPress ? 1 : 0
-
+      parent: control.background
+      anchors.fill: parent
       radius: control.radius
-
-      Rectangle
-      {
-        id: _pressHighlight
-        anchors.fill: parent
-        radius: parent.radius
-        color: Maui.Theme.highlightColor
-        opacity: control.containsPress ? 1 : (control.isCurrentItem ? 0.25 : (control.hovered ? 0.2 : 0))
-
-        Behavior on opacity
-        {
-          NumberAnimation
-          {
-            duration: Maui.Style.enableEffects ? Maui.Style.units.shortDuration : 0
-            easing.type: Easing.InOutQuad
-          }
-        }
-      }
-
-      Rectangle
-      {
-        width: parent.width
-        height: parent.height
-        radius: control.radius
-        visible: control.containsDrag
-        color: "transparent"
-        border.color: control.Maui.Theme.highlightColor
-
-      }
-
+      visible: control.containsDrag
+      color: Qt.rgba(control.Maui.Theme.highlightColor.r,
+                     control.Maui.Theme.highlightColor.g,
+                     control.Maui.Theme.highlightColor.b,
+                     0.25)
+      border.color: control.Maui.Theme.highlightColor
     }
 
     DropArea
@@ -276,7 +250,7 @@ Maui.ItemDelegate
         control.contentDropped(drop)
       }
 
-      onEntered: (drop) =>
+      onEntered: (drag) =>
       {
         control.contentEntered(drag)
       }
@@ -309,11 +283,16 @@ Maui.ItemDelegate
 
         sourceComponent: CheckBox
         {
+          implicitWidth: 22
+          implicitHeight: 22
+
           indicator: Maui.Icon
           {
             source: "emblem-select-remove"
-            width: Maui.Style.iconSizes.small
+            anchors.centerIn: parent
+            width: 22
             height: width
+            color: control.effectiveForegroundColor
           }
           background: null
           padding: 0
@@ -342,8 +321,9 @@ Maui.ItemDelegate
         spacing: control.spacing
 
         hovered: control.hovered
-        pressed: control.containsPress
-        pressedTextColor: _pressHighlight.opacity >= 0.5 ? control.contrastTextColor(Maui.Theme.highlightColor) : Maui.Theme.textColor
+        pressed: control.visuallyActive
+        pressedTextColor: control.effectiveForegroundColor
+        foregroundColor: control.effectiveForegroundColor
         isCurrentItem : control.isCurrentItem
         highlighted: control.containsPress
       }

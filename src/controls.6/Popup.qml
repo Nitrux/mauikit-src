@@ -26,14 +26,13 @@ import org.mauikit.controls as Maui
 import QtQuick.Effects
 
 /**
- * Popup
- * A global sidebar for the application window that can be collapsed.
+ * @inherit QtQuick.Controls.Popup
+ * @brief A centered popup with responsive sizing and MauiKit styling.
  *
- *
- *
- *
- *
- *
+ * By default, Popup sizes itself from widthHint and heightHint while respecting
+ * maxWidth and maxHeight. Set filling to make it occupy its parent and remove
+ * the surrounding margins. Focus is restored to the previously focused item
+ * after the popup closes, provided that item is still visible and enabled.
  */
 QQC.Popup
 {
@@ -110,35 +109,51 @@ QQC.Popup
     
     margins: filling ? 0 : Maui.Style.space.medium
         
-    property bool filling : false
     /**
-     * content : Item.data
+     * @property bool Popup::filling
+     * Whether the popup fills its parent. When true, width and height hints,
+     * maximum dimensions, margins, and corner rounding are not applied.
+     * The default is false.
+     */
+    property bool filling : false
+
+    /**
+     * @property list<QtObject> Popup::content
+     * The visual items displayed inside the popup.
      */
     default property alias content : _content.data
 
     /**
-         * maxWidth : int
-         */
+     * @property int Popup::maxWidth
+     * The maximum width used when filling is false. The default is 700 pixels.
+     */
     property int maxWidth : 700
 
     /**
-         * maxHeight : int
-         */
+     * @property int Popup::maxHeight
+     * The maximum height used when filling is false. The default is 400 pixels.
+     */
     property int maxHeight : 400
 
     /**
-         * hint : double
-         */
+     * @property real Popup::hint
+     * The default parent-size proportion used by widthHint and heightHint.
+     * The default is 0.9.
+     */
     property double hint : 0.9
 
     /**
-         * heightHint : double
-         */
+     * @property real Popup::heightHint
+     * The proportion of the parent height requested before maxHeight is
+     * applied. The default follows hint.
+     */
     property double heightHint: hint
 
     /**
-         * widthHint : double
-         */
+     * @property real Popup::widthHint
+     * The proportion of the parent width requested before maxWidth is applied.
+     * The default follows hint.
+     */
     property double widthHint: hint
 
     contentItem: Q.Item

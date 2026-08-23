@@ -6,6 +6,13 @@
 
 #include "abstractplatform.h"
 
+/**
+ * @brief Attached access to the current platform-service backend.
+ *
+ * In QML, use `Maui.Platform` to request file or text sharing and to query
+ * input-device and appearance capabilities. Availability and behavior depend
+ * on the backend selected for the host platform.
+ */
 class MAUIKIT_EXPORT Platform : public AbstractPlatform
 {
     Q_OBJECT

@@ -205,6 +205,11 @@ Maui.ItemDelegate
     readonly property alias dropArea : _dropArea
 
     /**
+     * @brief Whether this delegate currently contains a dragged item.
+     */
+    readonly property alias containsDrag: _dropArea.containsDrag
+
+    /**
      * @see GridItemTemplate::imageWidth
      */
     property alias imageWidth : _template.imageWidth
@@ -226,31 +231,17 @@ Maui.ItemDelegate
      */
     signal toggled(bool state)
 
-    background: Rectangle
+    Rectangle
     {
-        color: control.flat ? "transparent" : Maui.Theme.alternateBackgroundColor
-        border.color: control.isCurrentItem || control.containsPress ? Maui.Theme.highlightColor : "transparent"
-        border.width: control.isCurrentItem || control.containsPress ? 1 : 0
-
+        parent: control.background
+        anchors.fill: parent
         radius: control.radius
-
-        Rectangle
-        {
-            id: _pressHighlight
-            anchors.fill: parent
-            radius: parent.radius
-            color: Maui.Theme.highlightColor
-            opacity: control.containsPress ? 1 : (control.isCurrentItem ? 0.25 : (control.hovered ? 0.2 : 0))
-
-            Behavior on opacity
-            {
-                NumberAnimation
-                {
-                    duration: Maui.Style.enableEffects ? Maui.Style.units.shortDuration : 0
-                    easing.type: Easing.InOutQuad
-                }
-            }
-        }
+        color: Qt.rgba(control.Maui.Theme.highlightColor.r,
+                       control.Maui.Theme.highlightColor.g,
+                       control.Maui.Theme.highlightColor.b,
+                       0.25)
+        border.color: control.Maui.Theme.highlightColor
+        visible: control.containsDrag
     }
 
     DropArea
@@ -258,14 +249,6 @@ Maui.ItemDelegate
         id: _dropArea
         width: parent.width
         height: parent.height
-        Rectangle
-        {
-            anchors.fill: parent
-            radius: control.radius
-            color: "transparent"
-            border.color: control.Maui.Theme.highlightColor
-            visible: parent.containsDrag
-        }
 
         onDropped: (drop) =>
         {
@@ -278,12 +261,23 @@ Maui.ItemDelegate
         id: _template
         anchors.fill: parent
         iconContainer.scale: _dropArea.containsDrag  || _checkboxLoader.active ? 0.8 : 1
+
+        Behavior on iconContainer.scale
+        {
+            NumberAnimation
+            {
+                duration: Maui.Style.enableEffects ? Maui.Style.units.shortDuration : 0
+                easing.type: Easing.InOutQuad
+            }
+        }
         hovered: control.hovered
         maskRadius: control.radius
         spacing: control.spacing
         isCurrentItem: control.isCurrentItem
-        pressed: control.containsPress
-        pressedTextColor: _pressHighlight.opacity >= 0.5 ? control.contrastTextColor(Maui.Theme.highlightColor) : Maui.Theme.textColor
+        pressed: control.visuallyActive
+        pressedTextColor: control.effectiveForegroundColor
+        foregroundColor: control.effectiveForegroundColor
+        iconColor: control.effectiveForegroundColor
         highlighted: control.containsPress
     }
 
@@ -348,11 +342,16 @@ Maui.ItemDelegate
 
         sourceComponent: CheckBox
         {
+            implicitWidth: 22
+            implicitHeight: 22
+
             indicator: Maui.Icon
             {
                 source: "emblem-select-remove"
-                width: Maui.Style.iconSizes.small
+                anchors.centerIn: parent
+                width: 22
                 height: width
+                color: control.effectiveForegroundColor
             }
             background: null
             padding: 0
@@ -368,11 +367,7 @@ Maui.ItemDelegate
                 delayed: true
             }
 
-             onToggled:
-             {
-                 console.log("CHECKEDDDD STATE")
-                  control.toggled(checked)
-             }
+             onToggled: control.toggled(checked)
         }
     }
 }

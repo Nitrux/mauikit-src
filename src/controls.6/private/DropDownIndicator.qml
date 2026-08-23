@@ -8,7 +8,7 @@ Maui.Icon
     x: item.mirrored ? item.leftPadding : item.width - width - item.rightPadding
     y: item.topPadding + (item.availableHeight - height) / 2
     visible: false
-    color: item.Maui.Theme.textColor
+    color: item.color
     height: 8
     width: 8
     source: "qrc:/assets/arrow-down.svg"

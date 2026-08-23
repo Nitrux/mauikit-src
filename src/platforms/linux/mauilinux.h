@@ -28,7 +28,11 @@
 #include "abstractplatform.h"
 
 /**
- * @brief The MAUIKDE class
+ * @brief Linux/KDE implementation of the MauiKit platform services.
+ *
+ * This singleton supplies the backend used by Maui.Platform on Linux. File
+ * sharing is exposed through AbstractPlatform::shareFilesRequest(); other
+ * capabilities reflect what the current backend can provide.
  */
 class MAUIKDE : public AbstractPlatform
 {
@@ -55,10 +59,10 @@ private:
 
 public Q_SLOTS:
     /**
-     * @brief setColorScheme
-     * @param schemeName
-     * @param bg
-     * @param fg
+     * Compatibility hook for requesting the color scheme named @p schemeName.
+     *
+     * @note The current Linux implementation does not change the application
+     * color scheme; MauiKit follows its configured Style and QPalette instead.
      */
     static void setColorScheme(const QString &schemeName);
     

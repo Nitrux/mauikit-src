@@ -18,16 +18,16 @@ Item
     {
         id: _rec
         anchors.fill: parent
-        color: control.checked ? Maui.Theme.backgroundColor : Maui.Theme.backgroundColor
+        color: control.checked ? Maui.Theme.highlightColor : Maui.Theme.backgroundColor
         radius: control.autoExclusive ? height/2 : 4
-        border.color: control.checked ? Maui.Theme.highlightColor : Maui.ColorUtils.linearInterpolation(Maui.Theme.alternateBackgroundColor, Maui.Theme.textColor, 0.2) 
+        border.color: control.checked ? Maui.Theme.highlightedTextColor : Maui.ColorUtils.linearInterpolation(Maui.Theme.alternateBackgroundColor, Maui.Theme.textColor, 0.2)
         border.width: 2
         
         Maui.Icon
         {
             visible: opacity > 0
             
-            color: Maui.Theme.highlightColor
+            color: Maui.Theme.highlightedTextColor
             
             anchors.centerIn: parent
             
@@ -36,7 +36,7 @@ Item
             
             opacity: control.checked ? 1 : 0
             
-            source: "qrc:/assets/checkmark.svg"
+            source: "checkmark"
             
             Behavior on opacity
             {

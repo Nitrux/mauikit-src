@@ -181,26 +181,19 @@ Maui.Page
     {
         id: _gridView
 
-        focus: control.focus
+        focus: control.focus && control.viewType === AltBrowser.ViewType.Grid
         anchors.fill: parent
-        visible: control.viewType === AltBrowser.ViewType.Grid
+        visible: true
+        enabled: control.viewType === AltBrowser.ViewType.Grid
+        opacity: control.viewType === AltBrowser.ViewType.Grid ? 1 : 0
         currentIndex: control.currentIndex
-        // Detach the hidden view from the model to avoid duplicate delegate/image work.
-        model: visible ? control.model : null
+        model: control.model
         delegate: control.gridDelegate
         enableLassoSelection: control.enableLassoSelection
         selectionMode: control.selectionMode
         adaptContent: true
         clip: control.clip
 
-        OpacityAnimator on opacity
-        {
-            from: 0
-            to: 1
-            duration: Maui.Style.units.longDuration * 2
-            running: _gridView.visible
-            easing.type: Easing.OutInQuad
-        }
     }
 
     Maui.ListBrowser
@@ -208,24 +201,17 @@ Maui.Page
         id: _listView
 
         anchors.fill: parent
-        focus: control.focus
-        visible: control.viewType === AltBrowser.ViewType.List
+        focus: control.focus && control.viewType === AltBrowser.ViewType.List
+        visible: true
+        enabled: control.viewType === AltBrowser.ViewType.List
+        opacity: control.viewType === AltBrowser.ViewType.List ? 1 : 0
         currentIndex: control.currentIndex
-        // Detach the hidden view from the model to avoid duplicate delegate/image work.
-        model: visible ? control.model : null
+        model: control.model
         delegate: control.listDelegate
         enableLassoSelection: control.enableLassoSelection
         selectionMode: control.selectionMode
         clip: control.clip
 
-        OpacityAnimator on opacity
-        {
-            from: 0
-            to: 1
-            duration: Maui.Style.units.longDuration * 2
-            running: _listView.visible
-            easing.type: Easing.OutInQuad
-        }
     }
 
     Maui.Holder

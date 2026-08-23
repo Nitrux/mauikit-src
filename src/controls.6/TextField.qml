@@ -26,14 +26,16 @@ import QtQuick.Layouts
 
 
 /**
- * TextField
- * A customizable text field for MauiKit applications.
+ * @inherit QtQuick.Templates.TextField
+ * @brief A MauiKit text field with leading and trailing content.
  *
+ * TextField adds a themed icon, action buttons, clear behavior, a contextual
+ * editing menu, drag-and-drop text input, and support for the Controls title,
+ * subtitle, badgeText, and status attached properties.
  *
- *
- *
- *
- *
+ * Pressing Escape or activating the built-in clear button clears the text and
+ * emits cleared(). On touch-oriented devices, press and hold opens the editing
+ * menu; on desktop devices, use the secondary mouse button.
  */
 T.TextField
 {
@@ -43,30 +45,45 @@ T.TextField
 
     implicitHeight: _layout.implicitHeight + topPadding + bottomPadding
     implicitWidth: 200
+    /**
+     * @property int TextField::spacing
+     * The spacing between the leading icon, text area, and trailing controls.
+     */
     property int spacing: Maui.Style.space.small
 
     /**
-             * menu : Menu
-             */
+     * @property Menu TextField::menu
+     * The contextual editing menu containing copy, cut, paste, selection, undo,
+     * and redo commands.
+     */
     readonly property alias menu : entryMenu
 
     /**
-             * actions : RowLayout
-             */
+     * @property list<QtObject> TextField::actions
+     * Actions represented as trailing tool buttons. Their order in the list is
+     * preserved.
+     */
     property list<QtObject> actions
 
+    /**
+     * @property Icon TextField::icon
+     * The leading icon. Set its source to make it visible.
+     */
     property alias icon : _icon
 
+    /**
+     * @property list<QtObject> TextField::rightContent
+     * Additional visual items displayed in the trailing area of the field.
+     */
     property alias rightContent : _rightLayout.data
 
-    /**
-             * cleared
-             */
+    /** Emitted after the field is cleared by its clear UI or Escape shortcut. */
     signal cleared()
 
     /**
-             * contentDropped :
-             */
+     * Emitted after dropped text or URLs have been assigned to the field.
+     * @param drop The Qt Quick drop event.
+     */
     signal contentDropped(var drop)
 
     function setTextColor(control)

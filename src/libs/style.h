@@ -14,20 +14,36 @@ class ThemeManager;
 }
 
 /**
- * @brief The Unit group properties.
- * These properties are standard values meant to be used across the UI elements for a cohesive look and feel.
+ * @brief Standard layout and timing units used by MauiKit controls.
  *
- * @note This object can not be instantiated. It only exists as part of the Style::units implementation, which ca be accessed via the global Style singleton.
+ * Access this object through `Maui.Style.units`. Durations are expressed in
+ * milliseconds and gridUnit is expressed in device-independent pixels.
+ *
+ * @note Units cannot be instantiated from QML.
  */
 class Units : public QObject
 {
     Q_OBJECT
+
+    /** The height of the application font, used as a scalable layout unit. */
     Q_PROPERTY(uint gridUnit MEMBER m_gridUnit CONSTANT FINAL)
+
+    /** A 400 ms duration for large or visually complex transitions. */
     Q_PROPERTY(uint veryLongDuration MEMBER m_veryLongDuration CONSTANT FINAL)
+
+    /** A 200 ms duration for standard transitions. */
     Q_PROPERTY(uint longDuration MEMBER m_longDuration CONSTANT FINAL)
+
+    /** A 100 ms duration for short transitions and immediate feedback. */
     Q_PROPERTY(uint shortDuration MEMBER m_shortDuration CONSTANT FINAL)
+
+    /** A 50 ms duration for minimal transitions. */
     Q_PROPERTY(uint veryShortDuration MEMBER m_veryShortDuration CONSTANT FINAL)
+
+    /** A 2000 ms interval intended to remain noticeable to a person. */
     Q_PROPERTY(uint humanMoment MEMBER m_humanMoment CONSTANT FINAL)
+
+    /** The 700 ms delay before a tooltip should be shown. */
     Q_PROPERTY(uint toolTipDelay MEMBER m_toolTipDelay CONSTANT FINAL)
 
 public:
@@ -45,19 +61,38 @@ private:
 };
 
 /**
- * @brief The sizes group for some Style properties, such as Style::iconSize, Style::space, etc.
+ * @brief An ordered group of reusable sizes.
  *
- * @note This object can not be instantiated. It only exists as part of some of the Style property implementations, which ca be accessed via the global Style singleton.
+ * Style uses GroupSizes for `fontSizes`, `space`, and `iconSizes`. The numeric
+ * values depend on the owning group, but the names always progress from tiny
+ * through enormous. Choose a semantic size instead of embedding a numeric
+ * value so controls remain consistent when style preferences change.
+ *
+ * @note GroupSizes cannot be instantiated from QML.
  */
 class GroupSizes : public QObject
 {
     Q_OBJECT
+
+    /** The smallest size in the group. */
     Q_PROPERTY(uint tiny MEMBER m_tiny NOTIFY sizesChanged  FINAL)
+
+    /** A size larger than tiny and smaller than medium. */
     Q_PROPERTY(uint small MEMBER m_small NOTIFY sizesChanged  FINAL)
+
+    /** The middle size in the group. */
     Q_PROPERTY(uint medium MEMBER m_medium NOTIFY sizesChanged  FINAL)
+
+    /** A size larger than medium and smaller than large. */
     Q_PROPERTY(uint big MEMBER m_big NOTIFY sizesChanged  FINAL)
+
+    /** A size larger than big and smaller than huge. */
     Q_PROPERTY(uint large MEMBER m_large NOTIFY sizesChanged  FINAL)
+
+    /** A size larger than large and smaller than enormous. */
     Q_PROPERTY(uint huge MEMBER m_huge NOTIFY sizesChanged  FINAL)
+
+    /** The largest size in the group. */
     Q_PROPERTY(uint enormous MEMBER m_enormous NOTIFY sizesChanged  FINAL)
 
 public:

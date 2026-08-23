@@ -41,6 +41,7 @@ Item
      id: control
     property bool pressed: false
     property color pressedTextColor: Maui.Theme.textColor
+    property color foregroundColor: control.pressed ? control.pressedTextColor : Maui.Theme.textColor
      focus: false
      focusPolicy: Qt.NoFocus
      implicitHeight: _layout.implicitHeight
@@ -245,7 +246,7 @@ Item
                     imageSource: control.imageSource
 
                     highlighted: false
-                    color: control.pressed ? control.pressedTextColor : control.Maui.Theme.textColor
+                    color: control.foregroundColor
                     hovered: control.hovered
 
                     iconSizeHint: control.iconSizeHint
@@ -263,7 +264,7 @@ Item
                anchors.fill: parent
                spacing: Maui.Style.space.small
 
-               readonly property color labelColor: control.pressed ? control.pressedTextColor : Maui.Theme.textColor
+               readonly property color labelColor: control.foregroundColor
 
                Loader
                {
@@ -275,7 +276,7 @@ Item
                     Layout.preferredWidth: visible ? Math.max(implicitWidth, control.headerSizeHint, 0) :-_layout.spacing
                     Layout.preferredHeight: visible ? Math.max(implicitHeight, control.headerSizeHint, 0) : 0
 
-                    asynchronous: true
+                    asynchronous: false
                     active: visible || item
 
                     sourceComponent: control.iconComponent

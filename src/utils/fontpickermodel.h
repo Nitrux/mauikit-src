@@ -72,7 +72,7 @@ public Q_SLOTS:
     /**
      * @brief Set the current picked font to extract its properties.
      * @param desc the description of the font, and its properties.
-     * @note See the Qt QFont documentation to see how the font string decsription works.
+     * @note See the Qt QFont documentation to see how the font string description works.
      */
     void setFont(const QString &desc);
     

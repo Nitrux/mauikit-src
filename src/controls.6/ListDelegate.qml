@@ -89,6 +89,9 @@ Maui.ItemDelegate
     anchors.fill: parent
     hovered: control.hovered      
     isCurrentItem: control.isCurrentItem
+    pressed: control.visuallyActive
+    pressedTextColor: control.effectiveForegroundColor
+    foregroundColor: control.effectiveForegroundColor
     highlighted: control.containsPress 
   }
 }

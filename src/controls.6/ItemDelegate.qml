@@ -116,12 +116,39 @@ Control
          */
     property bool draggable: false
 
+    property bool _creatingDragPreview: false
+
+    /**
+     * @brief An optional image to use instead of generating a drag preview.
+     * When empty, the preview is rendered from the delegate content without
+     * modifying the live delegate.
+     */
+    property url dragPreviewSource
+
+    /**
+     * @brief The background color used by the generated drag preview.
+     */
+    property color dragPreviewBackgroundColor: Qt.rgba(control.selectedBackgroundColor.r,
+                                                       control.selectedBackgroundColor.g,
+                                                       control.selectedBackgroundColor.b,
+                                                       1)
+
+    /**
+     * @brief The border color used by the generated drag preview.
+     */
+    property color dragPreviewBorderColor: Qt.darker(Maui.Theme.highlightColor, 1.35)
+
+    /**
+     * @brief The border width used by the generated drag preview.
+     */
+    property int dragPreviewBorderWidth: 1
+
     /**
          * @brief Whether the item should be styled in a "selected/checked" state.
-         * This is an alias to the `highlighted` property.
-         * @property bool ItemDelegate::isCurrentItem
-         */
-    property alias isCurrentItem :  control.highlighted
+     * This is kept as a compatibility alias to the canonical `selected` state.
+     * @property bool ItemDelegate::isCurrentItem
+     */
+    property alias isCurrentItem: control.selected
 
     /**
          * @brief Whether the item is currently being pressed.
@@ -131,10 +158,45 @@ Control
     property alias containsPress: _mouseArea.containsPress
 
     /**
-         * @brief Whether the item is being highlighted. A visual clue will be use to indicate the highlighted state.
-         * By default this is set to `false`.
-         */
-    property bool highlighted: false
+     * @brief Whether the delegate is selected.
+     */
+    property bool selected: false
+
+    /**
+     * @brief Compatibility alias for the selected state.
+     */
+    property alias highlighted: control.selected
+
+    /**
+     * @brief Whether the delegate currently uses its active visual state.
+     */
+    readonly property bool visuallyActive: control.selected || control.containsPress
+
+    property color normalBackgroundColor: control.flat ? "transparent" : Maui.Theme.alternateBackgroundColor
+    property color hoverBackgroundColor: Maui.Theme.hoverColor
+    property color selectedBackgroundColor: Maui.Theme.highlightColor
+    property color pressedBackgroundColor: control.selectedBackgroundColor
+
+    property color normalForegroundColor: Maui.Theme.textColor
+    property color selectedForegroundColor: Maui.ColorUtils.brightnessForColor(control.selectedBackgroundColor) === Maui.ColorUtils.Light
+                                            ? "#333333"
+                                            : "#fafafa"
+    property color pressedForegroundColor: Maui.ColorUtils.brightnessForColor(control.pressedBackgroundColor) === Maui.ColorUtils.Light
+                                           ? "#333333"
+                                           : "#fafafa"
+
+    readonly property color effectiveBackgroundColor: control.containsPress
+                                                       ? control.pressedBackgroundColor
+                                                       : (control.selected
+                                                          ? control.selectedBackgroundColor
+                                                          : (control.hovered
+                                                             ? control.hoverBackgroundColor
+                                                             : control.normalBackgroundColor))
+    readonly property color effectiveForegroundColor: control.containsPress
+                                                       ? control.pressedForegroundColor
+                                                       : (control.selected
+                                                          ? control.selectedForegroundColor
+                                                          : control.normalForegroundColor)
 
     /**
          * @brief The border radius of the background.
@@ -179,11 +241,88 @@ Control
          */
     signal doubleClicked(var mouse)
 
-    Drag.active: mouseArea.drag.active && control.draggable
+    Drag.active: false
     Drag.dragType: Drag.Automatic
     //     Drag.supportedActions: Qt.MoveAction
     Drag.hotSpot.x: control.width / 2
     Drag.hotSpot.y: control.height / 2
+
+    Connections
+    {
+        target: mouseArea.drag
+
+        function onActiveChanged()
+        {
+            control.Drag.active = control.draggable && mouseArea.drag.active
+        }
+    }
+
+    onDraggableChanged:
+    {
+        if (!control.draggable)
+        {
+            control.Drag.active = false
+        }
+    }
+
+    function _captureDragPreview()
+    {
+        if (control.dragPreviewSource.toString().length > 0)
+        {
+            control.Drag.imageSource = control.dragPreviewSource
+            return
+        }
+
+        control._creatingDragPreview = true
+        const started = _dragPreview.grabToImage(function(result)
+        {
+            control.Drag.imageSource = result.url
+            control._creatingDragPreview = false
+        }, Qt.size(Math.ceil(control.width), Math.ceil(control.height)))
+
+        if (!started)
+            control._creatingDragPreview = false
+    }
+
+    readonly property Item _dragPreview: Rectangle
+    {
+        parent: control.Window.window ? control.Window.window.contentItem : null
+
+        x: -width - 1
+        y: -height - 1
+        width: control.width
+        height: control.height
+        visible: parent !== null
+
+        color: control.dragPreviewBackgroundColor
+        radius: control.radius
+        clip: true
+
+        ShaderEffectSource
+        {
+            x: control.contentItem.x
+            y: control.contentItem.y
+            width: control.contentItem.width
+            height: control.contentItem.height
+
+            sourceItem: control.contentItem
+            sourceRect: Qt.rect(0, 0, control.contentItem.width, control.contentItem.height)
+            live: control._creatingDragPreview
+            recursive: true
+            hideSource: false
+        }
+
+        Rectangle
+        {
+            anchors.fill: parent
+
+            color: "transparent"
+            radius: control.radius
+            border.width: control.dragPreviewBorderWidth
+            border.color: control.dragPreviewBorderColor
+            antialiasing: true
+        }
+    }
 
 
     contentItem: Item
@@ -201,21 +340,6 @@ Control
             PauseAnimation { duration: 50 } // This puts a bit of time between the loop
         }
 
-        // DragHandler
-        // {
-        //     target: control
-        //     dragThreshold: 100
-        //     onActiveChanged:
-        //         if (active) {
-        //             control.grabToImage(function(result) {
-        //                 control.Drag.imageSource = result.url
-        //                 control.Drag.active = true
-        //             })
-        //         } else {
-        //             control.Drag.active = false
-        //         }
-        // }
-
         MouseArea
         {
             id: _mouseArea
@@ -223,136 +347,66 @@ Control
             
             propagateComposedEvents: false
             acceptedButtons: Qt.RightButton | Qt.LeftButton
-            // drag.filterChildren: true
             drag.threshold: 100
-            drag.target: this
-            property bool pressAndHoldIgnored : false
+            drag.target: null
+            property bool deferredPressAndHold: false
             
             onClicked: (mouse) =>
-                       {
-                           if(mouse.button === Qt.RightButton)
-                           {
-                               control.rightClicked(mouse)
-                           }
-                           else
-                           {
-                               control.clicked(mouse)
-                           }
-                       }
+            {
+                if (mouse.button === Qt.RightButton)
+                    control.rightClicked(mouse)
+                else
+                    control.clicked(mouse)
+            }
             
-            onDoubleClicked: (mouse) =>
-                             {
-                                 control.doubleClicked(mouse)
-                             }
+            onDoubleClicked: (mouse) => control.doubleClicked(mouse)
             
             onPressed: (mouse) =>
-                       {
-                           if(control.draggable && mouse.source !== Qt.MouseEventSynthesizedByQt)
-                           {
-                               drag.target = _mouseArea
-                               control.Drag.imageSource = ""
-                               control.grabToImage(function(result)
-                               {
-                                   control.Drag.imageSource = result.url
-                               }, Qt.size(Math.ceil(control.width), Math.ceil(control.height)))
-                           }else
-                           {
-                               drag.target = null
-                           }
-                           //
-                           _mouseArea.pressAndHoldIgnored = false
-                           control.pressed(mouse)
-                       }
-            
-            onReleased : (mouse) =>
-                         {
-                             // _content.x = 0
-                             // _content.y = 0
-                             //            if(control.draggable)
-                             //            {
-                             //                drag.target = null
-                             //            }
-
-                             if(_mouseArea.pressAndHoldIgnored)
-                             {
-                                 control.pressAndHold(mouse)
-                                 _mouseArea.pressAndHoldIgnored = false
-                             }
-                         }
-            
-            onPressAndHold : (mouse) =>
-                             {
-                                 xAnim.running = control.draggable || mouse.source === Qt.MouseEventSynthesizedByQt
-
-                                 _mouseArea.pressAndHoldIgnored = true
-
-                                 if(control.draggable && mouse.source === Qt.MouseEventSynthesizedByQt)
-                                 {
-                                     drag.target = _mouseArea
-                                     control.Drag.imageSource = ""
-                                     control.grabToImage(function(result)
-                                     {
-                                         control.Drag.imageSource = result.url
-                                     }, Qt.size(Math.ceil(control.width), Math.ceil(control.height)))
-
-                                 }else
-                                 {
-                                     drag.target = null
-                                     control.pressAndHold(mouse)
-                                 }
-                             }
-            
-            onPositionChanged: (mouse) =>
-                               {
-                                   // if(control.draggable)
-                                   // {
-                                   //     console.log("MOVING DRAG", _mouseArea.pressAndHoldIgnored)
-                                   //     _mouseArea.pressAndHoldIgnored = false
-                                   //     mouse.accepted = true
-                                   // }
-                               }
-            
-
-        }
-    }
-
-    function contrastTextColor(backgroundColor)
-    {
-        function linear(channel)
-        {
-            return channel <= 0.03928 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4)
-        }
-
-        const luminance = 0.2126 * linear(backgroundColor.r)
-                         + 0.7152 * linear(backgroundColor.g)
-                         + 0.0722 * linear(backgroundColor.b)
-        return luminance > 0.179 ? "#111111" : "#ffffff"
-    }
-
-    background: Rectangle
-    {
-        color: "transparent"
-        border.color: control.isCurrentItem || control.containsPress ? Maui.Theme.highlightColor : "transparent"
-        border.width: control.isCurrentItem || control.containsPress ? 1 : 0
-
-        radius: control.radius
-
-        Rectangle
-        {
-            anchors.fill: parent
-            radius: parent.radius
-            color: Maui.Theme.highlightColor
-            opacity: control.containsPress ? 1 : (control.isCurrentItem ? 0.25 : (control.hovered ? 0.2 : 0))
-
-            Behavior on opacity
             {
-                NumberAnimation
+                if (control.draggable && mouse.source !== Qt.MouseEventSynthesizedByQt)
                 {
-                    duration: Maui.Style.enableEffects ? Maui.Style.units.shortDuration : 0
-                    easing.type: Easing.InOutQuad
+                    drag.target = _mouseArea
+                    control.Drag.imageSource = ""
+                    control._captureDragPreview()
+                } else {
+                    drag.target = null
+                }
+
+                deferredPressAndHold = false
+                control.pressed(mouse)
+            }
+            
+            onReleased: (mouse) =>
+            {
+                if (deferredPressAndHold)
+                {
+                    control.pressAndHold(mouse)
+                    deferredPressAndHold = false
+                }
+            }
+            
+            onPressAndHold: (mouse) =>
+            {
+                xAnim.running = control.draggable || mouse.source === Qt.MouseEventSynthesizedByQt
+
+                if (control.draggable && mouse.source === Qt.MouseEventSynthesizedByQt)
+                {
+                    deferredPressAndHold = true
+                    drag.target = _mouseArea
+                    control.Drag.imageSource = ""
+                    control._captureDragPreview()
+                } else {
+                    deferredPressAndHold = false
+                    drag.target = null
+                    control.pressAndHold(mouse)
                 }
             }
         }
     }
-}
 
+    background: Rectangle
+    {
+        color: control.effectiveBackgroundColor
+        radius: control.radius
+    }
+}

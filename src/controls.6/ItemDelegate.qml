@@ -253,6 +253,9 @@ Control
 
         function onActiveChanged()
         {
+            if (control.draggable && mouseArea.drag.active)
+                control._captureDragPreview()
+
             control.Drag.active = control.draggable && mouseArea.drag.active
         }
     }
@@ -381,7 +384,6 @@ Control
                 {
                     drag.target = _mouseArea
                     control.Drag.imageSource = ""
-                    control._captureDragPreview()
                 } else {
                     drag.target = null
                 }
@@ -408,7 +410,6 @@ Control
                     deferredPressAndHold = true
                     drag.target = _mouseArea
                     control.Drag.imageSource = ""
-                    control._captureDragPreview()
                 } else {
                     deferredPressAndHold = false
                     drag.target = null

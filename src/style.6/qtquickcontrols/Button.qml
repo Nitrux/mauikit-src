@@ -157,13 +157,20 @@ T.Button
             return control.pressed || control.down || control.checked ? control.Maui.Theme.highlightColor : (control.highlighted || control.hovered ? control.Maui.Theme.hoverColor : bg)
         }
 
+        let statusColor = (bg) =>
+        {
+            return control.pressed || control.down || control.checked
+                   ? Qt.darker(bg, 1.1)
+                   : (control.highlighted || control.hovered ? Qt.lighter(bg, 1.1) : bg)
+        }
+
         if(control.Maui.Controls.status)
         {
             switch(control.Maui.Controls.status)
             {
-            case Maui.Controls.Positive: return control.Maui.Theme.positiveBackgroundColor
-            case Maui.Controls.Negative: return control.Maui.Theme.negativeBackgroundColor
-            case Maui.Controls.Neutral: return control.Maui.Theme.neutralBackgroundColor
+            case Maui.Controls.Positive: return statusColor(control.Maui.Theme.positiveBackgroundColor)
+            case Maui.Controls.Negative: return statusColor(control.Maui.Theme.negativeBackgroundColor)
+            case Maui.Controls.Neutral: return statusColor(control.Maui.Theme.neutralBackgroundColor)
             case Maui.Controls.Normal:
             default:
             return defaultColor(control.Maui.Theme.backgroundColor)

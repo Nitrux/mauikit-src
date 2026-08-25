@@ -240,6 +240,21 @@ Pane
 
     onWidthChanged: _tabBar.positionViewAtIndex(control.currentIndex)
     onCurrentIndexChanged: _tabBar.positionViewAtIndex(control.currentIndex)
+    onCountChanged: syncTabBarModel()
+
+    function syncTabBarModel()
+    {
+        if (!_tabBarModel)
+            return
+
+        while (_tabBarModel.count < control.count)
+            _tabBarModel.append({ placeholder: true })
+
+        while (_tabBarModel.count > control.count)
+            _tabBarModel.remove(_tabBarModel.count - 1)
+    }
+
+    Component.onCompleted: syncTabBarModel()
 
     spacing: 0
     padding: 0
@@ -361,10 +376,17 @@ Pane
 
     }
 
-    data: Loader
-    {
-        id: _loader
-    }
+    data:
+    [
+        ListModel
+        {
+            id: _tabBarModel
+        },
+        Loader
+        {
+            id: _loader
+        }
+    ]
 
     Component
     {
@@ -523,7 +545,7 @@ Pane
 
                     Instantiator
                     {
-                        model: control.count
+                        model: _tabBarModel
                         delegate: control.tabViewButton
 
                         onObjectAdded: (index, object) => _tabBar.insertItem(index, object)
@@ -961,8 +983,18 @@ Pane
          */
     function closeTab(index)
     {
+        const currentIndex = _listView.currentIndex
         _listView.removeItem(_listView.itemAt(index))
-        // _tabBar.removeItem(_tabBar.itemAt(index))
+
+        if (_listView.count > 0)
+        {
+            const nextIndex = index === currentIndex
+                    ? Math.min(currentIndex, _listView.count - 1)
+                    : currentIndex > index ? currentIndex - 1 : currentIndex
+
+            _listView.setCurrentIndex(nextIndex)
+            _tabBar.setCurrentIndex(nextIndex)
+        }
 
         _listView.currentItemChanged()
         if (_listView.currentItem)
@@ -1045,7 +1077,7 @@ Pane
         }
 
         _listView.moveItem(from, to)
-        // Tab buttons are synchronized by the Instantiator from the content count.
+        // Tab buttons are synchronized by the Instantiator from the tab count model.
         // Reordering the content model is enough; forcing TabBar.moveItem() here
         // can desync visual/header state and triggers stackBefore/stackAfter warnings.
 

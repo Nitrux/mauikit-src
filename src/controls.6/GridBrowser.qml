@@ -638,18 +638,18 @@ Item
                                            {
                                                if(mouseX >= selectLayer.newX)
                                                {
-                                                   selectLayer.width = (mouseX + 10) < (control.x + control.width) ? (mouseX - selectLayer.x) : selectLayer.width;
+                                                   selectLayer.width = Math.min(mouseX, control.width) - selectLayer.x;
                                                } else {
-                                                   selectLayer.x = mouseX < control.x ? control.x : mouseX;
+                                                   selectLayer.x = Math.max(0, mouseX);
                                                    selectLayer.width = selectLayer.newX - selectLayer.x;
                                                }
 
                                                if(mouseY >= selectLayer.newY) {
-                                                   selectLayer.height = (mouseY + 10) < (control.y + control.height) ? (mouseY - selectLayer.y) : selectLayer.height;
-                                                   if(!controlView.atYEnd &&  mouseY > (control.y + control.height))
+                                                   selectLayer.height = Math.min(mouseY, control.height) - selectLayer.y;
+                                                   if(!controlView.atYEnd &&  mouseY > control.height)
                                                    controlView.contentY += 10
                                                } else {
-                                                   selectLayer.y = mouseY < control.y ? control.y : mouseY;
+                                                   selectLayer.y = Math.max(0, mouseY);
                                                    selectLayer.height = selectLayer.newY - selectLayer.y;
 
                                                    if(!controlView.atYBeginning && selectLayer.y === 0)
@@ -708,8 +708,8 @@ Item
                                     }
 
                                     var lassoIndexes = []
-                                    const limitX = mouse.x === lassoRec.x ? lassoRec.x+lassoRec.width : mouse.x
-                                    const limitY =  mouse.y === lassoRec.y ?  lassoRec.y+lassoRec.height : mouse.y
+                                    const limitX = lassoRec.x + lassoRec.width
+                                    const limitY = lassoRec.y + lassoRec.height
 
                                     for(var i =lassoRec.x; i < limitX; i+=(lassoRec.width/(controlView.cellWidth* 0.5)))
                                     {

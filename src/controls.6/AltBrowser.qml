@@ -183,11 +183,11 @@ Maui.Page
 
         focus: control.focus && control.viewType === AltBrowser.ViewType.Grid
         anchors.fill: parent
-        visible: true
+        visible: control.viewType === AltBrowser.ViewType.Grid
         enabled: control.viewType === AltBrowser.ViewType.Grid
         opacity: control.viewType === AltBrowser.ViewType.Grid ? 1 : 0
         currentIndex: control.currentIndex
-        model: control.model
+        model: visible ? control.model : null
         delegate: control.gridDelegate
         enableLassoSelection: control.enableLassoSelection
         selectionMode: control.selectionMode
@@ -202,11 +202,11 @@ Maui.Page
 
         anchors.fill: parent
         focus: control.focus && control.viewType === AltBrowser.ViewType.List
-        visible: true
+        visible: control.viewType === AltBrowser.ViewType.List
         enabled: control.viewType === AltBrowser.ViewType.List
         opacity: control.viewType === AltBrowser.ViewType.List ? 1 : 0
         currentIndex: control.currentIndex
-        model: control.model
+        model: visible ? control.model : null
         delegate: control.listDelegate
         enableLassoSelection: control.enableLassoSelection
         selectionMode: control.selectionMode

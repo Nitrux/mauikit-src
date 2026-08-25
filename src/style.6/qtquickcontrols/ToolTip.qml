@@ -32,27 +32,7 @@ T.ToolTip
     Maui.Theme.colorSet: Maui.Theme.Tooltip
     Maui.Theme.inherit: false
 
-    property real _anchorWidth: 0
-
-    function updateAnchorWidth()
-    {
-        const anchor = controlRoot.parent
-        controlRoot._anchorWidth = anchor ? anchor.width : 0
-    }
-
-    onParentChanged: updateAnchorWidth()
-    Component.onCompleted: updateAnchorWidth()
-
-    Connections
-    {
-        target: controlRoot.parent
-        function onWidthChanged()
-        {
-            controlRoot._anchorWidth = target.width
-        }
-    }
-
-    x: (controlRoot._anchorWidth - controlRoot.implicitWidth) / 2
+    x: parent ? (parent.width - implicitWidth) / 2 : 0
     y: -implicitHeight - 3
 
     implicitWidth: contentItem.implicitWidth + leftPadding + rightPadding

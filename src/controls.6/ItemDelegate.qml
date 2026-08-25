@@ -67,6 +67,12 @@ Control
     ToolTip.timeout: 5000
     ToolTip.visible: control.hovered && control.tooltipText
     ToolTip.text: control._sanitizeTooltip(control.tooltipText)
+
+    onHoveredChanged:
+    {
+        if (!control.hovered)
+            ToolTip.hide()
+    }
     
     /**
      * @brief The text used for the tool-tip, revealed when the item is hovered with the mouse cursor.

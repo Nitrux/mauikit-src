@@ -449,18 +449,18 @@ Item
                                                {
                                                    if(mouseX >= selectLayer.newX)
                                                    {
-                                                       selectLayer.width = (mouseX + 10) < (control.x + control.width) ? (mouseX - selectLayer.x) : selectLayer.width;
+                                                       selectLayer.width = Math.min(mouseX, control.width) - selectLayer.x;
                                                    } else {
-                                                       selectLayer.x = mouseX < control.x ? control.x : mouseX;
+                                                       selectLayer.x = Math.max(0, mouseX);
                                                        selectLayer.width = selectLayer.newX - selectLayer.x;
                                                    }
 
                                                    if(mouseY >= selectLayer.newY) {
-                                                       selectLayer.height = (mouseY + 10) < (control.y + control.height) ? (mouseY - selectLayer.y) : selectLayer.height;
-                                                       if(!_listView.atYEnd &&  mouseY > (control.y + control.height))
+                                                       selectLayer.height = Math.min(mouseY, control.height) - selectLayer.y;
+                                                       if(!_listView.atYEnd &&  mouseY > control.height)
                                                        _listView.contentY += 10
                                                    } else {
-                                                       selectLayer.y = mouseY < control.y ? control.y : mouseY;
+                                                       selectLayer.y = Math.max(0, mouseY);
                                                        selectLayer.height = selectLayer.newY - selectLayer.y;
 
                                                        if(!_listView.atYBeginning && selectLayer.y === 0)
@@ -516,7 +516,7 @@ Item
                                         }
 
                                         var lassoIndexes = []
-                                        var limitY =  mouse.y === lassoRec.y ?  lassoRec.y+lassoRec.height : mouse.y
+                                        var limitY = lassoRec.y + lassoRec.height
                                         var y = lassoRec.y
                                         for(y; y < limitY; y+=10)
                                         {

@@ -881,20 +881,22 @@ Pane
 
                                             anchors.centerIn: parent
 
-                                            property real previewScale: 1
+                                            property bool previewSized: false
                                             property int previewSourceWidth: 0
                                             property int previewSourceHeight: 0
+                                            property real previewScale: 0
 
-                                            onWidthChanged: if (parent.previewDebug) console.log("TabView preview effect width", width, "height", height, "scale", previewScale)
-                                            onHeightChanged: if (parent.previewDebug) console.log("TabView preview effect height", width, "height", height, "scale", previewScale)
-                                            Component.onCompleted:
+                                            function updatePreviewSize()
                                             {
-                                                if (sourceItem.width > 0 && sourceItem.height > 0)
-                                                {
-                                                    previewSourceWidth = sourceItem.width
-                                                    previewSourceHeight = sourceItem.height
-                                                    previewScale = Math.min(parent.height/previewSourceHeight, parent.width/previewSourceWidth)
-                                                }
+                                                if (previewSized || !sourceItem
+                                                        || sourceItem.width <= 0 || sourceItem.height <= 0
+                                                        || parent.width <= 0 || parent.height <= 0)
+                                                    return
+
+                                                previewSourceWidth = sourceItem.width
+                                                previewSourceHeight = sourceItem.height
+                                                previewScale = Math.min(parent.height / previewSourceHeight, parent.width / previewSourceWidth)
+                                                previewSized = true
 
                                                 if (parent.previewDebug)
                                                 {
@@ -902,8 +904,22 @@ Pane
                                                 }
                                             }
 
-                                            height: previewSourceHeight > 0 ? previewSourceHeight * previewScale : sourceItem.height * previewScale
-                                            width: previewSourceWidth > 0 ? previewSourceWidth * previewScale : sourceItem.width * previewScale
+                                            onSourceItemChanged:
+                                            {
+                                                previewSized = false
+                                                previewSourceWidth = 0
+                                                previewSourceHeight = 0
+                                                previewScale = 0
+                                                updatePreviewSize()
+                                            }
+
+                                            Component.onCompleted: updatePreviewSize()
+
+                                            onWidthChanged: if (parent.previewDebug) console.log("TabView preview effect width", width, "height", height, "scale", previewScale)
+                                            onHeightChanged: if (parent.previewDebug) console.log("TabView preview effect height", width, "height", height, "scale", previewScale)
+
+                                            height: previewSourceHeight * previewScale
+                                            width: previewSourceWidth * previewScale
 
                                             hideSource: false
                                             live: false
@@ -911,6 +927,37 @@ Pane
 
                                             textureSize: Qt.size(width,height)
                                             sourceItem: _listView.contentModel.get(index)
+
+                                            Connections
+                                            {
+                                                target: _effect.sourceItem
+
+                                                function onWidthChanged()
+                                                {
+                                                    _effect.updatePreviewSize()
+                                                }
+
+                                                function onHeightChanged()
+                                                {
+                                                    _effect.updatePreviewSize()
+                                                }
+                                            }
+
+                                            Connections
+                                            {
+                                                target: _previewClip
+
+                                                function onWidthChanged()
+                                                {
+                                                    _effect.updatePreviewSize()
+                                                }
+
+                                                function onHeightChanged()
+                                                {
+                                                    _effect.updatePreviewSize()
+                                                }
+                                            }
+
                                             layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software && Maui.Style.enableEffects
                                             layer.smooth: true
                                             layer.effect: MultiEffect

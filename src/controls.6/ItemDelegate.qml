@@ -267,6 +267,9 @@ Control
 
     function _captureDragPreview()
     {
+        if (!control.draggable)
+            return
+
         if (control.dragPreviewSource.toString().length > 0)
         {
             control.Drag.imageSource = control.dragPreviewSource
@@ -274,7 +277,14 @@ Control
         }
 
         control._creatingDragPreview = true
-        const started = _dragPreview.grabToImage(function(result)
+        const preview = _dragPreviewLoader.item
+        if (!preview)
+        {
+            control._creatingDragPreview = false
+            return
+        }
+
+        const started = preview.grabToImage(function(result)
         {
             control.Drag.imageSource = result.url
             control._creatingDragPreview = false
@@ -284,43 +294,47 @@ Control
             control._creatingDragPreview = false
     }
 
-    readonly property Item _dragPreview: Rectangle
+    readonly property alias _dragPreview: _dragPreviewLoader.item
+
+    Loader
     {
-        parent: control.Window.window ? control.Window.window.contentItem : null
-
-        x: -width - 1
-        y: -height - 1
-        width: control.width
-        height: control.height
-        visible: parent !== null
-
-        color: control.dragPreviewBackgroundColor
-        radius: control.radius
-        clip: true
-
-        ShaderEffectSource
+        id: _dragPreviewLoader
+        active: control.draggable && control._creatingDragPreview
+        sourceComponent: Rectangle
         {
-            x: control.contentItem.x
-            y: control.contentItem.y
-            width: control.contentItem.width
-            height: control.contentItem.height
+            x: -width - 1
+            y: -height - 1
+            width: control.width
+            height: control.height
 
-            sourceItem: control.contentItem
-            sourceRect: Qt.rect(0, 0, control.contentItem.width, control.contentItem.height)
-            live: control._creatingDragPreview
-            recursive: true
-            hideSource: false
-        }
-
-        Rectangle
-        {
-            anchors.fill: parent
-
-            color: "transparent"
+            color: control.dragPreviewBackgroundColor
             radius: control.radius
-            border.width: control.dragPreviewBorderWidth
-            border.color: control.dragPreviewBorderColor
-            antialiasing: true
+            clip: true
+
+            ShaderEffectSource
+            {
+                x: control.contentItem.x
+                y: control.contentItem.y
+                width: control.contentItem.width
+                height: control.contentItem.height
+
+                sourceItem: control.contentItem
+                sourceRect: Qt.rect(0, 0, control.contentItem.width, control.contentItem.height)
+                live: control._creatingDragPreview
+                recursive: true
+                hideSource: false
+            }
+
+            Rectangle
+            {
+                anchors.fill: parent
+
+                color: "transparent"
+                radius: parent.radius
+                border.width: control.dragPreviewBorderWidth
+                border.color: control.dragPreviewBorderColor
+                antialiasing: true
+            }
         }
     }
 

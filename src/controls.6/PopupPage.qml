@@ -139,7 +139,7 @@ Maui.Popup
 
     margins: 0
 
-    filling: persistent && mWidth === control.parent.width
+    filling: control.parent ? persistent && mWidth === control.parent.width : false
 
     /**
      * @brief Default children content will be added to a scrollable ColumnLayout.

@@ -77,8 +77,8 @@ QQC.Popup
         }
     }
 
-    width: (filling ? parent.width  : mWidth)
-    height: (filling ? parent.height : mHeight)
+    width: (filling && parent ? parent.width : mWidth)
+    height: (filling && parent ? parent.height : mHeight)
 
     anchors.centerIn: parent
     
@@ -104,8 +104,8 @@ QQC.Popup
         }
     }
     
-    readonly property int mWidth: Math.round(Math.min(control.parent.width * widthHint, maxWidth))
-    readonly property int mHeight: Math.round(Math.min(control.parent.height * heightHint, maxHeight))
+    readonly property int mWidth: control.parent ? Math.round(Math.min(control.parent.width * widthHint, maxWidth)) : 0
+    readonly property int mHeight: control.parent ? Math.round(Math.min(control.parent.height * heightHint, maxHeight)) : 0
     
     margins: filling ? 0 : Maui.Style.space.medium
         

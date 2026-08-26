@@ -198,7 +198,7 @@ Item
         width: imageSizeHint >=0 ? Math.min(parent.width, imageSizeHint) : parent.width
         height: imageSizeHint >= 0 ? Math.min(parent.height, imageSizeHint) : parent.height
 //
-        visible: status == Image.Ready
+        visible: true
         // height: visible ? (control.imageSizeHint > parent.height ? parent.height : control.imageSizeHint) : 0
         // width: visible ? (control.imageSizeHint > parent.width ? parent.width : control.imageSizeHint) : 0
 

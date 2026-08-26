@@ -129,6 +129,21 @@ Item
     property int imageSizeHint : -1
 
     /**
+     * @see IconItem::imageColorize
+     */
+    property bool imageColorize: false
+
+    /**
+     * @see IconItem::imageColorizationColor
+     */
+    property color imageColorizationColor: control.iconColor
+
+    /**
+     * @see IconItem::imageBrightness
+     */
+    property real imageBrightness: 0
+
+    /**
            * @see IconItem::imageSource
            */
     property string imageSource
@@ -228,6 +243,10 @@ Item
             smooth: control.smooth
             iconSizeHint: control.iconSizeHint
             imageSizeHint: control.imageSizeHint
+
+            imageColorize: control.imageColorize
+            imageColorizationColor: control.imageColorizationColor
+            imageBrightness: control.imageBrightness
 
             fillMode: control.fillMode
             maskRadius: control.maskRadius

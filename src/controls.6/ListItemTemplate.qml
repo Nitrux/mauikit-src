@@ -172,6 +172,21 @@ Item
           property int imageSizeHint : -1
 
           /**
+           * @see IconItem::imageColorize
+           */
+          property bool imageColorize: false
+
+          /**
+           * @see IconItem::imageColorizationColor
+           */
+          property color imageColorizationColor: control.foregroundColor
+
+          /**
+           * @see IconItem::imageBrightness
+           */
+          property real imageBrightness: 0
+
+          /**
            * @brief The size of the header section. This is the size the header container will take.
            * By default this is set to `-1` which means that the size of the header will be determined by the child implicit height and width.
            */
@@ -251,6 +266,10 @@ Item
 
                     iconSizeHint: control.iconSizeHint
                     imageSizeHint: control.imageSizeHint
+
+                    imageColorize: control.imageColorize
+                    imageColorizationColor: control.imageColorizationColor
+                    imageBrightness: control.imageBrightness
 
                     fillMode: control.fillMode
                     maskRadius: control.maskRadius

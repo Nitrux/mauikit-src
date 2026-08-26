@@ -169,6 +169,21 @@ Item
     property color color: Maui.Theme.textColor
 
     /**
+     * @brief Whether the image should be colorized using imageColorizationColor.
+     */
+    property bool imageColorize: false
+
+    /**
+     * @brief The color used when imageColorize is enabled.
+     */
+    property color imageColorizationColor: color
+
+    /**
+     * @brief The brightness adjustment applied when imageColorize is enabled.
+     */
+    property real imageBrightness: 0
+
+    /**
      * @brief The aligment of the image in the container.
      * If the `imageSizeHint` has been set to a smaller size than the container, then its alignment will be dtermined by this property. Otherwise the image will fill the container size.
      * By default this is set to `Qt.AlignHCenter`.
@@ -221,10 +236,13 @@ Item
         smooth: control.smooth
         mipmap: false
 
-        layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software && control.maskRadius
+        layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software && (control.maskRadius || control.imageColorize)
         layer.effect: MultiEffect
         {
-            maskEnabled: true
+            colorization: control.imageColorize ? 1 : 0
+            brightness: control.imageBrightness
+            colorizationColor: control.imageColorizationColor
+            maskEnabled: control.maskRadius > 0
             maskThresholdMin: 0.5
             maskSpreadAtMin: 1.0
             maskSpreadAtMax: 0.0

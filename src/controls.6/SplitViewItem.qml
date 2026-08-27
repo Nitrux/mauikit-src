@@ -126,7 +126,7 @@ Pane
                         opacity: control.SplitView.view.orientation === Qt.Vertical ? (control.minimumHeight) / control.height : (control.minimumWidth) / control.width
                         scale: opacity * 1
 
-                        Maui.Theme.backgroundColor: Maui.Theme.negativeTextColor
+                        color: Maui.Theme.negativeTextColor
                         label.text: i18nd("mauikit", "Close")
                     }
                 }

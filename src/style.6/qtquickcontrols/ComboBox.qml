@@ -40,6 +40,7 @@ import QtQuick.Templates as T
 
 import org.mauikit.controls as Maui
 import QtQuick.Effects
+import QtQuick.Shapes
 
 T.ComboBox
 {
@@ -81,15 +82,35 @@ T.ComboBox
         Maui.Theme.inherit: control.Maui.Theme.inherit
     }
     
-    indicator: Maui.Icon
+    indicator: Shape
     {
+        id: _indicator
+
+        layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software && smooth
+        layer.samples: 4
+        smooth: true
+
         x: control.mirrored ? control.leftPadding : control.width - width - control.rightPadding
         y: (control.topPadding + (control.availableHeight - height) / 2) - 2
-        color: _icon.color
-        source: "qrc:/assets/arrow-down.svg"
         height: 8
         width: 8
-        
+        property color color: _icon.color
+        readonly property real arrowLeft: width / 8
+        readonly property real arrowTop: height * 3 / 8
+        readonly property real arrowWidth: width * 3 / 4
+        readonly property real arrowHeight: height / 2
+
+        ShapePath
+        {
+            fillColor: _indicator.color
+            strokeColor: "transparent"
+            startX: _indicator.arrowLeft
+            startY: _indicator.arrowTop
+            PathLine { x: _indicator.arrowLeft + _indicator.arrowWidth; y: _indicator.arrowTop }
+            PathLine { x: _indicator.arrowLeft + _indicator.arrowWidth / 2; y: _indicator.arrowTop + _indicator.arrowHeight }
+            PathLine { x: _indicator.arrowLeft; y: _indicator.arrowTop }
+        }
+
         Behavior on color
         {
             Maui.ColorTransition{}

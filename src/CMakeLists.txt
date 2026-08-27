@@ -136,14 +136,6 @@ if(${SUPPORT_PLUGINS})
     add_definitions(-DSUPPORT_PLUGINS)
 endif()
 
-if(BUNDLE_LUV_ICONS)
-    if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/icons/luv-icon-theme/.git)
-        find_package(Git REQUIRED)
-        execute_process(COMMAND ${GIT_EXECUTABLE} clone --depth 1 https://github.com/Nitrux/luv-icon-theme.git ${CMAKE_CURRENT_SOURCE_DIR}/icons/luv-icon-theme)
-    endif()
-    qt_add_resources(icons_QML_QRC icons.qrc)
-    target_sources(MauiKit${MAUI_MAJOR_VERSION} PRIVATE ${icons_QML_QRC})
-endif()
 
 set(kwin_XCB_LIBS
     XCB::ICCCM
@@ -382,10 +374,6 @@ ecm_target_qml_sources(MauiKit${MAUI_MAJOR_VERSION} PATH private/linux SOURCES
 add_definitions(-DBUNDLE_MAUI_STYLE)
 target_compile_definitions(MauiKit${MAUI_MAJOR_VERSION} PUBLIC BUNDLE_MAUI_STYLE)
 
-if(BUNDLE_LUV_ICONS)
-    add_definitions(-DBUNDLE_LUV_ICONS)
-    target_compile_definitions(MauiKit${MAUI_MAJOR_VERSION} PUBLIC BUNDLE_LUV_ICONS)
-endif()
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/platforms/linux

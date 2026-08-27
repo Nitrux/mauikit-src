@@ -20,7 +20,7 @@ ToolButton
 {
     id: control
     
-    icon.source: "qrc:/assets/close.svg"
+    icon.name: "window-close"
     icon.color: control.hovered || control.containsPress ? control.Maui.Theme.negativeTextColor : control.Maui.Theme.textColor
     
     background: Rectangle

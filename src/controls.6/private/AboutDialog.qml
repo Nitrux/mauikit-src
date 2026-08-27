@@ -293,14 +293,59 @@ Maui.PopupPage
         opacity: 0.7
         spacing: Maui.Style.space.small
 
-        Maui.Icon
+        RowLayout
         {
-            visible: Maui.App.about.copyrightStatement.indexOf("Maui") > 0
             Layout.alignment: Qt.AlignCenter
-            source: "qrc:/assets/mauikit.svg"
-            color: Maui.Theme.textColor
-            implicitHeight: Maui.Style.iconSizes.big
-            implicitWidth: implicitHeight
+            spacing: Maui.Style.space.small
+
+            Maui.Icon
+            {
+                id: _mauikitLogo
+                visible: Maui.App.about.copyrightStatement.indexOf("Maui") > 0
+                Layout.alignment: Qt.AlignVCenter
+                source: "qrc:/assets/mauikit.svg"
+                color: Maui.Theme.textColor
+                implicitHeight: Maui.Style.iconSizes.medium
+                implicitWidth: implicitHeight
+            }
+
+            Label
+            {
+                visible: _mauikitLogo.visible && (_nitruxLogo.visible || _kdeLogo.visible)
+                Layout.alignment: Qt.AlignVCenter
+                text: "•"
+                color: Maui.Theme.textColor
+            }
+
+            Maui.Icon
+            {
+                id: _nitruxLogo
+                visible: Maui.App.about.copyrightStatement.indexOf("Nitrux") > 0
+                Layout.alignment: Qt.AlignVCenter
+                source: "qrc:/assets/nitrux.svg"
+                color: Maui.Theme.textColor
+                implicitHeight: Maui.Style.iconSizes.medium
+                implicitWidth: implicitHeight
+            }
+
+            Label
+            {
+                visible: _nitruxLogo.visible && _kdeLogo.visible
+                Layout.alignment: Qt.AlignVCenter
+                text: "•"
+                color: Maui.Theme.textColor
+            }
+
+            Maui.Icon
+            {
+                id: _kdeLogo
+                visible: Maui.App.about.copyrightStatement.indexOf("KDE") > 0
+                Layout.alignment: Qt.AlignVCenter
+                source: "qrc:/assets/kde.svg"
+                color: Maui.Theme.textColor
+                implicitHeight: Maui.Style.iconSizes.medium
+                implicitWidth: implicitHeight
+            }
         }
 
         Maui.ListItemTemplate

@@ -37,12 +37,6 @@ qreal effectiveDevicePixelRatio(const QQuickItem *item)
     return qGuiApp ? qGuiApp->devicePixelRatio() : 1.0;
 }
 
-QSize devicePixelSize(const QSize &size, qreal devicePixelRatio)
-{
-    return QSize(qMax(1, qRound(size.width() * devicePixelRatio)),
-                 qMax(1, qRound(size.height() * devicePixelRatio)));
-}
-
 bool isMaskSize(const QSize &logicalSize)
 {
     // Use logical dimensions so 2x icon buffers retain their standard-size classification.
@@ -54,7 +48,7 @@ QImage iconToImage(const QQuickItem *item, const QIcon &icon, const QSize &logic
 {
     const qreal devicePixelRatio = effectiveDevicePixelRatio(item);
     const QSize actualSize = icon.actualSize(logicalSize, mode, state);
-    return icon.pixmap(devicePixelSize(actualSize, devicePixelRatio), devicePixelRatio, mode, state).toImage();
+    return icon.pixmap(actualSize, devicePixelRatio, mode, state).toImage();
 }
 }
 

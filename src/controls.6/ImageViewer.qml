@@ -211,7 +211,7 @@ Flickable
                 visible: image.status === Image.Error || image.status === Image.Null
                 title: i18nd("mauikit", "Oops!")
                 body: i18nd("mauikit", "The image could not be loaded.")
-                emoji: "qrc:/assets/dialog-information.svg"
+                emoji: "dialog-information"
             }
             
             MouseArea {

@@ -28,10 +28,6 @@
 #include <KLocalizedString>
 #include <KCoreAddons>
 
-#if defined BUNDLE_LUV_ICONS
-#include <QIcon>
-#endif
-
 #include <QQuickStyle>
 #include <QMessageLogContext>
 #include <QDebug>
@@ -83,15 +79,6 @@ MauiApp::MauiApp(QObject *parent)
     aboutData.addComponent(QStringLiteral("KDE Frameworks"), "", KCoreAddons::versionString(), "https://kde.org");
 
 
-#if defined BUNDLE_LUV_ICONS
-    const auto luvData = MauiKitCore::aboutLuv();
-    aboutData.addComponent(luvData.name(),
-                           "",
-                           luvData.version(),
-                           luvData.webAddress(),
-                           luvData.license().key());
-#endif
-
     KAboutData::setApplicationData(aboutData);
     setDefaultMauiStyle();
 }
@@ -136,12 +123,6 @@ KAboutData MauiApp::getAbout() const
 
 void MauiApp::setDefaultMauiStyle()
 {
-#if defined BUNDLE_LUV_ICONS
-    Q_INIT_RESOURCE(icons);
-    QIcon::setThemeSearchPaths({":/icons/luv-icon-theme"});
-    QIcon::setThemeName("Luv");
-#endif
-
     // if (!qEnvironmentVariableIsSet("QT_QUICK_CONTROLS_STYLE"))
     {
         QQuickStyle::setStyle(QStringLiteral("org.mauikit.style"));

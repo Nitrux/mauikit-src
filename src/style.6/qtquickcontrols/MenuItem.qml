@@ -36,6 +36,7 @@
 
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Shapes
 
 import QtQuick.Templates as T
 import org.mauikit.controls as Maui
@@ -110,17 +111,36 @@ T.MenuItem
         }
     }
     
-    arrow: Maui.Icon
+    arrow: Shape
     {
+        id: _arrow
+
+        layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software && smooth
+        layer.samples: 4
+        smooth: true
+
         x: control.width - width - control.rightPadding
         y: control.topPadding + (control.availableHeight - height) / 2
-        
+
         visible: control.subMenu
-        //        mirror: control.mirrored
-        color: control.icon.color
+        property color color: control.icon.color
+        readonly property real arrowLeft: width * 3 / 8
+        readonly property real arrowTop: height / 8
+        readonly property real arrowWidth: width / 2
+        readonly property real arrowHeight: height * 3 / 4
         height: 10
         width: 10
-        source: "qrc:/assets/arrow-right.svg"
+
+        ShapePath
+        {
+            fillColor: _arrow.color
+            strokeColor: "transparent"
+            startX: _arrow.arrowLeft + _arrow.arrowWidth
+            startY: _arrow.arrowTop + _arrow.arrowHeight / 2
+            PathLine { x: _arrow.arrowLeft; y: _arrow.arrowTop + _arrow.arrowHeight }
+            PathLine { x: _arrow.arrowLeft; y: _arrow.arrowTop }
+            PathLine { x: _arrow.arrowLeft + _arrow.arrowWidth; y: _arrow.arrowTop + _arrow.arrowHeight / 2 }
+        }
     }
     
     contentItem: RowLayout

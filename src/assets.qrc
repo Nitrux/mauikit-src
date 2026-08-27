@@ -1,21 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file>assets/mauikit-logo.png</file>
-        <file>assets/application-x-zerosize.svg</file>
-        <file>assets/opendesktop.png</file>
-        <file>assets/folder-add.svg</file>
-        <file>assets/view-refresh.svg</file>
-        <file>assets/edit-find.svg</file>
-        <file>assets/dialog-information.svg</file>
-        <file>assets/cover.png</file>
         <file>assets/kde.svg</file>
         <file>assets/nitrux.svg</file>
         <file>assets/mauikit.svg</file>
-        <file>assets/application-x-zerosize.png</file>
-        <file>assets/close.svg</file>
-        <file>assets/arrow-down.svg</file>
-        <file>assets/arrow-right.svg</file>
-        <file>assets/noise.png</file>
         <file>assets/subtle-dots.png</file>
         <file>assets/notification_simple-01.wav</file>
         <file>assets/notification_simple-02.wav</file>

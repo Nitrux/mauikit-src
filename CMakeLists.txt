@@ -63,7 +63,6 @@ include(ECMSetupVersion)
 include(CMakePackageConfigHelpers)
 
 option(BUILD_DEMO "Build the MauiKit Demo application." OFF)
-option(BUNDLE_LUV_ICONS "Ship Luv icon bundled." OFF)
 
 find_package(Qt${QT_MAJOR_VERSION} ${REQUIRED_QT_VERSION} REQUIRED COMPONENTS
     Core

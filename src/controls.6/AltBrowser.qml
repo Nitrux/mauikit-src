@@ -15,7 +15,7 @@ import org.mauikit.controls as Maui
  *
  *    @note This control supports the attached `Controls.showCSD` property to display the window control buttons when using CSD.
  *
- *    The AltBrowser makes use of the GridView and ListBrowser components, there is a property to dinamically switch between the two.
+ *    The AltBrowser makes use of the GridView and ListBrowser components, and can host an optional custom view.
  *
  *    For some navigation patterns is a good idea to provide a grid view when the application screen size is wide enough to fit numerous items and a list view when the space is contrained - since the list is much more compact - and makes navigation quicker.
  *    @see viewType
@@ -87,19 +87,22 @@ Maui.Page
      * @see listView
      * @see gridView
      */
-    readonly property Item currentView : control.viewType === AltBrowser.ViewType.List ? _listView : _gridView
+    readonly property Item currentView : control.viewType === AltBrowser.ViewType.Custom && control.customView
+                                          ? control.customView
+                                          : control.viewType === AltBrowser.ViewType.List ? _listView : _gridView
 
-    onCurrentViewChanged: control.currentView.forceActiveFocus()
+    onCurrentViewChanged: if (control.currentView) control.currentView.forceActiveFocus()
 
     /**
-     * @brief The two different view types possible.
+     * @brief The available view types.
      * @enum Grid AltBrowser.Grid handled by the GridBrowser control.
      * @enum List AltBrowser.List hanlded by the ListBrowser control.
      */
     enum ViewType
     {
         Grid,
-        List
+        List,
+        Custom
     }
 
     /**
@@ -108,10 +111,16 @@ Maui.Page
      * The type can be one of:
      * - ViewType.Grid
      * - ViewType.List      The default
+     * - ViewType.Custom    An externally provided view
      *
      * @see ViewType
      */
     property int viewType: AltBrowser.ViewType.List
+
+    /**
+     *  An optional view used when viewType is ViewType.Custom.
+     */
+    property Item customView: null
 
     /**
      * @brief The index of the current item selected in either view type.
@@ -173,9 +182,9 @@ Maui.Page
     /**
      * @brief The total amount of items in the current view.
      */
-    readonly property int count : currentView.count
+    readonly property int count : currentView ? currentView.count : 0
 
-    flickable:  currentView.flickable
+    flickable: currentView ? currentView.flickable : null
 
     Maui.GridBrowser
     {

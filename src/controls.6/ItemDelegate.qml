@@ -259,9 +259,6 @@ Control
 
         function onActiveChanged()
         {
-            if (control.draggable && mouseArea.drag.active)
-                control._captureDragPreview()
-
             control.Drag.active = control.draggable && mouseArea.drag.active
         }
     }
@@ -285,22 +282,10 @@ Control
             return
         }
 
-        control._creatingDragPreview = true
-        const preview = _dragPreviewLoader.item
-        if (!preview)
-        {
-            control._creatingDragPreview = false
-            return
-        }
-
-        const started = preview.grabToImage(function(result)
+        control.grabToImage(function(result)
         {
             control.Drag.imageSource = result.url
-            control._creatingDragPreview = false
-        }, Qt.size(Math.ceil(control.width), Math.ceil(control.height)))
-
-        if (!started)
-            control._creatingDragPreview = false
+        })
     }
 
     readonly property alias _dragPreview: _dragPreviewLoader.item
@@ -390,6 +375,7 @@ Control
                 {
                     drag.target = _mouseArea
                     control.Drag.imageSource = ""
+                    control._captureDragPreview()
                 } else {
                     drag.target = null
                 }
@@ -416,6 +402,7 @@ Control
                     deferredPressAndHold = true
                     drag.target = _mouseArea
                     control.Drag.imageSource = ""
+                    control._captureDragPreview()
                 } else {
                     deferredPressAndHold = false
                     drag.target = null

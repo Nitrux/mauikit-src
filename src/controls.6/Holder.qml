@@ -219,7 +219,7 @@ Item
             active: control.height > (_template.implicitHeight + control.emojiSize)
             height: visible ? control.emojiSize : 0
             width: height
-            asynchronous: true
+            asynchronous: false
             sourceComponent: control.isGif ? animComponent : imgComponent
         }
 

@@ -205,7 +205,7 @@ Control
     contentItem: Loader
     {
         id: _loader
-        asynchronous: true
+        asynchronous: false
         sourceComponent: control.expanded ? _rowComponent : (control.canCyclic ? _buttonComponent : _toolButtonMenuComponent)        
     }
     

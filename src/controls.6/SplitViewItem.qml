@@ -167,7 +167,7 @@ Pane
                            }
             }
 
-            layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software && control.padding > 0
+            layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software && control.padding > 0 && !control.SplitView.view.resizing
             layer.smooth: true
             layer.effect: MultiEffect
             {

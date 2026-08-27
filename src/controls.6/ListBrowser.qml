@@ -416,7 +416,7 @@ Item
 
                 Loader
                 {
-                    asynchronous: true
+                    asynchronous: false
                     anchors.fill: parent
                     //                active: !Maui.Handy.hasTransientTouchInput && !Maui.Handy.isMobile
 

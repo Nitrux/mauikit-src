@@ -333,7 +333,10 @@ Control
 
             function updateToastHeight()
             {
-                const calculatedHeight = _listView.contentHeight + _listView.topPadding + _listView.bottomPadding
+                const calculatedHeight = _container.contentHeight
+                    + Math.max(0, _container.count - 1) * _listView.spacing
+                    + (_listView.footerItem ? _listView.footerItem.height : 0)
+                    + _listView.topPadding + _listView.bottomPadding
                 toastHeight = Math.min(maxToastHeight, Math.max(120, calculatedHeight))
             }
 

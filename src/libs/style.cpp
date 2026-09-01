@@ -492,7 +492,7 @@ void Style::unsetStyeType()
         }
     }
 
-    const auto oldStyleType = styleType();
+    const auto oldStyleType = this->styleType();
     m_styleType = static_cast<Style::StyleType>(styleType);
     if (oldStyleType != this->styleType())
         Q_EMIT styleTypeChanged(this->styleType());

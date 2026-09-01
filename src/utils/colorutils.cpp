@@ -5,6 +5,7 @@
  */
 
 #include "colorutils.h"
+#include "imagecolors.h"
 
 #include <QIcon>
 #include <QtMath>
@@ -311,6 +312,109 @@ qreal ColorUtils::luminance(const QColor &color)
     const auto &xyz = colorToXYZ(color);
     // Luminance is equal to Y
     return xyz.y;
+}
+
+MauiKit::AdaptivePalette MauiKit::AdaptivePalette::fromImage(const QImage &image)
+{
+    if (image.isNull())
+        return {};
+
+    const QImage sample = image.width() > 128 || image.height() > 128
+        ? image.scaled(128, 128, Qt::KeepAspectRatio, Qt::SmoothTransformation)
+        : image;
+    return fromImageData(ImageColors::generatePalette(sample));
+}
+
+MauiKit::AdaptivePalette MauiKit::AdaptivePalette::fromImageData(const ImageData &imageData)
+{
+    MauiKit::AdaptivePalette result;
+    if (imageData.m_samples.isEmpty() || imageData.m_dominant.isValid() == false || imageData.m_highlight.isValid() == false)
+        return result;
+
+    ColorUtils colorUtils;
+    const bool isDark = qGray(imageData.m_dominant.rgb()) < 128;
+    const auto closestToWhite = [&imageData]() {
+        if (qGray(imageData.m_closestToWhite.rgb()) < 200)
+            return QColor(230, 230, 230);
+        return imageData.m_closestToWhite;
+    };
+    const auto closestToBlack = [&imageData]() {
+        if (qGray(imageData.m_closestToBlack.rgb()) > 80)
+            return QColor(20, 20, 20);
+        return imageData.m_closestToBlack;
+    };
+    const QColor foreground = isDark ? closestToWhite() : closestToBlack();
+    const QColor imageBackground = isDark ? closestToBlack() : closestToWhite();
+    const QColor highlight = imageData.m_highlight;
+    const QColor backgroundBase = isDark ? QColor("#27292a") : QColor("#e8e8e8");
+    const QColor buttonBase = isDark ? QColor("#4c5052") : QColor("#ffffff");
+    const QColor viewBase = isDark ? QColor("#0a0b0b") : QColor("#fafafa");
+    const QColor viewAlternateBase = isDark ? QColor("#1a1e1e") : QColor("#f0f0f0");
+    const QColor viewHoverBase = isDark ? QColor("#1f1f1f") : QColor("#e5e5e5");
+    const QColor hoverBase = isDark ? QColor("#202727") : QColor("#dbdbdb");
+    const QColor buttonHoverBase = isDark ? QColor("#7d8487") : QColor("#f2f2f2");
+
+    result.valid = true;
+    result.textColor = foreground;
+    result.disabledTextColor = foreground.lighter(120);
+    result.highlightColor = highlight;
+    result.highlightedTextColor = colorUtils.brightnessForColor(highlight) == ColorUtils::Dark ? closestToWhite() : closestToBlack();
+    const QColor background = colorUtils.tintWithAlpha(backgroundBase, imageBackground, 0.1);
+    result.backgroundColor = colorUtils.tintWithAlpha(background, highlight, 0.03);
+    result.activeBackgroundColor = highlight;
+    result.alternateBackgroundColor = colorUtils.tintWithAlpha(result.backgroundColor, highlight, 0.02);
+    result.hoverColor = colorUtils.tintWithAlpha(hoverBase, highlight, 0.02);
+    result.focusColor = highlight;
+    result.activeTextColor = highlight;
+
+    result.buttonTextColor = foreground;
+    result.buttonBackgroundColor = colorUtils.tintWithAlpha(buttonBase, highlight, 0.06);
+    result.buttonAlternateBackgroundColor = colorUtils.tintWithAlpha(buttonBase, highlight, 0.03);
+    result.buttonHoverColor = colorUtils.tintWithAlpha(buttonHoverBase, highlight, 0.03);
+    result.buttonFocusColor = highlight;
+
+    result.viewTextColor = foreground;
+    result.viewBackgroundColor = colorUtils.tintWithAlpha(viewBase, highlight, 0.07);
+    result.viewAlternateBackgroundColor = colorUtils.tintWithAlpha(viewAlternateBase, highlight, 0.03);
+    result.viewHoverColor = colorUtils.tintWithAlpha(viewHoverBase, highlight, 0.03);
+    result.viewFocusColor = highlight;
+
+    result.selectionTextColor = QColor("#fcfcfc");
+    result.selectionBackgroundColor = highlight;
+    result.selectionAlternateBackgroundColor = highlight.darker();
+    result.selectionHoverColor = highlight.lighter();
+    result.selectionFocusColor = highlight;
+
+    result.complementaryTextColor = QColor("#eff0f1");
+    result.complementaryBackgroundColor = colorUtils.tintWithAlpha(QColor("#31363b"), highlight, 0.03);
+    result.complementaryAlternateBackgroundColor = result.complementaryBackgroundColor.darker();
+    result.complementaryHoverColor = result.complementaryBackgroundColor.lighter();
+    result.complementaryFocusColor = highlight;
+
+    result.headerTextColor = foreground;
+    result.headerBackgroundColor = colorUtils.tintWithAlpha(background, highlight, 0.05);
+    result.headerAlternateBackgroundColor = colorUtils.tintWithAlpha(background, highlight, 0.02);
+    result.headerHoverColor = result.headerBackgroundColor.lighter();
+    result.headerFocusColor = highlight;
+
+    result.linkColor = QColor("#2980B9");
+    result.linkBackgroundColor = QColor("#2980B9");
+    result.visitedLinkColor = QColor("#7F8C8D");
+    result.visitedLinkBackgroundColor = QColor("#2196F3");
+    result.negativeTextColor = QColor("#dac7cb");
+    result.negativeBackgroundColor = QColor("#DA4453");
+    result.neutralTextColor = QColor("#fafafa");
+    result.neutralBackgroundColor = QColor("#F67400");
+    result.positiveTextColor = QColor("#fafafa");
+    result.positiveBackgroundColor = QColor("#27AE60");
+
+    result.tooltipTextColor = QColor("#fafafa");
+    result.tooltipBackgroundColor = QColor("#333");
+    result.tooltipAlternateBackgroundColor = result.tooltipBackgroundColor.darker();
+    result.tooltipHoverColor = QColor("#000");
+    result.tooltipFocusColor = QColor("#000");
+
+    return result;
 }
 
 #include "moc_colorutils.cpp"

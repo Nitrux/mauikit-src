@@ -10,6 +10,80 @@
 #include <QJSValue>
 #include <QObject>
 #include <QQuickItem>
+#include "mauikit_export.h"
+
+class QImage;
+struct ImageData;
+
+namespace MauiKit
+{
+class MAUIKIT_EXPORT AdaptivePalette
+{
+public:
+    bool valid = false;
+
+    QColor textColor;
+    QColor disabledTextColor;
+    QColor highlightColor;
+    QColor highlightedTextColor;
+    QColor backgroundColor;
+    QColor alternateBackgroundColor;
+    QColor hoverColor;
+    QColor focusColor;
+    QColor activeTextColor;
+    QColor activeBackgroundColor;
+    QColor linkColor;
+    QColor linkBackgroundColor;
+    QColor visitedLinkColor;
+    QColor visitedLinkBackgroundColor;
+    QColor negativeTextColor;
+    QColor negativeBackgroundColor;
+    QColor neutralTextColor;
+    QColor neutralBackgroundColor;
+    QColor positiveTextColor;
+    QColor positiveBackgroundColor;
+
+    QColor buttonTextColor;
+    QColor buttonBackgroundColor;
+    QColor buttonAlternateBackgroundColor;
+    QColor buttonHoverColor;
+    QColor buttonFocusColor;
+
+    QColor viewTextColor;
+    QColor viewBackgroundColor;
+    QColor viewAlternateBackgroundColor;
+    QColor viewHoverColor;
+    QColor viewFocusColor;
+
+    QColor selectionTextColor;
+    QColor selectionBackgroundColor;
+    QColor selectionAlternateBackgroundColor;
+    QColor selectionHoverColor;
+    QColor selectionFocusColor;
+
+    QColor tooltipTextColor;
+    QColor tooltipBackgroundColor;
+    QColor tooltipAlternateBackgroundColor;
+    QColor tooltipHoverColor;
+    QColor tooltipFocusColor;
+
+    QColor complementaryTextColor;
+    QColor complementaryBackgroundColor;
+    QColor complementaryAlternateBackgroundColor;
+    QColor complementaryHoverColor;
+    QColor complementaryFocusColor;
+
+    QColor headerTextColor;
+    QColor headerBackgroundColor;
+    QColor headerAlternateBackgroundColor;
+    QColor headerHoverColor;
+    QColor headerFocusColor;
+
+    static AdaptivePalette fromImage(const QImage &image);
+    static AdaptivePalette fromImageData(const ImageData &imageData);
+};
+}
+
 
 /**
  * Utilities for processing items to obtain colors and information useful for

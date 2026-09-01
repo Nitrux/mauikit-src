@@ -1,6 +1,8 @@
 #include "style.h"
 #include <QCoreApplication>
 #include <QGuiApplication>
+#include <QFileInfo>
+#include <QImageReader>
 #include <QIcon>
 #include <QStyle>
 #include <QApplication>
@@ -66,18 +68,34 @@ Style::Style(QObject *parent) : QObject(parent)
                     break;
                 }
 
-                Q_EMIT styleTypeChanged(m_styleType);
+                Q_EMIT styleTypeChanged(styleType());
             });
-    
+
     connect(m_themeSettings, &MauiMan::ThemeManager::styleTypeChanged, [this](int type)
             {
                 if(m_styleType_blocked)
                     return;
 
+                const auto oldStyleType = styleType();
                 m_styleType = static_cast<Style::StyleType>(type);
-                Q_EMIT styleTypeChanged(m_styleType);
+                if (oldStyleType != styleType())
+                    Q_EMIT styleTypeChanged(styleType());
             });
-    
+
+    connect(m_themeSettings, &MauiMan::ThemeManager::adaptiveColorSchemeEnabledChanged, [this](bool)
+            {
+                if (m_styleType_blocked == false)
+                    Q_EMIT styleTypeChanged(styleType());
+            });
+
+    connect(m_themeSettings, &MauiMan::ThemeManager::adaptiveColorSchemeSourceChanged, [this](const QString &source)
+            {
+                if (m_adaptiveColorSchemeSource_blocked == false)
+                    Q_EMIT adaptiveColorSchemeSourceChanged(source);
+                if (m_styleType_blocked == false)
+                    Q_EMIT styleTypeChanged(styleType());
+            });
+
     connect(m_themeSettings, &MauiMan::ThemeManager::accentColorChanged, [this](const QColor &color)
             {
                 m_accentColor = color;
@@ -119,13 +137,13 @@ Style::Style(QObject *parent) : QObject(parent)
                 m_enableEffects = value;
                 Q_EMIT this->enableEffectsChanged(m_enableEffects);
             });
-    
+
     connect(m_themeSettings, &MauiMan::ThemeManager::enableEffectsChanged, [this](bool value)
             {
                 m_enableEffects = value;
                 Q_EMIT this->enableEffectsChanged(m_enableEffects);
             });
-    
+
     connect(m_themeSettings, &MauiMan::ThemeManager::scrollBarOnLeftChanged, [this](bool value)
             {
                 m_scrollBarOnLeft = value;
@@ -360,26 +378,44 @@ GroupSizes::GroupSizes(QObject* parent) : QObject(parent)
 
 QVariant Style::adaptiveColorSchemeSource() const
 {
-    return m_adaptiveColorSchemeSource;
+    if (m_adaptiveColorSchemeSource_blocked)
+        return m_adaptiveColorSchemeSource;
+    return m_themeSettings->adaptiveColorSchemeSource();
 }
 
 void Style::setAdaptiveColorSchemeSource(const QVariant& source)
 {
-    m_adaptiveColorSchemeSource_blocked = true;
-    if(source == m_adaptiveColorSchemeSource)
+    const auto oldStyleType = styleType();
+    const bool emptySource = source.isValid() == false || (source.canConvert<QString>() && source.toString().isEmpty());
+    if (emptySource)
     {
+        m_adaptiveColorSchemeSource_blocked = false;
+        m_adaptiveColorSchemeSource = QVariant();
+        Q_EMIT adaptiveColorSchemeSourceChanged(m_themeSettings->adaptiveColorSchemeSource());
+        if (oldStyleType != styleType())
+            Q_EMIT styleTypeChanged(styleType());
         return;
     }
 
+    const bool wasBlocked = m_adaptiveColorSchemeSource_blocked;
+    m_adaptiveColorSchemeSource_blocked = true;
+    if (wasBlocked && source == m_adaptiveColorSchemeSource)
+        return;
+
     m_adaptiveColorSchemeSource = source;
     Q_EMIT adaptiveColorSchemeSourceChanged(m_adaptiveColorSchemeSource);
+    if (oldStyleType != styleType())
+        Q_EMIT styleTypeChanged(styleType());
 }
 
 void Style::unsetAdaptiveColorSchemeSource()
 {
+    const auto oldStyleType = styleType();
     m_adaptiveColorSchemeSource_blocked = false;
     m_adaptiveColorSchemeSource = QVariant();
-    Q_EMIT adaptiveColorSchemeSourceChanged(m_adaptiveColorSchemeSource);
+    Q_EMIT adaptiveColorSchemeSourceChanged(m_themeSettings->adaptiveColorSchemeSource());
+    if (oldStyleType != styleType())
+        Q_EMIT styleTypeChanged(styleType());
 }
 
 QColor Style::accentColor() const
@@ -409,18 +445,33 @@ void Style::unsetAccentColor()
 
 Style::StyleType Style::styleType() const
 {
+    if (m_styleType_blocked)
+        return m_styleType;
+
+    if (m_adaptiveColorSchemeSource_blocked && m_adaptiveColorSchemeSource.isValid())
+    {
+        if (m_adaptiveColorSchemeSource.canConvert<QString>() == false || m_adaptiveColorSchemeSource.toString().isEmpty() == false)
+            return Style::StyleType::Adaptive;
+    }
+
+    const QString globalSource = m_themeSettings->adaptiveColorSchemeSource();
+    if (m_themeSettings->adaptiveColorSchemeEnabled()
+        && QFileInfo(globalSource).isFile()
+        && QFileInfo(globalSource).isReadable()
+        && QImageReader(globalSource).canRead())
+        return Style::StyleType::Adaptive;
+
     return m_styleType;
 }
 
 void Style::setStyleType(const Style::StyleType &type)
 {
+    const auto oldStyleType = styleType();
     m_styleType_blocked = true;
-
-    if (m_styleType == type)
-        return;
-
     m_styleType = type;
-    Q_EMIT styleTypeChanged(m_styleType);
+
+    if (oldStyleType != styleType())
+        Q_EMIT styleTypeChanged(styleType());
 }
 
 void Style::unsetStyeType()
@@ -441,8 +492,10 @@ void Style::unsetStyeType()
         }
     }
 
+    const auto oldStyleType = styleType();
     m_styleType = static_cast<Style::StyleType>(styleType);
-    Q_EMIT styleTypeChanged(m_styleType);
+    if (oldStyleType != this->styleType())
+        Q_EMIT styleTypeChanged(this->styleType());
 }
 
 Units::Units(QObject *parent) : QObject(parent)

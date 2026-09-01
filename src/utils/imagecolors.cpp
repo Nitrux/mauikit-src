@@ -20,6 +20,10 @@
 #include "platformtheme.h"
 
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QFileSystemWatcher>
+#include <QUrl>
 #include <QTimer>
 #include <QtConcurrent>
 
@@ -41,9 +45,14 @@ ImageColors::ImageColors(QObject *parent)
     m_imageSyncTimer = new QTimer(this);
     m_imageSyncTimer->setSingleShot(true);
     m_imageSyncTimer->setInterval(100);
-    /* connect(m_imageSyncTimer, &QTimer::timeout, this, [this]() {
-        generatePalette();
-     });*/
+    m_sourceWatcher = new QFileSystemWatcher(this);
+    connect(m_sourceWatcher, &QFileSystemWatcher::fileChanged, this, [this]() {
+        m_imageSyncTimer->start();
+    });
+    connect(m_sourceWatcher, &QFileSystemWatcher::directoryChanged, this, [this]() {
+        m_imageSyncTimer->start();
+    });
+    connect(m_imageSyncTimer, &QTimer::timeout, this, &ImageColors::reloadSourceFile);
 }
 
 ImageColors::~ImageColors()
@@ -52,34 +61,70 @@ ImageColors::~ImageColors()
 
 void ImageColors::setSource(const QVariant &source)
 {
-     if (source.canConvert<QQuickItem *>()) {
+    clearSourceWatcher();
+    m_sourceFilePath.clear();
+
+    if (!source.isValid() || source.isNull())
+    {
+        setSourceImage(QImage());
+        m_source = source;
+        Q_EMIT sourceChanged();
+        return;
+    }
+
+    if (source.canConvert<QQuickItem *>()) {
         qDebug() << "can convert to item";
         setSourceItem(source.value<QQuickItem *>());
     } else if (source.canConvert<QImage>()) {
         qDebug() << "can convert to image";
-
         setSourceImage(source.value<QImage>());
     } else if (source.canConvert<QIcon>()) {
         qDebug() << "can convert to icon";
-
         setSourceImage(source.value<QIcon>().pixmap(128, 128).toImage());
-    } else if (source.canConvert<QString>()) {
+    } else if (source.canConvert<QString>() || source.canConvert<QUrl>()) {
         qDebug() << "can convert to string";
-        if(source.toString().isEmpty())
+        const QString sourceString = source.canConvert<QUrl>() ? source.value<QUrl>().toString() : source.toString();
+        if (sourceString.isEmpty())
         {
+            setSourceImage(QImage());
+            m_source = source;
+            Q_EMIT sourceChanged();
             return;
         }
 
-        if(source.toString().startsWith("qrc:"))
+        if (sourceString.startsWith(QStringLiteral("qrc:")))
         {
-            qDebug() << "SET IMAGE FROM QRC IMAGE COLORS" << source.toString();
-            setSourceImage(QImage(source.toString().replace("qrc", "")));
-        }else
+            qDebug() << "SET IMAGE FROM QRC IMAGE COLORS" << sourceString;
+            setSourceImage(QImage(QStringLiteral(":") + sourceString.mid(4)));
+        }
+        else
         {
-
-        setSourceImage(QIcon::fromTheme(source.toString()).pixmap(128, 128).toImage());
+            const QUrl sourceUrl(sourceString);
+            const QString localPath = sourceUrl.isLocalFile() ? sourceUrl.toLocalFile() : sourceString;
+            const QFileInfo imageInfo(localPath);
+            const bool localFileSource = sourceUrl.isLocalFile() || localPath.startsWith(QLatin1Char(47));
+            if (imageInfo.isFile())
+            {
+                const QString canonicalPath = imageInfo.canonicalFilePath();
+                setSourceImage(QImage(canonicalPath));
+                m_sourceFilePath = canonicalPath;
+                watchSourceFile(m_sourceFilePath);
+            }
+            else if (localFileSource)
+            {
+                setSourceImage(QImage());
+                m_sourceFilePath = imageInfo.absoluteFilePath();
+                watchSourceFile(m_sourceFilePath);
+            }
+            else
+            {
+                setSourceImage(QIcon::fromTheme(sourceString).pixmap(128, 128).toImage());
+            }
         }
     } else {
+        setSourceImage(QImage());
+        m_source = source;
+        Q_EMIT sourceChanged();
         return;
     }
 
@@ -106,9 +151,15 @@ void ImageColors::setSourceImage(const QImage &image)
     }
 
     m_sourceItem.clear();
+    m_window.clear();
 
     m_sourceImage = image;
+    if (m_sourceImage.width() > 128 || m_sourceImage.height() > 128)
+        m_sourceImage = m_sourceImage.scaled(128, 128, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    m_imageData = {};
     update();
+    if (m_sourceImage.isNull())
+        Q_EMIT paletteChanged();
 }
 
 QImage ImageColors::sourceImage() const
@@ -118,6 +169,9 @@ QImage ImageColors::sourceImage() const
 
 void ImageColors::setSourceItem(QQuickItem *source)
 {
+    clearSourceWatcher();
+    m_sourceFilePath.clear();
+
     if (m_sourceItem == source) {
         return;
     }
@@ -129,22 +183,74 @@ void ImageColors::setSourceItem(QQuickItem *source)
         disconnect(m_sourceItem, nullptr, this, nullptr);
     }
     m_sourceItem = source;
+    m_sourceImage = QImage();
+    m_imageData = {};
+    m_window.clear();
     update();
+    Q_EMIT paletteChanged();
 
     if (m_sourceItem) {
         auto syncWindow = [this]() {
             if (m_window) {
                 disconnect(m_window.data(), nullptr, this, nullptr);
             }
+            if (!m_sourceItem)
+            {
+                m_window.clear();
+                return;
+            }
             m_window = m_sourceItem->window();
             if (m_window) {
                 connect(m_window, &QWindow::visibleChanged, this, &ImageColors::update);
+                update();
             }
         };
 
         connect(m_sourceItem, &QQuickItem::windowChanged, this, syncWindow);
         syncWindow();
     }
+}
+
+void ImageColors::watchSourceFile(const QString &path)
+{
+    clearSourceWatcher();
+    if (m_sourceWatcher == nullptr)
+        return;
+
+    const QFileInfo info(path);
+    if (info.isFile())
+        m_sourceWatcher->addPath(path);
+    if (QDir(info.absolutePath()).exists())
+        m_sourceWatcher->addPath(info.absolutePath());
+}
+
+void ImageColors::reloadSourceFile()
+{
+    if (m_sourceFilePath.isEmpty())
+        return;
+
+    const QString path = m_sourceFilePath;
+    if (QFileInfo(path).isFile())
+    {
+        setSourceImage(QImage(path));
+        watchSourceFile(path);
+    }
+    else
+    {
+        setSourceImage(QImage());
+        watchSourceFile(path);
+    }
+}
+
+void ImageColors::clearSourceWatcher()
+{
+    if (m_sourceWatcher == nullptr)
+        return;
+
+    if (m_sourceWatcher->files().isEmpty() == false)
+        m_sourceWatcher->removePaths(m_sourceWatcher->files());
+    if (m_sourceWatcher->directories().isEmpty() == false)
+        m_sourceWatcher->removePaths(m_sourceWatcher->directories());
 }
 
 QQuickItem *ImageColors::sourceItem() const
@@ -154,26 +260,33 @@ QQuickItem *ImageColors::sourceItem() const
 
 void ImageColors::update()
 {
-    if (m_futureImageData) {
-        m_futureImageData->cancel();
-        m_futureImageData->deleteLater();
+    if (m_futureImageData)
+    {
+        auto *previousWatcher = m_futureImageData;
+        m_futureImageData = nullptr;
+        previousWatcher->cancel();
+        previousWatcher->deleteLater();
     }
     auto runUpdate = [this]() {
-        QFuture<ImageData> future = QtConcurrent::run([this]() {
-            return generatePalette(m_sourceImage);
+        const QImage image = m_sourceImage;
+        QFuture<ImageData> future = QtConcurrent::run([image]() {
+            return generatePalette(image);
         });
-        m_futureImageData = new QFutureWatcher<ImageData>(this);
-        connect(m_futureImageData, &QFutureWatcher<ImageData>::finished, this, [this]() {
-            if (!m_futureImageData) {
+        auto *watcher = new QFutureWatcher<ImageData>(this);
+        m_futureImageData = watcher;
+        connect(watcher, &QFutureWatcher<ImageData>::finished, this, [this, watcher]() {
+            if (m_futureImageData != watcher)
+            {
+                watcher->deleteLater();
                 return;
             }
-            m_imageData = m_futureImageData->future().result();
-            m_futureImageData->deleteLater();
-            m_futureImageData = nullptr;
 
+            m_imageData = watcher->future().result();
+            watcher->deleteLater();
+            m_futureImageData = nullptr;
             Q_EMIT paletteChanged();
         });
-        m_futureImageData->setFuture(future);
+        watcher->setFuture(future);
     };
 
     if (!m_sourceItem || !m_window) {

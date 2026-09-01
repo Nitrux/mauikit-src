@@ -240,7 +240,7 @@ class Style : public QObject
     /**
      * The source for picking up the application color palette when the style type is set to Style.Adaptive.
      * The source can be an image URL, and QQC2 Image, or a QQC2 Item, or even an icon name.
-     * No source is selected by default; applications can provide one explicitly.
+     * Applications have no source override by default; MauiMan may provide a global wallpaper source, or applications can provide one explicitly.
      */
     Q_PROPERTY(QVariant adaptiveColorSchemeSource READ adaptiveColorSchemeSource WRITE setAdaptiveColorSchemeSource NOTIFY adaptiveColorSchemeSourceChanged RESET unsetAdaptiveColorSchemeSource)
 

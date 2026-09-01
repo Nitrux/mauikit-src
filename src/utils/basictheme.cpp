@@ -14,6 +14,7 @@
 
 #include "libs/style.h"
 #include "imagecolors.h"
+#include "colorutils.h"
 
 namespace MauiKit
 {
@@ -99,11 +100,29 @@ BasicThemeDefinition::BasicThemeDefinition(QObject *parent)
 
     connect(m_imgColors, &ImageColors::paletteChanged, [this, style]()
             {
-                if(style->styleType() == Style::StyleType::Adaptive)
+                switch (style->styleType())
                 {
+                case Style::StyleType::Light:
+                    setLightColors();
+                    break;
+                case Style::StyleType::Dark:
+                    setDarkColors();
+                    break;
+                case Style::StyleType::TrueBlack:
+                    setTrueBlackColors();
+                    break;
+                case Style::StyleType::Inverted:
+                    setTrueBlackColors(true);
+                    break;
+                case Style::StyleType::Adaptive:
                     setAdaptiveColors();
-                    Q_EMIT this->changed();
+                    break;
+                case Style::StyleType::Auto:
+                default:
+                    setSystemPaletteColors();
+                    break;
                 }
+                Q_EMIT this->changed();
             });
 
     if (qGuiApp) {
@@ -463,78 +482,69 @@ void BasicThemeDefinition::setLightColors()
 
 void BasicThemeDefinition::setAdaptiveColors()
 {
-    ColorUtils cu;
+    const auto palette = AdaptivePalette::fromImageData(m_imgColors->imageData());
+    if (palette.valid == false)
+    {
+        setSystemPaletteColors();
+        return;
+    }
 
-    textColor = m_imgColors->foreground();
-    disabledTextColor = textColor.lighter(120);
+    textColor = palette.textColor;
+    disabledTextColor = palette.disabledTextColor;
+    highlightColor = palette.highlightColor;
+    highlightedTextColor = palette.highlightedTextColor;
+    backgroundColor = palette.backgroundColor;
+    alternateBackgroundColor = palette.alternateBackgroundColor;
+    focusColor = palette.focusColor;
+    hoverColor = palette.hoverColor;
+    activeTextColor = palette.activeTextColor;
+    activeBackgroundColor = palette.activeBackgroundColor;
+    linkColor = palette.linkColor;
+    linkBackgroundColor = palette.linkBackgroundColor;
+    visitedLinkColor = palette.visitedLinkColor;
+    visitedLinkBackgroundColor = palette.visitedLinkBackgroundColor;
+    negativeTextColor = palette.negativeTextColor;
+    negativeBackgroundColor = palette.negativeBackgroundColor;
+    neutralTextColor = palette.neutralTextColor;
+    neutralBackgroundColor = palette.neutralBackgroundColor;
+    positiveTextColor = palette.positiveTextColor;
+    positiveBackgroundColor = palette.positiveBackgroundColor;
 
-    highlightColor = m_imgColors->highlight();
+    buttonTextColor = palette.buttonTextColor;
+    buttonBackgroundColor = palette.buttonBackgroundColor;
+    buttonAlternateBackgroundColor = palette.buttonAlternateBackgroundColor;
+    buttonHoverColor = palette.buttonHoverColor;
+    buttonFocusColor = palette.buttonFocusColor;
 
-    const auto isDark = m_imgColors->paletteBrightness() == ColorUtils::Dark;
-    const auto bgColor = cu.tintWithAlpha(isDark ? DarkColor::backgroundColor : LightColor::backgroundColor, m_imgColors->background(), 0.1);
-    const auto btnColor =  cu.tintWithAlpha(isDark ? DarkColor::buttonBackgroundColor : LightColor::buttonBackgroundColor, highlightColor, 0.06);
+    viewTextColor = palette.viewTextColor;
+    viewBackgroundColor = palette.viewBackgroundColor;
+    viewAlternateBackgroundColor = palette.viewAlternateBackgroundColor;
+    viewHoverColor = palette.viewHoverColor;
+    viewFocusColor = palette.viewFocusColor;
 
-    highlightedTextColor = cu.brightnessForColor(highlightColor) ==  ColorUtils::Dark ? m_imgColors->closestToWhite() : m_imgColors->closestToBlack();
-    //         backgroundColor = cu.tintWithAlpha(m_imgColors->background(), bgColor, 0.8);
-    backgroundColor =  cu.tintWithAlpha(bgColor, highlightColor, 0.03);
-    activeBackgroundColor = highlightColor;
-    alternateBackgroundColor = cu.tintWithAlpha(backgroundColor, highlightColor, 0.02);
+    selectionTextColor = palette.selectionTextColor;
+    selectionBackgroundColor = palette.selectionBackgroundColor;
+    selectionAlternateBackgroundColor = palette.selectionAlternateBackgroundColor;
+    selectionHoverColor = palette.selectionHoverColor;
+    selectionFocusColor = palette.selectionFocusColor;
 
-    hoverColor =  cu.tintWithAlpha(isDark ? DarkColor::hoverColor : LightColor::hoverColor, highlightColor, 0.02);
+    tooltipTextColor = palette.tooltipTextColor;
+    tooltipBackgroundColor = palette.tooltipBackgroundColor;
+    tooltipAlternateBackgroundColor = palette.tooltipAlternateBackgroundColor;
+    tooltipHoverColor = palette.tooltipHoverColor;
+    tooltipFocusColor = palette.tooltipFocusColor;
 
-    focusColor = highlightColor;
+    complementaryTextColor = palette.complementaryTextColor;
+    complementaryBackgroundColor = palette.complementaryBackgroundColor;
+    complementaryAlternateBackgroundColor = palette.complementaryAlternateBackgroundColor;
+    complementaryHoverColor = palette.complementaryHoverColor;
+    complementaryFocusColor = palette.complementaryFocusColor;
 
-    activeTextColor = highlightColor;
-
-    buttonTextColor = textColor;
-    buttonBackgroundColor = btnColor;
-    buttonAlternateBackgroundColor = cu.tintWithAlpha(isDark ? DarkColor::buttonBackgroundColor : LightColor::buttonBackgroundColor, highlightColor, 0.03);
-    buttonHoverColor = cu.tintWithAlpha(isDark ? DarkColor::buttonHoverColor : LightColor::buttonHoverColor, highlightColor, 0.03);
-    buttonFocusColor = highlightColor;
-
-    viewTextColor = textColor;
-    viewBackgroundColor = cu.tintWithAlpha(isDark ? DarkColor::viewBackgroundColor : LightColor::viewBackgroundColor, highlightColor, 0.07);
-    viewAlternateBackgroundColor =  cu.tintWithAlpha(isDark ? DarkColor::viewAlternateBackgroundColor : LightColor::viewAlternateBackgroundColor, highlightColor, 0.03);
-    viewHoverColor = cu.tintWithAlpha(isDark ? DarkColor::viewHoverColor : LightColor::viewHoverColor, highlightColor, 0.03);
-    viewFocusColor = highlightColor;
-
-    selectionTextColor = QColor{"#fcfcfc"};
-    selectionBackgroundColor = highlightColor;
-    selectionAlternateBackgroundColor = selectionBackgroundColor.darker();
-    selectionHoverColor = selectionBackgroundColor.lighter();
-    selectionFocusColor = highlightColor;
-
-    complementaryTextColor = QColor{"#eff0f1"};
-    complementaryBackgroundColor = cu.tintWithAlpha(QColor{"#31363b"}, highlightColor, 0.03);
-    complementaryAlternateBackgroundColor = complementaryBackgroundColor.darker();
-    complementaryHoverColor = complementaryBackgroundColor.lighter();
-    complementaryFocusColor = highlightColor;
-
-    headerTextColor = textColor;
-    headerBackgroundColor = cu.tintWithAlpha(bgColor, highlightColor, 0.05);
-    headerAlternateBackgroundColor = headerBackgroundColor.darker();
-    headerAlternateBackgroundColor = cu.tintWithAlpha(bgColor, highlightColor, 0.02);
-
-    headerHoverColor = headerBackgroundColor.lighter();
-    headerFocusColor = highlightColor;
-
-    linkColor = QColor{"#2980B9"};
-    linkBackgroundColor = QColor{"#2980B9"};
-    visitedLinkColor = QColor{"#7F8C8D"};
-    visitedLinkBackgroundColor = QColor{"#2196F3"};
-
-    negativeTextColor = QColor{"#dac7cb"};
-    negativeBackgroundColor = QColor{"#DA4453"};
-    neutralTextColor = QColor{"#fafafa"};
-    neutralBackgroundColor = QColor{"#F67400"};
-    positiveTextColor = QColor{"#fafafa"};
-    positiveBackgroundColor = QColor{"#27AE60"};
-
-    tooltipTextColor = QColor{"#fafafa"};
-    tooltipBackgroundColor = QColor{"#333"};
-    tooltipAlternateBackgroundColor = tooltipBackgroundColor.darker();
-    tooltipHoverColor = QColor{"#000"};
-    tooltipFocusColor = QColor{"#000"};
+    headerTextColor = palette.headerTextColor;
+    headerBackgroundColor = palette.headerBackgroundColor;
+    headerAlternateBackgroundColor = palette.headerAlternateBackgroundColor;
+    headerHoverColor = palette.headerHoverColor;
+    headerFocusColor = palette.headerFocusColor;
 }
 
 void BasicThemeDefinition::syncToQml(Platform::PlatformTheme *object)

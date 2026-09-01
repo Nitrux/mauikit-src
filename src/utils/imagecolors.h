@@ -22,6 +22,7 @@
 
 #include <QColor>
 #include <QFuture>
+#include <QFutureWatcher>
 #include <QImage>
 #include <QObject>
 #include <QPointer>
@@ -30,6 +31,7 @@
 #include <QQuickWindow>
 
 class QTimer;
+class QFileSystemWatcher;
 
 struct ImageData {
     struct colorStat {
@@ -73,7 +75,8 @@ class ImageColors : public QObject
      * * Item
      * * QImage
      * * QIcon
-     * * Icon name
+     * Icon name
+     * Local filesystem paths and `file://` URLs are also supported.
      *
      * Note that an Item's color palette will only be extracted once unless you * call `update()`, regardless of how the item hanges.
      */
@@ -229,6 +232,9 @@ public:
     Q_INVOKABLE void update();
 
     QVariantList palette() const;
+
+    const ImageData &imageData() const { return m_imageData; }
+    static ImageData generatePalette(const QImage &sourceImage);
     ColorUtils::Brightness paletteBrightness() const;
     QColor average() const;
     QColor dominant() const;
@@ -253,7 +259,10 @@ Q_SIGNALS:
 
 private:
     static inline void positionColor(QRgb rgb, QList<ImageData::colorStat> &clusters);
-    static ImageData generatePalette(const QImage &sourceImage);
+
+    void watchSourceFile(const QString &path);
+    void reloadSourceFile();
+    void clearSourceWatcher();
 
     // Arbitrary number that seems to work well
     static const int s_minimumSquareDistance = 32000;
@@ -264,6 +273,8 @@ private:
     QImage m_sourceImage;
 
     QTimer *m_imageSyncTimer;
+    QFileSystemWatcher *m_sourceWatcher = nullptr;
+    QString m_sourceFilePath;
 
     QFutureWatcher<ImageData> *m_futureImageData = nullptr;
     ImageData m_imageData;

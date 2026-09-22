@@ -358,7 +358,28 @@ MauiKit::AdaptivePalette MauiKit::AdaptivePalette::fromImageData(const ImageData
     result.textColor = foreground;
     result.disabledTextColor = foreground.lighter(120);
     result.highlightColor = highlight;
-    result.highlightedTextColor = colorUtils.brightnessForColor(highlight) == ColorUtils::Dark ? closestToWhite() : closestToBlack();
+    const auto contrastRatio = [&colorUtils](const QColor &foreground, const QColor &background) {
+        const qreal foregroundLuminance = colorUtils.luminance(foreground);
+        const qreal backgroundLuminance = colorUtils.luminance(background);
+        const qreal lighter = qMax(foregroundLuminance, backgroundLuminance);
+        const qreal darker = qMin(foregroundLuminance, backgroundLuminance);
+        return (lighter + 0.05) / (darker + 0.05);
+    };
+
+    QColor highlightedTextColor = closestToWhite();
+    qreal highlightedTextContrast = contrastRatio(highlightedTextColor, highlight);
+    const auto considerHighlightedTextColor = [&](const QColor &candidate) {
+        const qreal candidateContrast = contrastRatio(candidate, highlight);
+        if (candidateContrast > highlightedTextContrast) {
+            highlightedTextColor = candidate;
+            highlightedTextContrast = candidateContrast;
+        }
+    };
+    considerHighlightedTextColor(closestToBlack());
+    considerHighlightedTextColor(QColor(Qt::white));
+    considerHighlightedTextColor(QColor(Qt::black));
+
+    result.highlightedTextColor = highlightedTextColor;
     const QColor background = colorUtils.tintWithAlpha(backgroundBase, imageBackground, 0.1);
     result.backgroundColor = colorUtils.tintWithAlpha(background, highlight, 0.03);
     result.activeBackgroundColor = highlight;

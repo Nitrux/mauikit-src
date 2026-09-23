@@ -39,9 +39,9 @@ qreal effectiveDevicePixelRatio(const QQuickItem *item)
 
 bool isMaskSize(const QSize &logicalSize)
 {
-    // Use logical dimensions so 2x icon buffers retain their standard-size classification.
+    // Use logical dimensions and keep the small-icon heuristic independent of device scale.
     const int nominalSize = qMax(logicalSize.width(), logicalSize.height());
-    return nominalSize == 8 || nominalSize == 16 || nominalSize == 22 || nominalSize == 24;
+    return nominalSize > 0 && nominalSize <= 24;
 }
 
 QImage iconToImage(const QQuickItem *item, const QIcon &icon, const QSize &logicalSize, QIcon::Mode mode, QIcon::State state = QIcon::Off)
@@ -326,8 +326,9 @@ void Icon::updatePolish()
             m_icon.fill(Qt::transparent);
         }
 
-        const bool shouldMask = isMaskSize(itemSize)
-            && !m_theme->supportsIconColoring()
+        const bool hasExplicitColor = m_color.isValid() && m_color != Qt::transparent;
+        const bool shouldMask = !m_theme->supportsIconColoring()
+            && (isMaskSize(itemSize) || hasExplicitColor)
             && guessMonochrome(m_icon);
         setIsMask(shouldMask);
 

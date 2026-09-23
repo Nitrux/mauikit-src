@@ -137,13 +137,10 @@ class ImageColors : public QObject
     Q_PROPERTY(QColor highlight READ highlight NOTIFY paletteChanged)
 
     /**
-     * A color suitable for rendering text and other foreground
+     * A neutral color suitable for rendering text and other foreground
      * over the source image.
      *
-     * On dark items, this will be the color closest to white in
-     * the image if it's light enough, or a bright gray otherwise.
-     * On light items, this will be the color closest to black in
-     * the image if it's dark enough, or a dark gray otherwise.
+     * It is selected from neutral light and dark candidates using contrast.
      */
     Q_PROPERTY(QColor foreground READ foreground NOTIFY paletteChanged)
 

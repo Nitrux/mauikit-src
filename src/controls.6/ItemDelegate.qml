@@ -184,12 +184,8 @@ Control
     property color pressedBackgroundColor: control.selectedBackgroundColor
 
     property color normalForegroundColor: Maui.Theme.textColor
-    property color selectedForegroundColor: Maui.ColorUtils.brightnessForColor(control.selectedBackgroundColor) === Maui.ColorUtils.Light
-                                            ? "#333333"
-                                            : "#fafafa"
-    property color pressedForegroundColor: Maui.ColorUtils.brightnessForColor(control.pressedBackgroundColor) === Maui.ColorUtils.Light
-                                           ? "#333333"
-                                           : "#fafafa"
+    property color selectedForegroundColor: Maui.ColorUtils.contrastingTextColor(control.selectedBackgroundColor)
+    property color pressedForegroundColor: Maui.ColorUtils.contrastingTextColor(control.pressedBackgroundColor)
 
     readonly property color effectiveBackgroundColor: control.containsPress
                                                        ? control.pressedBackgroundColor

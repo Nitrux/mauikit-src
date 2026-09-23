@@ -17,6 +17,12 @@ struct ImageData;
 
 namespace MauiKit
 {
+enum class AdaptivePaletteMode
+{
+    Auto,
+    Light,
+    Dark
+};
 class MAUIKIT_EXPORT AdaptivePalette
 {
 public:
@@ -79,8 +85,10 @@ public:
     QColor headerHoverColor;
     QColor headerFocusColor;
 
-    static AdaptivePalette fromImage(const QImage &image);
-    static AdaptivePalette fromImageData(const ImageData &imageData);
+    static AdaptivePalette fromImage(const QImage &image,
+                                     AdaptivePaletteMode mode = AdaptivePaletteMode::Auto);
+    static AdaptivePalette fromImageData(const ImageData &imageData,
+                                         AdaptivePaletteMode mode = AdaptivePaletteMode::Auto);
 };
 }
 
@@ -291,6 +299,17 @@ public:
 
     // Not for QML, returns the comvertion from srgb of a QColor and Lab colorspace
     static ColorUtils::LabColor colorToLab(const QColor &color);
+
+    /**
+     * Returns the WCAG relative contrast ratio between two colors.
+     */
+    Q_INVOKABLE static qreal contrastRatio(const QColor &foreground, const QColor &background);
+
+    /**
+     * Returns a neutral light or dark foreground with the strongest contrast
+     * against the given background.
+     */
+    Q_INVOKABLE static QColor contrastingTextColor(const QColor &background);
 
     static qreal luminance(const QColor &color);
 };

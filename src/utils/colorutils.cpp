@@ -314,7 +314,29 @@ qreal ColorUtils::luminance(const QColor &color)
     return xyz.y;
 }
 
-MauiKit::AdaptivePalette MauiKit::AdaptivePalette::fromImage(const QImage &image)
+qreal ColorUtils::contrastRatio(const QColor &foreground, const QColor &background)
+{
+    const qreal foregroundLuminance = luminance(foreground);
+    const qreal backgroundLuminance = luminance(background);
+    const qreal lighter = qMax(foregroundLuminance, backgroundLuminance);
+    const qreal darker = qMin(foregroundLuminance, backgroundLuminance);
+    return (lighter + 0.05) / (darker + 0.05);
+}
+
+QColor ColorUtils::contrastingTextColor(const QColor &background)
+{
+    if (!background.isValid())
+        return QColor(250, 250, 250);
+
+    const QColor lightForeground(250, 250, 250);
+    const QColor darkForeground(32, 32, 32);
+    return contrastRatio(lightForeground, background) >= contrastRatio(darkForeground, background)
+        ? lightForeground
+        : darkForeground;
+}
+
+MauiKit::AdaptivePalette MauiKit::AdaptivePalette::fromImage(const QImage &image,
+                                                             MauiKit::AdaptivePaletteMode mode)
 {
     if (image.isNull())
         return {};
@@ -322,17 +344,19 @@ MauiKit::AdaptivePalette MauiKit::AdaptivePalette::fromImage(const QImage &image
     const QImage sample = image.width() > 128 || image.height() > 128
         ? image.scaled(128, 128, Qt::KeepAspectRatio, Qt::SmoothTransformation)
         : image;
-    return fromImageData(ImageColors::generatePalette(sample));
+    return fromImageData(ImageColors::generatePalette(sample), mode);
 }
 
-MauiKit::AdaptivePalette MauiKit::AdaptivePalette::fromImageData(const ImageData &imageData)
+MauiKit::AdaptivePalette MauiKit::AdaptivePalette::fromImageData(const ImageData &imageData,
+                                                                 MauiKit::AdaptivePaletteMode mode)
 {
     MauiKit::AdaptivePalette result;
     if (imageData.m_samples.isEmpty() || imageData.m_dominant.isValid() == false || imageData.m_highlight.isValid() == false)
         return result;
 
     ColorUtils colorUtils;
-    const bool isDark = qGray(imageData.m_dominant.rgb()) < 128;
+    const bool isDark = mode == MauiKit::AdaptivePaletteMode::Dark
+        || (mode == MauiKit::AdaptivePaletteMode::Auto && qGray(imageData.m_dominant.rgb()) < 128);
     const auto closestToWhite = [&imageData]() {
         if (qGray(imageData.m_closestToWhite.rgb()) < 200)
             return QColor(230, 230, 230);
@@ -343,7 +367,6 @@ MauiKit::AdaptivePalette MauiKit::AdaptivePalette::fromImageData(const ImageData
             return QColor(20, 20, 20);
         return imageData.m_closestToBlack;
     };
-    const QColor foreground = isDark ? closestToWhite() : closestToBlack();
     const QColor imageBackground = isDark ? closestToBlack() : closestToWhite();
     const QColor highlight = imageData.m_highlight;
     const QColor backgroundBase = isDark ? QColor("#27292a") : QColor("#e8e8e8");
@@ -353,35 +376,18 @@ MauiKit::AdaptivePalette MauiKit::AdaptivePalette::fromImageData(const ImageData
     const QColor viewHoverBase = isDark ? QColor("#1f1f1f") : QColor("#e5e5e5");
     const QColor hoverBase = isDark ? QColor("#202727") : QColor("#dbdbdb");
     const QColor buttonHoverBase = isDark ? QColor("#7d8487") : QColor("#f2f2f2");
+    const QColor background = colorUtils.tintWithAlpha(backgroundBase, imageBackground, 0.1);
+    const QColor windowBackground = colorUtils.tintWithAlpha(background, highlight, 0.03);
+    const QColor foreground = ColorUtils::contrastingTextColor(windowBackground);
 
     result.valid = true;
     result.textColor = foreground;
     result.disabledTextColor = foreground.lighter(120);
     result.highlightColor = highlight;
-    const auto contrastRatio = [&colorUtils](const QColor &foreground, const QColor &background) {
-        const qreal foregroundLuminance = colorUtils.luminance(foreground);
-        const qreal backgroundLuminance = colorUtils.luminance(background);
-        const qreal lighter = qMax(foregroundLuminance, backgroundLuminance);
-        const qreal darker = qMin(foregroundLuminance, backgroundLuminance);
-        return (lighter + 0.05) / (darker + 0.05);
-    };
-
-    QColor highlightedTextColor = closestToWhite();
-    qreal highlightedTextContrast = contrastRatio(highlightedTextColor, highlight);
-    const auto considerHighlightedTextColor = [&](const QColor &candidate) {
-        const qreal candidateContrast = contrastRatio(candidate, highlight);
-        if (candidateContrast > highlightedTextContrast) {
-            highlightedTextColor = candidate;
-            highlightedTextContrast = candidateContrast;
-        }
-    };
-    considerHighlightedTextColor(closestToBlack());
-    considerHighlightedTextColor(QColor(Qt::white));
-    considerHighlightedTextColor(QColor(Qt::black));
+    const QColor highlightedTextColor = ColorUtils::contrastingTextColor(highlight);
 
     result.highlightedTextColor = highlightedTextColor;
-    const QColor background = colorUtils.tintWithAlpha(backgroundBase, imageBackground, 0.1);
-    result.backgroundColor = colorUtils.tintWithAlpha(background, highlight, 0.03);
+    result.backgroundColor = windowBackground;
     result.activeBackgroundColor = highlight;
     result.alternateBackgroundColor = colorUtils.tintWithAlpha(result.backgroundColor, highlight, 0.02);
     result.hoverColor = colorUtils.tintWithAlpha(hoverBase, highlight, 0.02);
@@ -400,7 +406,7 @@ MauiKit::AdaptivePalette MauiKit::AdaptivePalette::fromImageData(const ImageData
     result.viewHoverColor = colorUtils.tintWithAlpha(viewHoverBase, highlight, 0.03);
     result.viewFocusColor = highlight;
 
-    result.selectionTextColor = QColor("#fcfcfc");
+    result.selectionTextColor = highlightedTextColor;
     result.selectionBackgroundColor = highlight;
     result.selectionAlternateBackgroundColor = highlight.darker();
     result.selectionHoverColor = highlight.lighter();

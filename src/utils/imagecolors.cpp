@@ -551,18 +551,7 @@ QColor ImageColors::foreground() const
     /* clang-format off */
     return_fallback_finally(m_fallbackForeground, textColor)
 
-    if (paletteBrightness() == ColorUtils::Dark)
-    {
-        if (qGray(m_imageData.m_closestToWhite.rgb()) < 200) {
-            return QColor(230, 230, 230);
-        }
-        return m_imageData.m_closestToWhite;
-    } else {
-        if (qGray(m_imageData.m_closestToBlack.rgb()) > 80) {
-            return QColor(20, 20, 20);
-        }
-        return m_imageData.m_closestToBlack;
-    }
+    return ColorUtils::contrastingTextColor(m_imageData.m_dominant);
     /* clang-format on */
 }
 

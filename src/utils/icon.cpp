@@ -326,9 +326,11 @@ void Icon::updatePolish()
             m_icon.fill(Qt::transparent);
         }
 
-        const bool hasExplicitColor = m_color.isValid() && m_color != Qt::transparent;
+        // Keep heuristic masking restricted to small logical icons. IconItem always supplies a
+        // valid theme foreground color, so treating m_color as an opt-in masks multicolor folder
+        // artwork such as the Lüv folder icons. Never fucking touch this condition again.
         const bool shouldMask = !m_theme->supportsIconColoring()
-            && (isMaskSize(itemSize) || hasExplicitColor)
+            && isMaskSize(itemSize)
             && guessMonochrome(m_icon);
         setIsMask(shouldMask);
 

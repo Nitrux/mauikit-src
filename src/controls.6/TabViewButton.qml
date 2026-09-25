@@ -37,7 +37,12 @@ Maui.TabButton
      * The information was provided using the Controls metadata attached properties.
      * @see Controls
      */
-    readonly property var tabInfo: control.tabView.contentModel.get(mindex).Maui.Controls
+    readonly property var tabInfo:
+    {
+        const model = control.tabView ? control.tabView.contentModel : null
+        const item = model && mindex >= 0 && mindex < model.count ? model.get(mindex) : null
+        return item && item.Maui && item.Maui.Controls ? item.Maui.Controls : ({})
+    }
 
     /**
      * @brief The color to be used in a bottom strip.
@@ -53,7 +58,7 @@ Maui.TabButton
     icon.name: tabInfo.iconName
 
     Maui.Controls.badgeText: tabInfo.badgeText
-    Maui.Controls.status: tabInfo.status    
+    Maui.Controls.status: typeof tabInfo.status !== "undefined" ? tabInfo.status : Maui.Controls.Normal
 
     ToolTip.delay: 1000
     ToolTip.timeout: 5000

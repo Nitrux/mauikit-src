@@ -120,8 +120,7 @@ T.Menu
         id: _exitTransition
         enabled: Maui.Style.enableEffects
 
-        // shrink_fade_out
-        NumberAnimation { property: "scale"; from: 1.0; to: 0.9; easing.type: Easing.OutQuint; duration: 220 }
+        // fade_out
         NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; easing.type: Easing.OutCubic; duration: 150 }
     }
 

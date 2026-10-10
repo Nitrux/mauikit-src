@@ -124,6 +124,9 @@ Maui.Popup
     id: control
     objectName: "MauiKit PopupPage"
 
+    Maui.Theme.colorSet: Maui.Theme.Window
+    Maui.Theme.inherit: false
+
     focus: true
 
     closePolicy: control.persistent ? Popup.NoAutoClose | Popup.CloseOnEscape : Popup.CloseOnEscape | Popup.CloseOnPressOutside
@@ -269,6 +272,8 @@ Maui.Popup
             Maui.Page
             {
                 id: _page
+                Maui.Theme.colorSet: Maui.Theme.Window
+                Maui.Theme.inherit: false
                 interactive: Maui.Handy.isTouch
 
                 clip: true
@@ -337,7 +342,9 @@ Maui.Popup
                     visible: _stack.children.length === 0
 
                     spacing: control.spacing
-                    padding: Maui.Style.space.big
+                    padding: Maui.Style.contentMargins
+                    leftPadding: Maui.Style.contentMargins
+                    rightPadding: Maui.Style.contentMargins
 
                     ScrollBar.horizontal.policy: control.horizontalScrollBarPolicy
                     ScrollBar.vertical.policy: control.verticalScrollBarPolicy

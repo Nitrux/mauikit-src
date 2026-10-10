@@ -52,10 +52,10 @@ T.ScrollView
     clip: false
 
     padding: 0
-    rightPadding: control.locale.textDirection === Qt.RightToLeft ? padding : padding + (Maui.Style.scrollBarPolicy === Maui.Style.AutoHide ? 0 : ScrollBar.vertical.width)
-    leftPadding: control.locale.textDirection === Qt.RightToLeft ? padding + (Maui.Style.scrollBarPolicy === Maui.Style.AutoHide ? 0 : ScrollBar.vertical.width) : padding
+    rightPadding: control.locale.textDirection === Qt.RightToLeft ? padding : padding + (Maui.Style.scrollBarPolicy === Maui.Style.AutoHide ? 0 : ScrollBar.vertical.policy === T.ScrollBar.AlwaysOff ? 0 : ScrollBar.vertical.width)
+    leftPadding: control.locale.textDirection === Qt.RightToLeft ? padding + (Maui.Style.scrollBarPolicy === Maui.Style.AutoHide ? 0 : ScrollBar.vertical.policy === T.ScrollBar.AlwaysOff ? 0 : ScrollBar.vertical.width) : padding
     topPadding: padding
-    bottomPadding: padding + (Maui.Style.scrollBarPolicy === Maui.Style.AutoHide ? 0 :ScrollBar.horizontal.height)
+    bottomPadding: padding + (Maui.Style.scrollBarPolicy === Maui.Style.AutoHide ? 0 :ScrollBar.horizontal.policy === T.ScrollBar.AlwaysOff ? 0 : ScrollBar.horizontal.height)
     
     data: Maui.WheelHandler
     {

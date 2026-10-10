@@ -270,6 +270,7 @@ ecm_target_qml_sources(MauiKit${MAUI_MAJOR_VERSION} SOURCES
     controls.${QT_MAJOR_VERSION}/CloseButton.qml
     controls.${QT_MAJOR_VERSION}/CSDControls.qml
 
+    controls.${QT_MAJOR_VERSION}/DialogHeader.qml
     controls.${QT_MAJOR_VERSION}/DialogWindow.qml
     controls.${QT_MAJOR_VERSION}/Doodle.qml
     controls.${QT_MAJOR_VERSION}/DoodleCanvas.qml

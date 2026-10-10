@@ -60,6 +60,16 @@ import org.mauikit.controls as Maui
 Dialog
 {
     id: control
+
+    implicitWidth: Maui.Style.units.gridUnit * 28
+    spacing: Maui.Style.space.small
+
+    header: Maui.DialogHeader
+    {
+        width: parent ? parent.width : implicitWidth
+        title: control.title
+        onCloseRequested: control.reject()
+    }
     
     /**
      * @brief The default content of the dialog. The children elements of this control will be positioned inside a Mauikit ScrollColumn. 
@@ -100,9 +110,11 @@ Dialog
                 label2.textFormat : TextEdit.AutoText
                 label2.wrapMode: TextEdit.WordWrap
                 
-                iconSizeHint: Maui.Style.iconSizes.large
-                imageSizeHint: Maui.Style.iconSizes.large
-                spacing: Maui.Style.space.big
+                iconSizeHint: 64
+                imageSizeHint: 64
+                spacing: Maui.Style.space.medium
+                label2.color: Maui.Theme.textColor
+                label2.opacity: 1
             }
             
             Maui.Chip

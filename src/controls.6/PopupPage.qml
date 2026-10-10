@@ -184,6 +184,7 @@ Maui.Popup
          * @property Page PopupPage::page
          */
         readonly property alias page : _page
+        property alias header : _page.header
 
         /**
          * @see Page::footBar

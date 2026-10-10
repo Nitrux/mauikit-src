@@ -201,7 +201,7 @@ Item
         rowSpacing: control.spacing
         columnSpacing: control.spacing
         
-        columns: control.display === ToolButton.TextUnderIcon ? 1 : 2
+        columns: control.display === ToolButton.TextUnderIcon || !_icon.visible ? 1 : 2
         
         Maui.Icon
         {

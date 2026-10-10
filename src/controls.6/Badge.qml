@@ -72,12 +72,12 @@ AbstractButton
     /**
      * Display or not a drop shadow.
      */
-    property bool flat : false
+    property bool flat : true
     icon.color: setTextColor(control)
 
     font.weight: Font.Light
     font.bold: true
-    font.pointSize: Maui.Style.fontSizes.tiny
+    font.pointSize: Maui.Style.fontSizes.small
 
     implicitWidth: Math.max(implicitHeight, _layout.implicitWidth + leftPadding + rightPadding)
     implicitHeight: _layout.implicitHeight + topPadding + bottomPadding
@@ -90,7 +90,7 @@ AbstractButton
         visible: !_bgEffect.visible
         radius: Math.min(width, height)
         color: control.color
-        border.color: Qt.lighter(control.color)
+        border.color: "transparent"
 
         Behavior on color
         {
@@ -122,6 +122,10 @@ AbstractButton
         color: control.icon.color
         spacing: control.spacing
         alignment: Qt.AlignHCenter
+        label.transform: Translate
+        {
+            y: -0.5
+        }
     }
 
     function setTextColor(control)

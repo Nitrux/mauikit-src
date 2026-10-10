@@ -164,8 +164,6 @@ T.ToolButton
             text: control.Maui.Controls.badgeText
 
             padding: 2
-            font.pointSize: Maui.Style.fontSizes.tiny
-
             Maui.Controls.status: Maui.Controls.Negative
 
             OpacityAnimator on opacity

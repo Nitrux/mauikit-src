@@ -211,6 +211,30 @@ Maui.Popup
          */
         readonly property alias flickable : _scrollView.flickable
 
+        property bool scrollResetPending: false
+        property bool scrollResetLocked: false
+        property bool scrollResetApplying: false
+
+        function resetScrollPosition()
+        {
+            if (!control.visible || control.scrollResetPending || control.scrollResetLocked)
+                return
+
+            control.scrollResetPending = true
+            Qt.callLater(function()
+            {
+                control.scrollResetPending = false
+
+                if (!control.visible || control.scrollResetLocked)
+                    return
+
+                control.scrollResetApplying = true
+                control.flickable.cancelFlick()
+                control.flickable.contentY = -control.flickable.topMargin
+                control.scrollResetApplying = false
+            })
+        }
+
         /**
          * @brief An alias to the MauiKit ScrollColumn handling the scrollable content.
          * @property ScrollView PopupPage::scrollView
@@ -424,6 +448,25 @@ Maui.Popup
         }
 
 
+        Connections
+        {
+            target: control.flickable
+
+            function onContentHeightChanged() { control.resetScrollPosition() }
+            function onMovementStarted()
+            {
+                if (!control.scrollResetApplying)
+                    control.scrollResetLocked = true
+            }
+            function onHeightChanged() { control.resetScrollPosition() }
+            function onTopMarginChanged() { control.resetScrollPosition() }
+        }
+
+        onOpened:
+        {
+            control.scrollResetLocked = false
+            control.resetScrollPosition()
+        }
         onClosed: _alertMessage.reset()
 
         /**

@@ -274,6 +274,9 @@ Maui.Page
                 id:_footerBg
                 color: Maui.Theme.backgroundColor
                 radius: control.footerMargins > 0 ? Maui.Style.radiusV : 0
+                border.color: control.footerMargins > 0 ? Maui.Theme.alternateBackgroundColor : "transparent"
+                border.pixelAligned: false
+                antialiasing: true
 
                 ShaderEffectSource
                 {

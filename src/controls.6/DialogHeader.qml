@@ -46,12 +46,4 @@ Maui.ShadowedRectangle
         icon.height: 18
         onClicked: control.closeRequested()
     }
-
-    Maui.Separator
-    {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        weight: Maui.Separator.Weight.Light
-    }
 }

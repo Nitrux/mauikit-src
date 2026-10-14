@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <QtQmlIntegration/qqmlintegration.h>
+
 #include "platformtheme.h"
 #include <QIcon>
 #include <QPointer>

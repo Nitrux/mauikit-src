@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <QtQmlIntegration/qqmlintegration.h>
+
 #include "tileset.h"
 
 #include <KWindowShadow>
@@ -31,7 +33,7 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QQmlEngine>
-#include <QQmlParserStatus>
+#include <QtQml/qqmlparserstatus.h>
 #include <QRect>
 #include <QWindow>
 #include <QVector>

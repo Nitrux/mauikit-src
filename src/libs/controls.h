@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <QtQmlIntegration/qqmlintegration.h>
+
 #include <QObject>
 #include <QQmlEngine>
 #include <QQmlComponent>

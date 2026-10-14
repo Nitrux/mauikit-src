@@ -443,5 +443,3 @@ MauiKit::AdaptivePalette MauiKit::AdaptivePalette::fromImageData(const ImageData
 
     return result;
 }
-
-#include "moc_colorutils.cpp"

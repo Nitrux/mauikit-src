@@ -1,5 +1,5 @@
 #include "moduleinfo.h"
-#include "../mauikit_version.h"
+#include "mauikit_version.h"
 
 QString MauiKitCore::versionString()
 {

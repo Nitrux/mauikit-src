@@ -3,7 +3,10 @@
  *
  *  SPDX-License-Identifier: LGPL-2.0-or-later
  */
+
 #pragma once
+
+#include <QtQmlIntegration/qqmlintegration.h>
 
 #include <QColor>
 #include <QIcon>

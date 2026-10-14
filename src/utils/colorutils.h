@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <QtQmlIntegration/qqmlintegration.h>
+
 #include <QColor>
 #include <QJSValue>
 #include <QObject>

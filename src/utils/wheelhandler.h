@@ -5,13 +5,15 @@
 
 #pragma once
 
+#include <QtQmlIntegration/qqmlintegration.h>
+
 #include <QGuiApplication>
 #include <QObject>
 #include <QPoint>
 #include <QQuickItem>
 #include <QStyleHints>
 #include <QtQml>
-#include <QQmlParserStatus>
+#include <QtQml/qqmlparserstatus.h>
 #include <QPropertyAnimation>
 
 class QWheelEvent;

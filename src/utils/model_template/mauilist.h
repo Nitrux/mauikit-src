@@ -18,13 +18,15 @@
 
 #pragma once
 
+#include <QtQmlIntegration/qqmlintegration.h>
+
 #include <QObject>
  #include <QQmlEngine>
 #include "fmh.h"
 
 #include "mauikit_export.h"
 
-#include <QQmlParserStatus>
+#include <QtQml/qqmlparserstatus.h>
 
 /**
  * @brief MauiList class.

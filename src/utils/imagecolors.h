@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <QtQmlIntegration/qqmlintegration.h>
+
 #include "colorutils.h"
 
 #include <QColor>

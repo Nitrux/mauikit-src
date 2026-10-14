@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <QtQmlIntegration/qqmlintegration.h>
+
 #include <QAbstractListModel>
  #include <QQmlEngine>
  #include <QObject>
@@ -25,7 +27,7 @@
 
 #include "mauikit_export.h"
 
-class MauiList;
+#include "mauilist.h"
 
 /**
  * @brief The MauiModel class.

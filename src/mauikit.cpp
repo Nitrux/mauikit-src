@@ -179,6 +179,3 @@ void MauiKit::registerTypes(const char *uri)
 #endif
            // qmlProtectModule(uri, 3);
 }
-
-#include "mauikit.moc"
-#include "moc_mauikit.cpp"

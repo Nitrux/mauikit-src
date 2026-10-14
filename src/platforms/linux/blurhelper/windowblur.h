@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <QtQmlIntegration/qqmlintegration.h>
+
 #include <memory>
 
 #include <QRect>

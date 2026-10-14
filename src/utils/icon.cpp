@@ -628,5 +628,3 @@ bool Icon::eventFilter(QObject *watched, QEvent *event)
 
     return QQuickItem::eventFilter(watched, event);
 }
-
-#include "moc_icon.cpp"

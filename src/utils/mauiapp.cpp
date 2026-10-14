@@ -32,7 +32,7 @@
 #include <QMessageLogContext>
 #include <QDebug>
 
-#include "../mauikit_version.h"
+#include "mauikit_version.h"
 #include "moduleinfo.h"
 
 Q_GLOBAL_STATIC(MauiApp, appInstance)

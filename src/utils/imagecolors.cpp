@@ -605,5 +605,3 @@ QColor ImageColors::closestToBlack() const
     /* clang-format on */
     return m_imageData.m_closestToBlack;
 }
-
-#include "moc_imagecolors.cpp"

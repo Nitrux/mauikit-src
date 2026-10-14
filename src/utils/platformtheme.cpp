@@ -1099,5 +1099,4 @@ void PlatformThemeChangeTracker::markDirty(PropertyChanges changes)
 }
 }
 
-#include "moc_platformtheme.cpp"
 #include "platformtheme.moc"

@@ -214,7 +214,6 @@ bool Handy::eventFilter(QObject *watched, QEvent *event)
 
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
    
-        auto device = me->device();
         if (me->source() == Qt::MouseEventNotSynthesized)
         {
             setTransientTouchInput(false);

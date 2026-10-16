@@ -180,7 +180,7 @@ install_data(style_qml_files, install_dir: style_qml_dir)
 install_data(style_private_qml_files, install_dir: style_qml_dir / 'private')
 install_headers(files('src/platforms/abstractplatform.h', 'src/platforms/linux/mauilinux.h', 'src/platforms/linux/blurhelper/windowblur.h', 'src/utils/fmh.h', 'src/utils/handy.h', 'src/utils/notify.h', 'src/utils/mauiapp.h', 'src/utils/imagecolors.h', 'src/utils/colorutils.h', 'src/utils/appsettings.h', 'src/utils/model_template/mauilist.h', 'src/utils/moduleinfo.h') + [export_header], subdir: 'MauiKit4/Core')
 pkg = import('pkgconfig')
-pkg.generate(lib, name: 'MauiKit 4', filebase: 'MauiKit4', version: meson.project_version(), description: 'MauiKit controls and utilities', requires: 'Qt6Core Qt6DBus Qt6Gui Qt6Multimedia Qt6Qml Qt6Quick Qt6QuickControls2 Qt6Svg Qt6Widgets KF6CoreAddons KF6ConfigCore KF6I18n KF6Notifications KF6WindowSystem MauiMan4 wayland-client xcb xcb-icccm xcb-shape')
+pkg.generate(lib, name: 'MauiKit 4', filebase: 'MauiKit4', version: meson.project_version(), description: 'MauiKit controls and utilities', requires: 'Qt6Core Qt6DBus Qt6Gui Qt6Multimedia Qt6Qml Qt6Quick Qt6QuickControls2 Qt6Svg Qt6Widgets MauiMan4 wayland-client xcb xcb-icccm xcb-shape')
 
 cmake_targets = configure_file(
     input: 'meson-content.in',

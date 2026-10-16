@@ -92,7 +92,7 @@ qml_dir = get_option('libdir') / 'qt6/qml/org/mauikit/controls'
 install_data(configure_file(
     input: 'meson-content.in',
     output: 'qmldir',
-    configuration: {'CONTENT': ('module org.mauikit.controls 1.3\nplugin MauiKit4plugin\n')}
+    configuration: {'CONTENT': ('module org.mauikit.controls 1.3\ndepends QtQuick\ndepends QtQuick.Controls\ndepends QtMultimedia\nplugin MauiKit4plugin\n')}
 ), install_dir: qml_dir)
 install_subdir('src/controls.6', install_dir: qml_dir, strip_directory: true)
 install_subdir('src/csd.6', install_dir: get_option('datadir') / 'org.mauikit.controls', strip_directory: true)
@@ -125,6 +125,53 @@ plugin MauiStyle
 depends QtQuick.Controls 2.15
 depends org.mauikit.controls
 designersupported
+import QtQuick.Controls.Basic auto
+ApplicationWindow 2.15 ApplicationWindow.qml
+BusyIndicator 2.15 BusyIndicator.qml
+Button 2.15 Button.qml
+CheckBox 2.15 CheckBox.qml
+CheckIndicator 2.15 CheckIndicator.qml
+ComboBox 2.15 ComboBox.qml
+Container 2.15 Container.qml
+Control 2.15 Control.qml
+Dial 2.15 Dial.qml
+Dialog 2.15 Dialog.qml
+DialogButtonBox 2.15 DialogButtonBox.qml
+Drawer 2.15 Drawer.qml
+Frame 2.15 Frame.qml
+GroupBox 2.15 GroupBox.qml
+ItemDelegate 2.15 ItemDelegate.qml
+Label 2.15 Label.qml
+Menu 2.15 Menu.qml
+MenuItem 2.15 MenuItem.qml
+MenuSeparator 2.15 MenuSeparator.qml
+Page 2.15 Page.qml
+Pane 2.15 Pane.qml
+Popup 2.15 Popup.qml
+ProgressBar 2.15 ProgressBar.qml
+RadioButton 2.15 RadioButton.qml
+RadioDelegate 2.15 RadioDelegate.qml
+RadioIndicator 2.15 RadioIndicator.qml
+RangeSlider 2.15 RangeSlider.qml
+ScrollBar 2.15 ScrollBar.qml
+ScrollView 2.15 ScrollView.qml
+Slider 2.15 Slider.qml
+SpinBox 2.15 SpinBox.qml
+SplitView 2.15 SplitView.qml
+StackView 2.15 StackView.qml
+SwipeView 2.15 SwipeView.qml
+Switch 2.15 Switch.qml
+SwitchDelegate 2.15 SwitchDelegate.qml
+SwitchIndicator 2.15 SwitchIndicator.qml
+TabBar 2.15 TabBar.qml
+TabButton 2.15 TabButton.qml
+TextArea 2.15 TextArea.qml
+TextField 2.15 TextField.qml
+ToolBar 2.15 ToolBar.qml
+ToolButton 2.15 ToolButton.qml
+ToolSeparator 2.15 ToolSeparator.qml
+ToolTip 2.15 ToolTip.qml
+Tumbler 2.15 Tumbler.qml
 ''')}
 ), install_dir: style_qml_dir, rename: 'qmldir')
 style_qml_files = run_command('find', 'src/style.6/qtquickcontrols', '-maxdepth', '1', '-type', 'f', '-name', '*.qml', check: true).stdout().strip().split('\n')
@@ -133,7 +180,7 @@ install_data(style_qml_files, install_dir: style_qml_dir)
 install_data(style_private_qml_files, install_dir: style_qml_dir / 'private')
 install_headers(files('src/platforms/abstractplatform.h', 'src/platforms/linux/mauilinux.h', 'src/platforms/linux/blurhelper/windowblur.h', 'src/utils/fmh.h', 'src/utils/handy.h', 'src/utils/notify.h', 'src/utils/mauiapp.h', 'src/utils/imagecolors.h', 'src/utils/colorutils.h', 'src/utils/appsettings.h', 'src/utils/model_template/mauilist.h', 'src/utils/moduleinfo.h') + [export_header], subdir: 'MauiKit4/Core')
 pkg = import('pkgconfig')
-pkg.generate(lib, name: 'MauiKit 4', filebase: 'MauiKit4', version: meson.project_version(), description: 'MauiKit controls and utilities', requires: 'Qt6Core Qt6Gui Qt6Qml Qt6Quick Qt6QuickControls2')
+pkg.generate(lib, name: 'MauiKit 4', filebase: 'MauiKit4', version: meson.project_version(), description: 'MauiKit controls and utilities', requires: 'Qt6Core Qt6DBus Qt6Gui Qt6Multimedia Qt6Qml Qt6Quick Qt6QuickControls2 Qt6Svg Qt6Widgets KF6CoreAddons KF6ConfigCore KF6I18n KF6Notifications KF6WindowSystem MauiMan4 wayland-client xcb xcb-icccm xcb-shape')
 
 cmake_targets = configure_file(
     input: 'meson-content.in',
@@ -143,7 +190,8 @@ if(NOT TARGET MauiKit4)
   add_library(MauiKit4 SHARED IMPORTED)
   set_target_properties(MauiKit4 PROPERTIES
     IMPORTED_LOCATION "${_MAUIKIT_PREFIX}/@LIBDIR@/libMauiKit4.so.4.0.5"
-    INTERFACE_INCLUDE_DIRECTORIES "${_MAUIKIT_PREFIX}/include/MauiKit4/Core")
+    INTERFACE_INCLUDE_DIRECTORIES "${_MAUIKIT_PREFIX}/include/MauiKit4/Core"
+    INTERFACE_LINK_LIBRARIES "Qt6::Core;KF6::CoreAddons")
 endif()
 if(NOT TARGET MauiKit4::Controls)
   add_library(MauiKit4::Controls ALIAS MauiKit4)
@@ -160,7 +208,8 @@ cmake_config = configure_file(
     input: 'meson-content.in',
     output: 'MauiKit4Config.cmake',
     configuration: {'CONTENT': ('''include(CMakeFindDependencyMacro)
-find_dependency(Qt6 6.4 COMPONENTS Core)
+find_dependency(Qt6 6.9 COMPONENTS Core)
+find_dependency(KF6 6.13.0 COMPONENTS CoreAddons)
 include("${CMAKE_CURRENT_LIST_DIR}/MauiKit4Targets.cmake")
 set(MauiKit4_FOUND TRUE)
 foreach(_component IN LISTS MauiKit4_FIND_COMPONENTS)

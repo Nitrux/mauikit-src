@@ -111,6 +111,8 @@ class MauiStylePlugin : public QQmlExtensionPlugin
 public:
     void registerTypes(const char *) override {}
 };
+
+#include "maui_style_plugin.moc"
 ''')}
 )
 style_plugin_moc = qt6.preprocess(moc_sources: [style_plugin_source], dependencies: [qt])

@@ -143,6 +143,7 @@ set(kwin_XCB_LIBS
     XCB::XCB)
 
 include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/platforms/linux/blurhelper
     ${CMAKE_CURRENT_SOURCE_DIR}/platforms/linux/shadowhelper
     ${CMAKE_CURRENT_BINARY_DIR}/platforms/linux/shadowhelper)
 

@@ -1,6 +1,10 @@
 @PACKAGE_INIT@
 
 include(CMakeFindDependencyMacro)
+# MauiKit intentionally uses Qt's WaylandClientPrivate API for its Wayland
+# integration. Consumers must use the matching Qt module build.
+set(QT_NO_PRIVATE_MODULE_WARNING ON CACHE BOOL
+    "MauiKit uses Qt's private WaylandClient API" FORCE)
 find_dependency(Qt6 @REQUIRED_QT_VERSION@ COMPONENTS Concurrent Core DBus Gui Multimedia Qml Quick QuickControls2 Svg Widgets WaylandClient WaylandClientPrivate)
 find_dependency(KF6 @REQUIRED_KF_VERSION@ COMPONENTS Config CoreAddons I18n Notifications WindowSystem)
 find_dependency(MauiMan4 @MAUIKIT_VERSION@ CONFIG)

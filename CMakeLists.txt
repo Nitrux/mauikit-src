@@ -111,7 +111,7 @@ set_package_properties(MauiMan${MAUI_MAJOR_VERSION} PROPERTIES
 #    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 #endif()
 
-#include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 #configure_file(config-OpenMP.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-OpenMP.h)
 
 ecm_find_qmlmodule(QtQuick.Shapes 1.0)

@@ -20,7 +20,6 @@
 #include "windowshadow.h"
 #include "boxshadowrenderer.h"
 #include <KWindowSystem>
-#include <KWindowEffects>
 
 enum {
     ShadowNone,

@@ -21,17 +21,11 @@
 
 #include <QtQmlIntegration/qqmlintegration.h>
 
-#include <memory>
-
 #include <QRect>
-#include <QRegion>
 #include <QQmlEngine>
 #include <QQmlParserStatus>
 #include <QObject>
 #include <QWindow>
-
-namespace QtWaylandClient { class QWaylandWindow; }
-class BackgroundEffectSurface;
 
 class WindowBlur : public QObject, public QQmlParserStatus
 {
@@ -65,13 +59,9 @@ public:
 
 private Q_SLOTS:
     void onViewVisibleChanged(bool);
-    void onWaylandSurfaceCreated();
-    void onWaylandSurfaceDestroyed();
 
 private:
     void updateBlur();
-    void updateWaylandWindow();
-    static QRegion roundedBlurRegion(const QRect &rect, qreal radius);
 
 Q_SIGNALS:
     void viewChanged();
@@ -81,9 +71,7 @@ Q_SIGNALS:
 
 private:
     QWindow *m_view = nullptr;
-    QtWaylandClient::QWaylandWindow *m_waylandWindow = nullptr;
     QRect m_rect;
     bool m_enabled = false;
     qreal m_windowRadius = 0.0;
-    std::unique_ptr<BackgroundEffectSurface> m_backgroundEffectSurface;
 };

@@ -436,7 +436,7 @@ T.TextField
 
         QC.MenuItem
         {
-            text: i18nd("mauikit", "Select All")
+            text: i18nd("mauikit", "Select all")
             onTriggered: control.selectAll()
             enabled: control.text.length
         }

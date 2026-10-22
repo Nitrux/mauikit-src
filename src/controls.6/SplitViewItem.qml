@@ -64,6 +64,13 @@ Pane
          */
     property bool autoClose : true
 
+    background: Rectangle
+    {
+        color: Maui.Theme.backgroundColor
+        radius: control.compact ? 0 : Maui.Style.radiusV
+        antialiasing: true
+    }
+
     SplitView.fillHeight: true
     SplitView.fillWidth: true
 
@@ -167,7 +174,7 @@ Pane
                            }
             }
 
-            layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software && control.padding > 0 && !control.SplitView.view.resizing
+            layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software && (control.padding > 0 || control.SplitView.view.count > 1) && !control.SplitView.view.resizing
             layer.smooth: true
             layer.effect: MultiEffect
             {

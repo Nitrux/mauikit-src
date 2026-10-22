@@ -193,6 +193,8 @@ Pane
          */
     readonly property bool overviewMode :  _stackView.depth === 2
 
+    property bool overviewSearchActionsVisible: true
+
     /**
          * @brief An alias to the tab bar element. This is exposed so any other items can be placed on the right or left sections of it, or to fine tweak its public properties.
          * @see TabBar
@@ -407,7 +409,6 @@ Pane
                     var obj = _listView.contentModel.get(i)
                     if(obj.Maui.Controls.title)
                     {
-                        console.log("Trying to find tab", i, query, obj.Maui.Controls.title, String(obj.Maui.Controls.title).indexOf(query))
 
                         if(String(obj.Maui.Controls.title).toLowerCase().indexOf(query.toLowerCase()) !== -1)
                         {
@@ -741,59 +742,99 @@ Pane
 
                     background: Rectangle
                     {
-                        color: Qt.rgba(Maui.Theme.backgroundColor.r, Maui.Theme.backgroundColor.g, Maui.Theme.backgroundColor.b, 0.0)
-                        Loader
+                        color: Maui.Theme.backgroundColor
+                    }
+
+                    contentItem: ColumnLayout
+                    {
+                        id: _overview
+
+                        ListModel
                         {
-                            active: !Maui.Handy.isMobile
-                            asynchronous: true
-                            anchors.fill: parent
-                            sourceComponent: Item
+                            id: _overviewModel
+                        }
+
+                        function updateOverviewModel(query)
+                        {
+                            _overviewModel.clear()
+                            const normalizedQuery = String(query).toLowerCase().trim()
+                            for (var i = 0; i < control.count; ++i)
                             {
-                                DragHandler
+                                const tab = _listView.contentModel.get(i)
+                                const title = tab && tab.Maui && tab.Maui.Controls ? String(tab.Maui.Controls.title) : ""
+                                if (!normalizedQuery.length || title.toLowerCase().indexOf(normalizedQuery) !== -1)
+                                    _overviewModel.append({ tabIndex: i })
+                            }
+                        }
+
+                        Component.onCompleted: updateOverviewModel("")
+
+                        Item
+                        {
+                            id: _overviewSearchArea
+                            Layout.alignment: Qt.AlignHCenter
+                            Layout.fillWidth: true
+                            implicitHeight: _overviewSearchRow.implicitHeight + Maui.Style.space.medium * 2
+
+                            MouseArea
+                            {
+                                anchors.fill: parent
+                                onClicked: control.closeOverview()
+                            }
+
+                            RowLayout
+                            {
+                                id: _overviewSearchRow
+                                anchors.fill: parent
+                                anchors.topMargin: Maui.Style.space.medium
+                                anchors.bottomMargin: Maui.Style.space.medium
+                                spacing: Maui.Style.space.medium
+
+                                Maui.SearchField
                                 {
-                                    // acceptedDevices: PointerDevice.GenericPointer
-                                    grabPermissions:  PointerHandler.CanTakeOverFromItems | PointerHandler.CanTakeOverFromHandlersOfDifferentType | PointerHandler.ApprovesTakeOverByAnything
-                                    onActiveChanged: if (active) { control.Window.window.startSystemMove(); }
-                                   acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                                    id: _overviewSearch
+                                    Layout.fillWidth: true
+                                    Layout.alignment: Qt.AlignHCenter
+                                    Layout.maximumWidth: Maui.Style.units.gridUnit * 30
+                                    placeholderText: i18n("Search tabs")
+                                    onTextChanged: _overview.updateOverviewModel(text)
+                                }
+
+                                ToolSeparator
+                                {
+                                    visible: control.overviewSearchActionsVisible
+                                    Layout.alignment: Qt.AlignVCenter
+                                    height: Maui.Style.space.medium
+                                    topPadding: 0
+                                    bottomPadding: 0
+                                }
+
+                                ToolButton
+                                {
+                                    icon.name: "list-add"
+                                    visible: control.overviewSearchActionsVisible
+                                    display: ToolButton.IconOnly
+                                    onClicked: control.newTabClicked()
+
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: i18n("New tab")
                                 }
                             }
                         }
-                    }
 
-                    contentItem: Maui.GridBrowser
-                    {
-                        id: _overviewGrid
-                        model: control.count
+                        Maui.GridBrowser
+                        {
+                            id: _overviewGrid
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            model: _overviewModel
 
                         currentIndex: control.currentIndex
 
-                        itemSize: Math.min(200, availableWidth /2)
-
-                        Loader
-                        {
-                            asynchronous: true
-                            anchors.bottom: parent.bottom
-                            anchors.right: parent.right
-                            anchors.margins: Maui.Style.space.big
-                            sourceComponent: Maui.FloatingButton
-                            {
-                                id: _newTabButton
-                                width: 32
-                                height: 32
-                                padding: Maui.Style.space.medium
-                                icon.name: "list-add"
-                                icon.width: 16
-                                icon.height: 16
-
-                                background: Rectangle
-                                {
-                                    radius: 9
-                                    color: _newTabButton.color
-                                }
-
-                                onClicked: control.newTabClicked()
-                            }
-                        }
+                        itemSize: Math.max(Maui.Style.iconSizes.small, Math.min(Maui.Style.units.gridUnit * 32, _overviewGrid.availableWidth))
+                        rightPadding: Maui.Style.space.medium
 
                         onAreaClicked:
                         {
@@ -804,36 +845,17 @@ Pane
                         {
                             height: GridView.view.cellHeight
                             width: GridView.view.cellWidth
-                            opacity: translateY < 0 ? 1 - (Math.abs(translateY)/height) : 1
-                            property int translateY : 0
-                            transform: Translate
-                            {
-                                y: translateY
-                            }
-
-                            DragHandler
-                            {
-                                id :_itemDragHandler
-                                target: null
-                                readonly property int distance : activeTranslation.y
-
-                                xAxis.enabled: false
-                                onDistanceChanged: translateY = distance
-                                onActiveChanged:
-                                {
-                                    if(!active)
-                                    {
-                                        if(distance <  -60)
-                                            control.closeTabClicked(index)
-
-                                            translateY = 0
-                                    }
-                                }
-                            }
 
                             Maui.GridBrowserDelegate
                             {
                                 id: _delegate
+
+                                readonly property string overviewFaviconSource:
+                                {
+                                    const tab = _listView.contentModel.get(model.tabIndex)
+                                    return tab && tab.Maui && tab.Maui.Controls
+                                            ? String(tab.Maui.Controls.iconName || "") : ""
+                                }
 
                                 Maui.Theme.colorSet: Maui.Theme.Button
                                 Maui.Theme.inherit: false
@@ -842,17 +864,17 @@ Pane
                                 anchors.margins: Maui.Style.space.medium
 
                                 isCurrentItem : parent.GridView.isCurrentItem
-                                label1.text: _listView.contentModel.get(index).Maui.Controls.title
+                                label1.text: _listView.contentModel.get(model.tabIndex).Maui.Controls.title
                                 //                                 template.labelSizeHint: 32
-                                iconSource: "tab-new"
+                                iconSource: _delegate.overviewFaviconSource || "tab-new"
                                 flat: false
 
-                                tooltipText:  _listView.contentModel.get(index).Maui.Controls.toolTipText
+                                tooltipText:  _listView.contentModel.get(model.tabIndex).Maui.Controls.toolTipText
 
                                 onClicked:
                                 {
                                     control.closeOverview()
-                                    _listView.setCurrentIndex(index)
+                                    _listView.setCurrentIndex(model.tabIndex)
                                 }
 
 
@@ -861,9 +883,6 @@ Pane
                                     id: _previewFrame
                                     Maui.Theme.colorSet: Maui.Theme.View
                                     Maui.Theme.inherit: false
-                                    property int previewFrameRadius: 3
-                                    property int previewMaskRadius: 0
-                                    property bool previewDebug: false
 
                                     Rectangle
                                     {
@@ -871,121 +890,61 @@ Pane
                                         anchors.fill: parent
                                         clip: true
                                         color: Maui.Theme.backgroundColor
-                                        radius: _previewFrame.previewFrameRadius
-                                        border.width: previewDebug ? 2 : 0
-                                        border.color: previewDebug ? Qt.rgba(0.1, 1.0, 0.2, 0.95) : "transparent"
+                                        radius: Maui.Style.radiusV
 
-                                        ShaderEffectSource
+                                        layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software
+                                        layer.smooth: true
+                                        layer.effect: MultiEffect
                                         {
-                                            id: _effect
-
-                                            anchors.centerIn: parent
-
-                                            property bool previewSized: false
-                                            property int previewSourceWidth: 0
-                                            property int previewSourceHeight: 0
-                                            property real previewScale: 0
-
-                                            function updatePreviewSize()
+                                            maskEnabled: true
+                                            maskThresholdMin: 0.5
+                                            maskSpreadAtMin: 1.0
+                                            maskSpreadAtMax: 0.0
+                                            maskThresholdMax: 1.0
+                                            maskSource: ShaderEffectSource
                                             {
-                                                if (previewSized || !sourceItem
-                                                        || sourceItem.width <= 0 || sourceItem.height <= 0
-                                                        || parent.width <= 0 || parent.height <= 0)
-                                                    return
-
-                                                previewSourceWidth = sourceItem.width
-                                                previewSourceHeight = sourceItem.height
-                                                previewScale = Math.min(parent.height / previewSourceHeight, parent.width / previewSourceWidth)
-                                                previewSized = true
-
-                                                if (parent.previewDebug)
+                                                sourceItem: Rectangle
                                                 {
-                                                    console.log("TabView preview effect ready", width, height, "scale", previewScale, "source", sourceItem ? sourceItem.width + "x" + sourceItem.height : "none")
+                                                    width: _previewClip.width
+                                                    height: _previewClip.height
+                                                    radius: Maui.Style.radiusV
                                                 }
                                             }
+                                        }
 
-                                            onSourceItemChanged:
-                                            {
-                                                previewSized = false
-                                                previewSourceWidth = 0
-                                                previewSourceHeight = 0
-                                                previewScale = 0
-                                                updatePreviewSize()
-                                            }
-
-                                            Component.onCompleted: updatePreviewSize()
-
-                                            onWidthChanged: if (parent.previewDebug) console.log("TabView preview effect width", width, "height", height, "scale", previewScale)
-                                            onHeightChanged: if (parent.previewDebug) console.log("TabView preview effect height", width, "height", height, "scale", previewScale)
-
-                                            height: previewSourceHeight * previewScale
-                                            width: previewSourceWidth * previewScale
-
-                                            hideSource: false
-                                            live: false
+                                        Image
+                                        {
+                                            anchors.fill: parent
+                                            fillMode: Image.PreserveAspectCrop
+                                            asynchronous: true
                                             smooth: true
-
-                                            textureSize: Qt.size(width,height)
-                                            sourceItem: _listView.contentModel.get(index)
-
-                                            Connections
+                                            source:
                                             {
-                                                target: _effect.sourceItem
-
-                                                function onWidthChanged()
-                                                {
-                                                    _effect.updatePreviewSize()
-                                                }
-
-                                                function onHeightChanged()
-                                                {
-                                                    _effect.updatePreviewSize()
-                                                }
-                                            }
-
-                                            Connections
-                                            {
-                                                target: _previewClip
-
-                                                function onWidthChanged()
-                                                {
-                                                    _effect.updatePreviewSize()
-                                                }
-
-                                                function onHeightChanged()
-                                                {
-                                                    _effect.updatePreviewSize()
-                                                }
-                                            }
-
-                                            layer.enabled: GraphicsInfo.api !== GraphicsInfo.Software && Maui.Style.enableEffects
-                                            layer.smooth: true
-                                            layer.effect: MultiEffect
-                                            {
-                                                maskEnabled: true
-                                                maskThresholdMin: 0.5
-                                                maskSpreadAtMin: 1.0
-                                                maskSpreadAtMax: 0.0
-                                                maskThresholdMax: 1.0
-                                                maskSource: ShaderEffectSource
-                                                {
-                                                    sourceItem: Rectangle
-                                                    {
-                                                        width: _effect.width
-                                                        height: _effect.height
-                                                        radius: _previewFrame.previewMaskRadius
-                                                    }
-                                                }
+                                                const tab = _listView.itemAt(model.tabIndex)
+                                                return tab && typeof tab.previewSource !== "undefined" ? tab.previewSource : ""
                                             }
                                         }
 
                                         Rectangle
                                         {
-                                            visible: previewDebug
-                                            anchors.fill: _effect
-                                            color: "transparent"
-                                            border.width: 1
-                                            border.color: Qt.rgba(1.0, 0.3, 0.1, 0.9)
+                                            visible: _delegate.overviewFaviconSource.length > 0
+                                            width: Maui.Style.iconSizes.medium
+                                            height: Maui.Style.iconSizes.medium
+                                            anchors.top: parent.top
+                                            anchors.left: parent.left
+                                            anchors.margins: Maui.Style.space.small
+                                            radius: Maui.Style.radiusV
+                                            color: Maui.Theme.backgroundColor
+                                            opacity: 0.9
+
+                                            Maui.IconItem
+                                            {
+                                                anchors.fill: parent
+                                                anchors.margins: Maui.Style.space.small
+                                                imageSource: _delegate.overviewFaviconSource
+                                                iconSource: ""
+                                                imageSizeHint: Maui.Style.iconSizes.small
+                                            }
                                         }
                                     }
 
@@ -993,17 +952,17 @@ Pane
                                     {
                                         id: _closeButton
                                         visible: _delegate.isCurrentItem || _delegate.hovered || Maui.Handy.isMobile
-                                        width: 18
-                                        height: 18
+                                        width: Maui.Style.iconSizes.medium
+                                        height: Maui.Style.iconSizes.medium
                                         anchors.top: _previewFrame.top
                                         anchors.right: _previewFrame.right
                                         anchors.topMargin: -Maui.Style.space.small
                                         anchors.rightMargin: -Maui.Style.space.small
                                         padding: 0
-                                        icon.width: 14
-                                        icon.height: 14
+                                        icon.width: Maui.Style.iconSizes.small
+                                        icon.height: Maui.Style.iconSizes.small
 
-                                        onClicked: control.closeTabClicked(index)
+                                        onClicked: control.closeTabClicked(model.tabIndex)
 
                                         background: Rectangle
                                         {
@@ -1023,6 +982,7 @@ Pane
                 }
             }
         }
+    }
     }
     /**
          * @brief Close a tab view at a given index. This will release the resources, and move the focus to the previous tab view
@@ -1089,12 +1049,23 @@ Pane
     /**
          * @brief Method to open the tabs overview.
          */
+    function captureTabPreviews()
+    {
+        for (var i = 0; i < control.count; ++i)
+        {
+            const tab = _listView.itemAt(i)
+            if (tab && typeof tab.capturePreview === "function")
+                tab.capturePreview()
+        }
+    }
+
     function openOverview()
     {
         if(_stackView.depth === 2)
         {
             return
         }
+        captureTabPreviews()
         _stackView.push(_overviewComponent)
     }
 

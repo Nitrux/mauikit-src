@@ -509,13 +509,13 @@ Pane
             {
                 _headerAnimation.enabled = true
 
-                if (!control.header.pullBack || control.flickable.atYBeginning )
+                if (!control._pullBackState(control.header) || control.flickable.atYBeginning )
                 {
-                    control.header.pullBack =  false
+                    control._setPullBackState(control.header, false)
 
                 } else
                 {
-                    control.header.pullBack = true
+                    control._setPullBackState(control.header, true)
                 }
             }
 
@@ -523,23 +523,23 @@ Pane
             {
                 _footerAnimation.enabled = true
 
-                if (!control.footer.pullBack ||  control.flickable.atYEnd)
+                if (!control._pullBackState(control.footer) ||  control.flickable.atYEnd)
                 {
                     if(control.flickable.atYEnd)
                     {
-                        control.footer.pullBack =  false
+                        control._setPullBackState(control.footer, false)
 
                         control.flickable.contentY = control.flickable.contentHeight - control.flickable.height
                         oldContentY = control.flickable.contentY
                     }else
                     {
-                        control.footer.pullBack = true
+                        control._setPullBackState(control.footer, true)
 
                     }
 
                 } else
                 {
-                    control.footer.pullBack = true
+                    control._setPullBackState(control.footer, true)
                 }
             }
         }
@@ -1055,7 +1055,7 @@ Pane
                     {
                         if(control.autoHideHeader)
                         {
-                            if(!header.pullBack)
+                            if(!control._pullBackState(header))
                             {
                                 _autoHideHeaderTimer.start()
                                 _revealHeaderTimer.stop()
@@ -1069,7 +1069,7 @@ Pane
 
                         if(control.autoHideFooter)
                         {
-                            if(!footer.pullBack)
+                            if(!control._pullBackState(footer))
                             {
                                 _autoHideFooterTimer.start()
 
@@ -1262,7 +1262,7 @@ Pane
     function pullBackHeader()
     {
         // _headerAnimation.enabled = true
-        header.pullBack = true
+        _setPullBackState(header, true)
     }
 
     /**
@@ -1271,7 +1271,7 @@ Pane
     function pullDownHeader()
     {
         // _headerAnimation.enabled = true
-        header.pullBack = false
+        _setPullBackState(header, false)
     }
 
     /**
@@ -1280,7 +1280,7 @@ Pane
     function pullBackFooter()
     {
         // _footerAnimation.enabled = true
-        footer.pullBack = true
+        _setPullBackState(footer, true)
     }
 
     /**
@@ -1289,6 +1289,17 @@ Pane
     function pullDownFooter()
     {
         // _footerAnimation.enabled = true
-        footer.pullBack = false
+        _setPullBackState(footer, false)
+    }
+
+    function _pullBackState(item)
+    {
+        return item && typeof item.pullBack !== "undefined" ? item.pullBack : false
+    }
+
+    function _setPullBackState(item, value)
+    {
+        if (item && typeof item.pullBack !== "undefined")
+            item.pullBack = value
     }
 }

@@ -32,7 +32,7 @@ Maui.PopupPage
     widthHint: 0.9
     heightHint: 0.8
 
-    width: 360
+    width: Maui.Style.units.gridUnit * 22
     maxHeight: implicitHeight
 
     // Maui.Theme.inherit: false

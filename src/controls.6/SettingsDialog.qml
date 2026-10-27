@@ -130,7 +130,7 @@ Maui.PopupPage
     Maui.Controls.title: i18n("Settings")
     default property alias content: _content.content
     maxHeight: implicitHeight
-    maxWidth: 500
+    maxWidth: Maui.Style.units.gridUnit * 30
 
     hint: 1
 

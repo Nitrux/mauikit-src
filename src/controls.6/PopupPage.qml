@@ -131,7 +131,7 @@ Maui.Popup
 
     closePolicy: control.persistent ? Popup.NoAutoClose | Popup.CloseOnEscape : Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
-    maxWidth: 300
+    maxWidth: Maui.Style.units.gridUnit * 22
     maxHeight: implicitHeight
     implicitHeight: _layout.implicitHeight + topPadding + bottomPadding + topMargin + bottomMargin
     implicitWidth: _layout.implicitWidth + leftPadding + rightPadding
@@ -265,6 +265,59 @@ Maui.Popup
          * @brief List of actions to be added to the bottom section as buttons.
          */
         property list<Action> actions
+
+        readonly property bool hasNegativeAction: {
+            for (let action of control.actions)
+            {
+                if (action && action.Maui.Controls.status === Maui.Controls.Negative)
+                    return true
+            }
+            return false
+        }
+
+        readonly property bool hasPositiveAction: {
+            for (let action of control.actions)
+            {
+                if (action && action.Maui.Controls.status === Maui.Controls.Positive)
+                    return true
+            }
+            return false
+        }
+
+        readonly property var orderedActions: {
+            const result = []
+            for (let index = 0; index < control.actions.length; ++index)
+                result.push({ action: control.actions[index], index: index })
+
+            result.sort(function(left, right)
+            {
+                const order = control.actionOrder(left.action, left.index) - control.actionOrder(right.action, right.index)
+                return order !== 0 ? order : left.index - right.index
+            })
+
+            return result
+        }
+
+        function actionStatus(action, index)
+        {
+            const status = action ? action.Maui.Controls.status : Maui.Controls.Normal
+            if(status !== Maui.Controls.Normal)
+                return status
+
+            return !control.hasNegativeAction && !control.hasPositiveAction && control.actions.length > 1 && index === control.actions.length - 1
+                   ? Maui.Controls.Positive
+                   : Maui.Controls.Normal
+        }
+
+        function actionOrder(action, index)
+        {
+            switch(control.actionStatus(action, index))
+            {
+            case Maui.Controls.Negative: return 1
+            case Maui.Controls.Positive: return 2
+            default: return 0
+            }
+        }
 
         /**
          * @brief The GridLayout handling the bottom part of action buttons added via the `actions` property.
@@ -421,7 +474,7 @@ Maui.Popup
                 Layout.fillWidth: true
                 Layout.margins: Maui.Style.contentMargins
 
-                property bool isWide : control.width > (100 * control.actions.length)
+                property bool isWide : control.width > (Maui.Style.units.gridUnit * 10 * control.actions.length)
                 readonly property real buttonWidth: columns > 0 ? Math.max(0, (width - ((columns - 1) * columnSpacing)) / columns) : 0
 
                 visible: control.actions.length
@@ -431,7 +484,7 @@ Maui.Popup
 
                 Repeater
                 {
-                    model: control.actions
+                    model: control.orderedActions
 
                     Button
                     {
@@ -440,8 +493,8 @@ Maui.Popup
                         Layout.fillWidth: true
                         Layout.preferredWidth: _defaultButtonsLayout.buttonWidth
 
-                        action: modelData
-                        Maui.Controls.status: modelData.Maui.Controls.status
+                        action: modelData.action
+                        Maui.Controls.status: control.actionStatus(modelData.action, modelData.index)
                     }
                 }
             }

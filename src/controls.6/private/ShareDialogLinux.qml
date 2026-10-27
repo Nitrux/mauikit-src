@@ -43,8 +43,8 @@ Maui.PopupPage
     
     widthHint: 0.9
     
-    maxHeight: 400
-    maxWidth: 350
+    maxHeight: Maui.Style.units.gridUnit * 25
+    maxWidth: Maui.Style.units.gridUnit * 22
     
     title: i18n("Share")
     

@@ -35,12 +35,28 @@ T.DialogButtonBox
     padding: 0
     spacing: Maui.Style.space.small
     alignment: undefined
+    buttonLayout: DialogButtonBox.KdeLayout
 
     delegate: Button
     {
         focus: true
         Layout.fillWidth: true
         Layout.preferredWidth: buttonLayout.buttonWidth
+
+        Maui.Controls.status: {
+            switch(DialogButtonBox.buttonRole)
+            {
+            case DialogButtonBox.AcceptRole:
+            case DialogButtonBox.ApplyRole:
+            case DialogButtonBox.YesRole:
+                return Maui.Controls.Positive
+            case DialogButtonBox.DestructiveRole:
+            case DialogButtonBox.DiscardRole:
+                return Maui.Controls.Negative
+            default:
+                return Maui.Controls.Normal
+            }
+        }
     }
 
     contentItem: GridLayout
@@ -49,7 +65,7 @@ T.DialogButtonBox
         rowSpacing: control.spacing
         columnSpacing: control.spacing
 
-        property bool isWide : control.width > (100 * _repeater.count)
+        property bool isWide : control.width > (Maui.Style.units.gridUnit * 10 * _repeater.count)
         readonly property real buttonWidth: columns > 0 ? Math.max(0, (width - ((columns - 1) * columnSpacing)) / columns) : 0
 
         //        visible: control.defaultButtons || control.actions.length

@@ -76,7 +76,9 @@ T.Dialog
 
     anchors.centerIn: parent
 
-    implicitWidth: Math.min(300, control.parent.width)
+    implicitWidth: control.parent
+                  ? Math.min(Maui.Style.units.gridUnit * 28, control.parent.width)
+                  : Maui.Style.units.gridUnit * 28
     implicitHeight: implicitContentHeight + topPadding + bottomPadding + implicitFooterHeight + implicitHeaderHeight + topMargin + bottomMargin
 
     spacing: Maui.Style.defaultSpacing
@@ -150,7 +152,7 @@ T.Dialog
     footer: DialogButtonBox
     {
         visible: count > 0
-        width: parent.width
+        width: control.width
         padding: control.padding
     }
 }

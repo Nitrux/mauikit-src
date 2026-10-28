@@ -36,6 +36,7 @@
 
 import QtQuick
 import QtQuick.Window
+import QtQuick.Controls
 import QtQuick.Templates as T
 
 import org.mauikit.controls as Maui
@@ -68,6 +69,7 @@ T.ComboBox
 
     padding: Maui.Style.defaultPadding
     spacing: Maui.Style.space.small
+    property bool popupScrollBar: false
     
     font: Maui.Style.defaultFont
     
@@ -277,6 +279,11 @@ T.ComboBox
             spacing: control.spacing
             // padding: 0
             currentIndex: control.highlightedIndex
+
+            ScrollBar.vertical: ScrollBar
+            {
+                policy: control.popupScrollBar ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
+            }
         }
         
         background: Rectangle

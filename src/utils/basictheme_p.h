@@ -8,7 +8,10 @@
 
 #include "platformtheme.h"
 
+#include <QSharedPointer>
+
 class ImageColors;
+class KConfigWatcher;
 class QEvent;
 
 namespace MauiKit
@@ -159,6 +162,7 @@ protected:
 
 private:
     ImageColors *m_imgColors;
+    QSharedPointer<KConfigWatcher> m_configWatcher;
 
     struct LightColor
     {

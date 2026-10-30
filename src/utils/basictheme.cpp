@@ -7,10 +7,16 @@
 
 #include "basictheme_p.h"
 
+#include <QCoreApplication>
 #include <QEvent>
 #include <QFile>
 #include <QGuiApplication>
 #include <QPalette>
+
+#include <KColorScheme>
+#include <KConfigGroup>
+#include <KConfigWatcher>
+#include <KSharedConfig>
 
 #include "libs/style.h"
 #include "imagecolors.h"
@@ -23,6 +29,21 @@ BasicThemeDefinition::BasicThemeDefinition(QObject *parent)
     ,m_imgColors(new ImageColors(this))
 {
     auto style = Style::instance();
+    m_configWatcher = KConfigWatcher::create(KSharedConfig::openConfig());
+    connect(m_configWatcher.data(), &KConfigWatcher::configChanged, this, [this, style](const KConfigGroup &group)
+    {
+        const QString name = group.name();
+        if (style->styleType() != Style::StyleType::Auto
+            || (!name.startsWith(QStringLiteral("Colors:"))
+                && !name.startsWith(QStringLiteral("ColorEffects:"))
+                && name != QStringLiteral("General")
+                && name != QStringLiteral("KDE")))
+            return;
+
+        setSystemPaletteColors();
+        Q_EMIT changed();
+    });
+
     connect(style, &Style::styleTypeChanged, [this, style](Style::StyleType type)
             {
                 switch(type)
@@ -178,10 +199,16 @@ bool BasicThemeDefinition::eventFilter(QObject *watched, QEvent *event)
     return QObject::eventFilter(watched, event);
 }
 
-       // const char *colorProperty = "KDE_COLOR_SCHEME_PATH";
 void BasicThemeDefinition::setSystemPaletteColors()
 {
-    auto palette = QGuiApplication::palette();
+    const QPalette palette = QGuiApplication::palette();
+
+    const QString colorSchemePath = QCoreApplication::instance()->property("KDE_COLOR_SCHEME_PATH").toString();
+    const KSharedConfigPtr config = colorSchemePath.isEmpty()
+        ? KSharedConfig::openConfig()
+        : KSharedConfig::openConfig(colorSchemePath);
+    config->reparseConfiguration();
+    const KColorScheme header(QPalette::Active, KColorScheme::Header, config);
 
     textColor = palette.color(QPalette::ColorRole::WindowText);
     disabledTextColor = palette.color(QPalette::ColorRole::PlaceholderText);
@@ -220,32 +247,11 @@ void BasicThemeDefinition::setSystemPaletteColors()
     selectionHoverColor = isDark ? highlightColor.darker() : highlightColor.lighter();
     selectionFocusColor = highlightColor;
 
-    bool useDefaultColors = true;
-    //         #ifndef Q_OS_ANDROID
-    //         if (qApp && qApp->property(colorProperty).isValid())
-    //         {
-    //             auto path = qApp->property(colorProperty).toString();
-    //             auto config = KSharedConfig::openConfig(path);
-    //
-    //             auto active = KColorScheme(QPalette::Active, KColorScheme::Header, config);
-    //
-    //             headerTextColor = active.foreground().color();
-    //             headerBackgroundColor = active.background().color();
-    //             headerAlternateBackgroundColor = active.background(KColorScheme::AlternateBackground).color();
-    //             headerHoverColor = active.decoration(KColorScheme::HoverColor).color();
-    //             headerFocusColor = active.decoration(KColorScheme::HoverColor).color();
-    //             useDefaultColors = false;
-    //         }
-    //         #endif
-
-    if(useDefaultColors)
-    {
-        headerTextColor = textColor;
-        headerBackgroundColor = palette.color(QPalette::ColorRole::Window);
-        headerAlternateBackgroundColor =palette.color(QPalette::ColorRole::AlternateBase);
-        headerHoverColor =palette.color(QPalette::ColorRole::Light);
-        headerFocusColor = highlightColor;
-    }
+    headerTextColor = header.foreground().color();
+    headerBackgroundColor = header.background().color();
+    headerAlternateBackgroundColor = header.background(KColorScheme::AlternateBackground).color();
+    headerHoverColor = header.decoration(KColorScheme::HoverColor).color();
+    headerFocusColor = header.decoration(KColorScheme::HoverColor).color();
 
 
     complementaryTextColor = palette.color(QPalette::ColorRole::BrightText);

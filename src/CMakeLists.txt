@@ -295,7 +295,9 @@ target_include_directories(MauiKit${MAUI_MAJOR_VERSION} PRIVATE platforms/linux)
 
 target_link_libraries(MauiKit${MAUI_MAJOR_VERSION}
     PRIVATE
-    KF${KF_MAJOR_VERSION}::WindowSystem)
+    KF${KF_MAJOR_VERSION}::WindowSystem
+    KF${KF_MAJOR_VERSION}::ColorScheme
+    KF${KF_MAJOR_VERSION}::ConfigCore)
 
 target_link_libraries(MauiKit${MAUI_MAJOR_VERSION}
     PUBLIC

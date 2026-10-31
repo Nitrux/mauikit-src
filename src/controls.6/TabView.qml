@@ -558,33 +558,7 @@ Pane
                         id: _tabBarBg
                         color: Maui.Theme.backgroundColor
                         radius: tabBarMargins > 0 ? Maui.Style.radiusV : 0
-                        border.color: tabBarMargins > 0 ? Maui.Theme.alternateBackgroundColor : "transparent"
-
-                        ShaderEffectSource
-                        {
-                            id: _effect
-                            anchors.fill: parent
-                            visible: false
-                            textureSize: Qt.size(_tabBarBg.width, _tabBarBg.height)
-                            sourceItem: _listView2
-                            sourceRect: control.count > 0 ? _tabBarBg.mapToItem(_listView2, Qt.rect(_tabBarBg.x, _tabBarBg.y, _tabBarBg.width, _tabBarBg.height)) : Qt.rect(0, 0, 0, 0)
-                        }
-
-                        Loader
-                        {
-                            asynchronous: true
-                            active: Maui.Style.enableEffects && GraphicsInfo.api !== GraphicsInfo.Software
-                            anchors.fill: parent
-                            sourceComponent: MultiEffect
-                            {
-                                opacity: 0.2
-                                saturation: -0.5
-                                blurEnabled: true
-                                blurMax: 32
-                                blur: 1.0
-                                source: _effect
-                            }
-                        }
+                        border.color: "transparent"
 
                         layer.enabled: _tabBarBg.radius > 0 &&  GraphicsInfo.api !== GraphicsInfo.Software
                         layer.effect: MultiEffect

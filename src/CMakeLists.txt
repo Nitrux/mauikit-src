@@ -20,6 +20,14 @@ include_directories(
 
 add_library(MauiKit${MAUI_MAJOR_VERSION})
 
+target_precompile_headers(MauiKit${MAUI_MAJOR_VERSION} PRIVATE
+    <QDebug>
+    <QFileInfo>
+    <QGuiApplication>
+    <QQmlEngine>
+    <QQuickWindow>
+)
+
 ecm_add_qml_module(MauiKit${MAUI_MAJOR_VERSION}
     VERSION 1.3
     URI "org.mauikit.controls"

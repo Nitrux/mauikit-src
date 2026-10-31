@@ -119,5 +119,3 @@ void WindowBlur::updateBlur()
 {
     // MauiKit leaves blur to the Wayland compositor.
 }
-
-#include "windowblur.moc"

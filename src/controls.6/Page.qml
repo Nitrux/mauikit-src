@@ -566,7 +566,7 @@ Pane
             id: _headerBg
             color: Maui.Theme.backgroundColor
             radius: control.headerMargins > 0 ? Maui.Style.radiusV : 0
-            border.color: control.headerMargins > 0 ? Maui.Theme.alternateBackgroundColor : "transparent"
+            border.color: "transparent"
 
             border.pixelAligned :false
             antialiasing: true

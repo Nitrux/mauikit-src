@@ -743,6 +743,17 @@ Pane
 
                         Component.onCompleted: updateOverviewModel("")
 
+                        Connections
+                        {
+                            target: control
+
+                            function onCountChanged()
+                            {
+                                if (control.overviewMode)
+                                    _overview.updateOverviewModel(_overviewSearch.text)
+                            }
+                        }
+
                         Item
                         {
                             id: _overviewSearchArea

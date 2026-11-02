@@ -22,6 +22,7 @@
 #include <cinttypes>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <unordered_map>
 
 namespace MauiKit
@@ -107,8 +108,28 @@ public:
     std::array<QColor, ColorRoleCount> colors;
 
     QFont defaultFont;
-    QFont smallFont = QFontDatabase::systemFont(QFontDatabase::SmallestReadableFont);
-    QFont fixedWidthFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+
+    // The system fonts are looked up on first use: QFontDatabase::systemFont() is costly, and
+    // most data objects never need them (every theme creates one before its item has a
+    // parent to inherit from, then drops it).
+    const QFont &smallFont() const
+    {
+        if (!smallFontValue) {
+            smallFontValue = QFontDatabase::systemFont(QFontDatabase::SmallestReadableFont);
+        }
+        return *smallFontValue;
+    }
+
+    const QFont &fixedWidthFont() const
+    {
+        if (!fixedWidthFontValue) {
+            fixedWidthFontValue = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+        }
+        return *fixedWidthFontValue;
+    }
+
+    mutable std::optional<QFont> smallFontValue;
+    mutable std::optional<QFont> fixedWidthFontValue;
 
     QPalette palette;
 
@@ -155,10 +176,43 @@ public:
         auto oldValue = colors[role];
 
         colors[role] = color;
+
+        // Inside the owner's change tracker (see beginColorBatch), rebuild the palette and
+        // notify the watchers once when it ends instead of once per colour.
+        if (colorBatchDepth > 0) {
+            colorBatchPending = true;
+            return;
+        }
+
         updatePalette(palette, colors);
 
         notifyWatchers<QColor>(sender, oldValue, colors[role]);
     }
+
+    // Called by PlatformThemeChangeTracker around the outermost change scope of the owner.
+    // Watchers ignore a colour event's values (they re-read the shared colours), so one
+    // event after the last change is equivalent to one per changed colour.
+    void beginColorBatch()
+    {
+        ++colorBatchDepth;
+    }
+
+    void endColorBatch(PlatformTheme *sender)
+    {
+        if (--colorBatchDepth > 0 || !colorBatchPending) {
+            return;
+        }
+
+        colorBatchPending = false;
+        updatePalette(palette, colors);
+
+        if (sender == owner) {
+            notifyWatchers<QColor>(sender, QColor{}, QColor{});
+        }
+    }
+
+    int colorBatchDepth = 0;
+    bool colorBatchPending = false;
 
     inline void setDefaultFont(PlatformTheme *sender, const QFont &font)
     {
@@ -175,28 +229,28 @@ public:
 
     inline void setSmallFont(PlatformTheme *sender, const QFont &font)
     {
-        if (sender != owner || font == smallFont) {
+        if (sender != owner || font == smallFont()) {
             return;
         }
 
-        auto oldValue = smallFont;
+        auto oldValue = smallFont();
 
-        smallFont = font;
+        smallFontValue = font;
 
-        notifyWatchers<QFont>(sender, oldValue, smallFont);
+        notifyWatchers<QFont>(sender, oldValue, font);
     }
 
     inline void setFixedWidthFont(PlatformTheme *sender, const QFont &font)
     {
-        if (sender != owner || font == fixedWidthFont) {
+        if (sender != owner || font == fixedWidthFont()) {
             return;
         }
 
-        auto oldValue = fixedWidthFont;
+        auto oldValue = fixedWidthFont();
 
-        fixedWidthFont = font;
+        fixedWidthFontValue = font;
 
-        notifyWatchers<QFont>(sender, oldValue, fixedWidthFont);
+        notifyWatchers<QFont>(sender, oldValue, font);
     }
 
     inline void addChangeWatcher(PlatformTheme *object)
@@ -689,7 +743,7 @@ void PlatformTheme::setDefaultFont(const QFont &font)
 
 QFont PlatformTheme::smallFont() const
 {
-    return d->data ? d->data->smallFont : QFont{};
+    return d->data ? d->data->smallFont() : QFont{};
 }
 
 void PlatformTheme::setSmallFont(const QFont &font)
@@ -702,7 +756,7 @@ void PlatformTheme::setSmallFont(const QFont &font)
 
 QFont PlatformTheme::fixedWidthFont() const
 {
-    return d->data ? d->data->fixedWidthFont : QFont{};
+    return d->data ? d->data->fixedWidthFont() : QFont{};
 }
 
 void PlatformTheme::setFixedWidthFont(const QFont &font)
@@ -909,8 +963,15 @@ void PlatformTheme::emitSignalsForChanges(int changes)
 
     if (propertyChanges & PlatformThemeChangeTracker::PropertyChange::Font) {
         Q_EMIT defaultFontChanged(d->data->defaultFont);
-        Q_EMIT smallFontChanged(d->data->smallFont);
-        Q_EMIT fixedWidthFontChanged(d->data->fixedWidthFont);
+        // Only look the system fonts up for a signal someone listens to (QML bindings count).
+        static const QMetaMethod smallFontSignal = QMetaMethod::fromSignal(&PlatformTheme::smallFontChanged);
+        static const QMetaMethod fixedWidthFontSignal = QMetaMethod::fromSignal(&PlatformTheme::fixedWidthFontChanged);
+        if (isSignalConnected(smallFontSignal)) {
+            Q_EMIT smallFontChanged(d->data->smallFont());
+        }
+        if (isSignalConnected(fixedWidthFontSignal)) {
+            Q_EMIT fixedWidthFontChanged(d->data->fixedWidthFont());
+        }
     }
 
     if (propertyChanges & PlatformThemeChangeTracker::PropertyChange::Data) {
@@ -1065,6 +1126,10 @@ QObject *PlatformTheme::determineParent(QObject *object)
     }
 }
 
+// The theme data whose colour notifications an outermost tracker is holding back
+// (PlatformThemeData::beginColorBatch), keyed by the tracked theme.
+static QHash<PlatformTheme *, std::shared_ptr<PlatformThemeData>> s_colorBatches;
+
 PlatformThemeChangeTracker::PlatformThemeChangeTracker(PlatformTheme *theme, PropertyChanges changes)
     : m_theme(theme)
 {
@@ -1072,6 +1137,11 @@ PlatformThemeChangeTracker::PlatformThemeChangeTracker(PlatformTheme *theme, Pro
     if (itr == s_blockedChanges.constEnd() || (*itr).expired()) {
         m_data = std::make_shared<Data>();
         s_blockedChanges.insert(theme, m_data);
+
+        if (theme->d->data && theme->d->data->owner == theme) {
+            theme->d->data->beginColorBatch();
+            s_colorBatches.insert(theme, theme->d->data);
+        }
     } else {
         m_data = (*itr).lock();
     }
@@ -1087,6 +1157,11 @@ PlatformThemeChangeTracker::~PlatformThemeChangeTracker() noexcept
     m_data.reset();
 
     if (dataWatcher.use_count() <= 0) {
+        // Release the held colour notifications first, so the palette is current when
+        // paletteChanged is emitted below.
+        if (auto batch = s_colorBatches.take(m_theme)) {
+            batch->endColorBatch(m_theme);
+        }
         m_theme->emitSignalsForChanges(changes);
         s_blockedChanges.remove(m_theme);
     }

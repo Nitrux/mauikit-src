@@ -393,6 +393,9 @@ ImageData ImageColors::generatePalette(const QImage &sourceImage)
                 g += qGreen(color);
                 b += qBlue(color);
             }
+            if (c == 0) {
+                continue; // nx_phone: an empty cluster would divide by zero (SIGFPE)
+            }
             r = r / c;
             g = g / c;
             b = b / c;

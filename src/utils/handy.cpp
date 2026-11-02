@@ -58,7 +58,7 @@ Handy::Handy(QObject *parent)
 
     // #ifdef FORMFACTOR_FOUND //TODO check here for Cask desktop enviroment
 
-    connect(m_formFactor, &MauiMan::FormFactorManager::preferredModeChanged, [this](uint value)
+    connect(m_formFactor, &MauiMan::FormFactorManager::preferredModeChanged, this, [this](uint value)
             {
                 m_ffactor = static_cast<FFactor>(value);
                 m_mobile = m_ffactor == FFactor::Phone || m_ffactor == FFactor::Tablet;
@@ -66,13 +66,13 @@ Handy::Handy(QObject *parent)
                 Q_EMIT isMobileChanged();
             });
 
-    connect(m_formFactor, &MauiMan::FormFactorManager::hasTouchscreenChanged, [this](bool value)
+    connect(m_formFactor, &MauiMan::FormFactorManager::hasTouchscreenChanged, this, [this](bool value)
             {
                 m_isTouch = value || m_formFactor->forceTouchScreen();
                 Q_EMIT isTouchChanged();
             });
 
-    connect(m_formFactor, &MauiMan::FormFactorManager::hasKeyboardChanged, [this](bool value)
+    connect(m_formFactor, &MauiMan::FormFactorManager::hasKeyboardChanged, this, [this](bool value)
             {
                 Q_EMIT hasKeyboardChanged();
             });

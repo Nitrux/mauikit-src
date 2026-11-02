@@ -155,10 +155,43 @@ public:
         auto oldValue = colors[role];
 
         colors[role] = color;
+
+        // Inside the owner's change tracker (see beginColorBatch), rebuild the palette and
+        // notify the watchers once when it ends instead of once per colour.
+        if (colorBatchDepth > 0) {
+            colorBatchPending = true;
+            return;
+        }
+
         updatePalette(palette, colors);
 
         notifyWatchers<QColor>(sender, oldValue, colors[role]);
     }
+
+    // Called by PlatformThemeChangeTracker around the outermost change scope of the owner.
+    // Watchers ignore a colour event's values (they re-read the shared colours), so one
+    // event after the last change is equivalent to one per changed colour.
+    void beginColorBatch()
+    {
+        ++colorBatchDepth;
+    }
+
+    void endColorBatch(PlatformTheme *sender)
+    {
+        if (--colorBatchDepth > 0 || !colorBatchPending) {
+            return;
+        }
+
+        colorBatchPending = false;
+        updatePalette(palette, colors);
+
+        if (sender == owner) {
+            notifyWatchers<QColor>(sender, QColor{}, QColor{});
+        }
+    }
+
+    int colorBatchDepth = 0;
+    bool colorBatchPending = false;
 
     inline void setDefaultFont(PlatformTheme *sender, const QFont &font)
     {
@@ -1065,6 +1098,10 @@ QObject *PlatformTheme::determineParent(QObject *object)
     }
 }
 
+// The theme data whose colour notifications an outermost tracker is holding back
+// (PlatformThemeData::beginColorBatch), keyed by the tracked theme.
+static QHash<PlatformTheme *, std::shared_ptr<PlatformThemeData>> s_colorBatches;
+
 PlatformThemeChangeTracker::PlatformThemeChangeTracker(PlatformTheme *theme, PropertyChanges changes)
     : m_theme(theme)
 {
@@ -1072,6 +1109,11 @@ PlatformThemeChangeTracker::PlatformThemeChangeTracker(PlatformTheme *theme, Pro
     if (itr == s_blockedChanges.constEnd() || (*itr).expired()) {
         m_data = std::make_shared<Data>();
         s_blockedChanges.insert(theme, m_data);
+
+        if (theme->d->data && theme->d->data->owner == theme) {
+            theme->d->data->beginColorBatch();
+            s_colorBatches.insert(theme, theme->d->data);
+        }
     } else {
         m_data = (*itr).lock();
     }
@@ -1087,6 +1129,11 @@ PlatformThemeChangeTracker::~PlatformThemeChangeTracker() noexcept
     m_data.reset();
 
     if (dataWatcher.use_count() <= 0) {
+        // Release the held colour notifications first, so the palette is current when
+        // paletteChanged is emitted below.
+        if (auto batch = s_colorBatches.take(m_theme)) {
+            batch->endColorBatch(m_theme);
+        }
         m_theme->emitSignalsForChanges(changes);
         s_blockedChanges.remove(m_theme);
     }

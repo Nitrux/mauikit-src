@@ -605,6 +605,10 @@ void BasicTheme::sync()
 {
     auto &definition = basicThemeInstance()->themeDefinition();
 
+    // Batch the setters below: each one opens its own change tracker, so without an outer
+    // one this item emitted colorsChanged once per colour (up to 25 times per sync).
+    Platform::PlatformThemeChangeTracker tracker{this};
+
     switch (colorSet())
     {
     case BasicTheme::Button:

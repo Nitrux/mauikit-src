@@ -13,13 +13,13 @@ Q_GLOBAL_STATIC(CSDControls, csdInstance)
 CSDControls::CSDControls(QObject *parent) : QObject (parent)
   ,m_themeSettings( new MauiMan::ThemeManager(this))
 {       
-    connect(m_themeSettings, &MauiMan::ThemeManager::enableCSDChanged, [this](bool enabled)
+    connect(m_themeSettings, &MauiMan::ThemeManager::enableCSDChanged, this, [this](bool enabled)
     {
         
         getWindowControlsSettings();
     });
     
-    connect(m_themeSettings, &MauiMan::ThemeManager::windowControlsThemeChanged, [this](QString style)
+    connect(m_themeSettings, &MauiMan::ThemeManager::windowControlsThemeChanged, this, [this](QString style)
     {
         m_styleName = style;
         setStyle();

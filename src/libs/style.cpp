@@ -50,7 +50,7 @@ Style::Style(QObject *parent) : QObject(parent)
 {
     qGuiApp->installEventFilter(this);
 
-    connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, [this](Qt::ColorScheme type)
+    connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, [this](Qt::ColorScheme type)
             {
                 if(m_styleType_blocked)
                     return;
@@ -71,7 +71,7 @@ Style::Style(QObject *parent) : QObject(parent)
                 Q_EMIT styleTypeChanged(styleType());
             });
 
-    connect(m_themeSettings, &MauiMan::ThemeManager::styleTypeChanged, [this](int type)
+    connect(m_themeSettings, &MauiMan::ThemeManager::styleTypeChanged, this, [this](int type)
             {
                 if(m_styleType_blocked)
                     return;
@@ -82,13 +82,13 @@ Style::Style(QObject *parent) : QObject(parent)
                     Q_EMIT styleTypeChanged(styleType());
             });
 
-    connect(m_themeSettings, &MauiMan::ThemeManager::adaptiveColorSchemeEnabledChanged, [this](bool)
+    connect(m_themeSettings, &MauiMan::ThemeManager::adaptiveColorSchemeEnabledChanged, this, [this](bool)
             {
                 if (m_styleType_blocked == false)
                     Q_EMIT styleTypeChanged(styleType());
             });
 
-    connect(m_themeSettings, &MauiMan::ThemeManager::adaptiveColorSchemeSourceChanged, [this](const QString &source)
+    connect(m_themeSettings, &MauiMan::ThemeManager::adaptiveColorSchemeSourceChanged, this, [this](const QString &source)
             {
                 if (m_adaptiveColorSchemeSource_blocked == false)
                     Q_EMIT adaptiveColorSchemeSourceChanged(source);
@@ -96,55 +96,55 @@ Style::Style(QObject *parent) : QObject(parent)
                     Q_EMIT styleTypeChanged(styleType());
             });
 
-    connect(m_themeSettings, &MauiMan::ThemeManager::accentColorChanged, [this](const QColor &color)
+    connect(m_themeSettings, &MauiMan::ThemeManager::accentColorChanged, this, [this](const QColor &color)
             {
                 m_accentColor = color;
                 Q_EMIT this->accentColorChanged(m_accentColor);
             });
 
-    connect(m_themeSettings, &MauiMan::ThemeManager::borderRadiusChanged, [this](uint radius)
+    connect(m_themeSettings, &MauiMan::ThemeManager::borderRadiusChanged, this, [this](uint radius)
             {
                 m_radiusV = radius;
                 Q_EMIT this->radiusVChanged(m_radiusV);
             });
 
-    connect(m_themeSettings, &MauiMan::ThemeManager::iconSizeChanged, [this](uint size)
+    connect(m_themeSettings, &MauiMan::ThemeManager::iconSizeChanged, this, [this](uint size)
             {
                 m_iconSize = size;
                 Q_EMIT this->iconSizeChanged(m_iconSize);
             });
 
-    connect(m_themeSettings, &MauiMan::ThemeManager::paddingSizeChanged, [this](uint size)
+    connect(m_themeSettings, &MauiMan::ThemeManager::paddingSizeChanged, this, [this](uint size)
             {
                 m_defaultPadding = size;
                 Q_EMIT this->defaultPaddingChanged();
             });
 
-    connect(m_themeSettings, &MauiMan::ThemeManager::marginSizeChanged, [this](uint size)
+    connect(m_themeSettings, &MauiMan::ThemeManager::marginSizeChanged, this, [this](uint size)
             {
                 m_contentMargins = size;
                 Q_EMIT this->contentMarginsChanged();
             });
 
-    connect(m_themeSettings, &MauiMan::ThemeManager::spacingSizeChanged, [this](uint size)
+    connect(m_themeSettings, &MauiMan::ThemeManager::spacingSizeChanged, this, [this](uint size)
             {
                 m_defaultSpacing = size;
                 Q_EMIT this->defaultSpacingChanged();
             });
 
-    connect(m_themeSettings, &MauiMan::ThemeManager::enableEffectsChanged, [this](bool value)
+    connect(m_themeSettings, &MauiMan::ThemeManager::enableEffectsChanged, this, [this](bool value)
             {
                 m_enableEffects = value;
                 Q_EMIT this->enableEffectsChanged(m_enableEffects);
             });
 
-    connect(m_themeSettings, &MauiMan::ThemeManager::enableEffectsChanged, [this](bool value)
+    connect(m_themeSettings, &MauiMan::ThemeManager::enableEffectsChanged, this, [this](bool value)
             {
                 m_enableEffects = value;
                 Q_EMIT this->enableEffectsChanged(m_enableEffects);
             });
 
-    connect(m_themeSettings, &MauiMan::ThemeManager::scrollBarOnLeftChanged, [this](bool value)
+    connect(m_themeSettings, &MauiMan::ThemeManager::scrollBarOnLeftChanged, this, [this](bool value)
             {
                 m_scrollBarOnLeft = value;
                 Q_EMIT this->scrollBarOnLeftChanged(m_scrollBarOnLeft);
@@ -152,7 +152,7 @@ Style::Style(QObject *parent) : QObject(parent)
 
     if(MauiManUtils::instance()->serverRunning())
     {
-        connect(m_themeSettings, &MauiMan::ThemeManager::iconThemeChanged, [this](QString name)
+        connect(m_themeSettings, &MauiMan::ThemeManager::iconThemeChanged, this, [this](QString name)
                 {
                     m_currentIconTheme = name;
                     Q_EMIT currentIconThemeChanged(m_currentIconTheme);

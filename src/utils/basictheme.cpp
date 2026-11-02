@@ -44,7 +44,7 @@ BasicThemeDefinition::BasicThemeDefinition(QObject *parent)
         Q_EMIT changed();
     });
 
-    connect(style, &Style::styleTypeChanged, [this, style](Style::StyleType type)
+    connect(style, &Style::styleTypeChanged, this, [this, style](Style::StyleType type)
             {
                 switch(type)
                 {
@@ -84,7 +84,7 @@ BasicThemeDefinition::BasicThemeDefinition(QObject *parent)
                 Q_EMIT this->changed();
             });
 
-    connect(style, &Style::accentColorChanged, [this, style](QColor)
+    connect(style, &Style::accentColorChanged, this, [this, style](QColor)
             {
                 switch(style->styleType())
                 {
@@ -111,7 +111,7 @@ BasicThemeDefinition::BasicThemeDefinition(QObject *parent)
                 Q_EMIT this->changed();
             });
 
-    connect(style, &Style::adaptiveColorSchemeSourceChanged, [this, style](QVariant source)
+    connect(style, &Style::adaptiveColorSchemeSourceChanged, this, [this, style](QVariant source)
             {
                 if(style->styleType() == Style::StyleType::Adaptive)
                 {
@@ -119,7 +119,7 @@ BasicThemeDefinition::BasicThemeDefinition(QObject *parent)
                 }
             });
 
-    connect(m_imgColors, &ImageColors::paletteChanged, [this, style]()
+    connect(m_imgColors, &ImageColors::paletteChanged, this, [this, style]()
             {
                 switch (style->styleType())
                 {

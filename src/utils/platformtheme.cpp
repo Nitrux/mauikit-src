@@ -22,6 +22,7 @@
 #include <cinttypes>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <unordered_map>
 
 namespace MauiKit
@@ -107,8 +108,28 @@ public:
     std::array<QColor, ColorRoleCount> colors;
 
     QFont defaultFont;
-    QFont smallFont = QFontDatabase::systemFont(QFontDatabase::SmallestReadableFont);
-    QFont fixedWidthFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+
+    // The system fonts are looked up on first use: QFontDatabase::systemFont() is costly, and
+    // most data objects never need them (every theme creates one before its item has a
+    // parent to inherit from, then drops it).
+    const QFont &smallFont() const
+    {
+        if (!smallFontValue) {
+            smallFontValue = QFontDatabase::systemFont(QFontDatabase::SmallestReadableFont);
+        }
+        return *smallFontValue;
+    }
+
+    const QFont &fixedWidthFont() const
+    {
+        if (!fixedWidthFontValue) {
+            fixedWidthFontValue = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+        }
+        return *fixedWidthFontValue;
+    }
+
+    mutable std::optional<QFont> smallFontValue;
+    mutable std::optional<QFont> fixedWidthFontValue;
 
     QPalette palette;
 
@@ -208,28 +229,28 @@ public:
 
     inline void setSmallFont(PlatformTheme *sender, const QFont &font)
     {
-        if (sender != owner || font == smallFont) {
+        if (sender != owner || font == smallFont()) {
             return;
         }
 
-        auto oldValue = smallFont;
+        auto oldValue = smallFont();
 
-        smallFont = font;
+        smallFontValue = font;
 
-        notifyWatchers<QFont>(sender, oldValue, smallFont);
+        notifyWatchers<QFont>(sender, oldValue, font);
     }
 
     inline void setFixedWidthFont(PlatformTheme *sender, const QFont &font)
     {
-        if (sender != owner || font == fixedWidthFont) {
+        if (sender != owner || font == fixedWidthFont()) {
             return;
         }
 
-        auto oldValue = fixedWidthFont;
+        auto oldValue = fixedWidthFont();
 
-        fixedWidthFont = font;
+        fixedWidthFontValue = font;
 
-        notifyWatchers<QFont>(sender, oldValue, fixedWidthFont);
+        notifyWatchers<QFont>(sender, oldValue, font);
     }
 
     inline void addChangeWatcher(PlatformTheme *object)
@@ -722,7 +743,7 @@ void PlatformTheme::setDefaultFont(const QFont &font)
 
 QFont PlatformTheme::smallFont() const
 {
-    return d->data ? d->data->smallFont : QFont{};
+    return d->data ? d->data->smallFont() : QFont{};
 }
 
 void PlatformTheme::setSmallFont(const QFont &font)
@@ -735,7 +756,7 @@ void PlatformTheme::setSmallFont(const QFont &font)
 
 QFont PlatformTheme::fixedWidthFont() const
 {
-    return d->data ? d->data->fixedWidthFont : QFont{};
+    return d->data ? d->data->fixedWidthFont() : QFont{};
 }
 
 void PlatformTheme::setFixedWidthFont(const QFont &font)
@@ -942,8 +963,15 @@ void PlatformTheme::emitSignalsForChanges(int changes)
 
     if (propertyChanges & PlatformThemeChangeTracker::PropertyChange::Font) {
         Q_EMIT defaultFontChanged(d->data->defaultFont);
-        Q_EMIT smallFontChanged(d->data->smallFont);
-        Q_EMIT fixedWidthFontChanged(d->data->fixedWidthFont);
+        // Only look the system fonts up for a signal someone listens to (QML bindings count).
+        static const QMetaMethod smallFontSignal = QMetaMethod::fromSignal(&PlatformTheme::smallFontChanged);
+        static const QMetaMethod fixedWidthFontSignal = QMetaMethod::fromSignal(&PlatformTheme::fixedWidthFontChanged);
+        if (isSignalConnected(smallFontSignal)) {
+            Q_EMIT smallFontChanged(d->data->smallFont());
+        }
+        if (isSignalConnected(fixedWidthFontSignal)) {
+            Q_EMIT fixedWidthFontChanged(d->data->fixedWidthFont());
+        }
     }
 
     if (propertyChanges & PlatformThemeChangeTracker::PropertyChange::Data) {

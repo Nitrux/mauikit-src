@@ -347,6 +347,7 @@ Control
         MouseArea
         {
             id: _mouseArea
+            parent: control
             anchors.fill: parent
             
             propagateComposedEvents: false

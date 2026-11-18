@@ -471,7 +471,6 @@ Item
 
                         onPressed: (mouse) =>
                                    {
-                                       console.log("MOUSE EVENT SOURCE", mouse.source)
                                        if (mouse.source === Qt.MouseEventNotSynthesized && control.enableLassoSelection && mouse.button === Qt.LeftButton && control.count > 0)
                                        {
                                            selectLayer.visible = true;

@@ -201,7 +201,8 @@ Pane
                 
             sourceComponent: Maui.InfoDialog
             {
-                message: i18n("Are you sure you want to close the split view: '%1'?", control.Maui.Controls.title)
+                title: i18n("Close Split View")
+                message: i18n("Are you sure you want to close the split view: '%1'?", control.Maui.Controls.title.startsWith("file://") ? decodeURIComponent(control.Maui.Controls.title.substring(7)) : control.Maui.Controls.title)
                 template.iconSource: "dialog-warning"
                 onAccepted: control.SplitView.view.closeSplit(control.splitIndex)
                 onRejected:

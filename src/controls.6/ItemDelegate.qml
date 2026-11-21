@@ -333,17 +333,6 @@ Control
     {
         id: _content
 
-        SequentialAnimation on scale
-        {
-            id: xAnim
-            // Animations on properties start running by default
-            running: false
-            loops: 3
-            NumberAnimation { from: 1; to: 0.97; duration: 200; easing.type: Easing.InBack }
-            NumberAnimation { from: 0.97; to: 1; duration: 200; easing.type: Easing.InBack }
-            PauseAnimation { duration: 50 } // This puts a bit of time between the loop
-        }
-
         MouseArea
         {
             id: _mouseArea
@@ -392,8 +381,6 @@ Control
             
             onPressAndHold: (mouse) =>
             {
-                xAnim.running = control.draggable || mouse.source === Qt.MouseEventSynthesizedByQt
-
                 if (control.draggable && mouse.source === Qt.MouseEventSynthesizedByQt)
                 {
                     deferredPressAndHold = true

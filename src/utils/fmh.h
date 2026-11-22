@@ -360,13 +360,13 @@ static const QHash<MODEL_KEY, QString> MODEL_NAME = {{MODEL_KEY::ICON, QStringLi
                                                      {MODEL_KEY::URI, QStringLiteral("uri")},
                                                      {MODEL_KEY::DEVICE, QStringLiteral("device")},
                                                      {MODEL_KEY::UDI, QStringLiteral("udi")},
-                                                     {MODEL_KEY::LASTSYNC, QStringLiteral("lastsync")},
+                                                     {MODEL_KEY::LASTSYNC, QStringLiteral("last_sync")},
                                                      {MODEL_KEY::LATITUDE, QStringLiteral("latitude")},
                                                      {MODEL_KEY::BRANCH, QStringLiteral("branch")},
                                                      {MODEL_KEY::MESSAGE, QStringLiteral("message")},
                                                      {MODEL_KEY::AUTHOR, QStringLiteral("author")},
                                                      {MODEL_KEY::UPDATABLE, QStringLiteral("updatable")},
-                                                     {MODEL_KEY::LONGITUDE, QStringLiteral("lastsync")}};
+                                                     {MODEL_KEY::LONGITUDE, QStringLiteral("longitude")}};
                           
 /**
  * @brief The mapping of a string text into a FMH::MODEL_KEY.

@@ -32,6 +32,10 @@ set(AUTOMOC_MOC_OPTIONS -Muri=${MAUIKIT_URI})
 
 project(mauikit VERSION ${MAUIKIT_RELEASE_VERSION})
 
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "Install path prefix" FORCE)
+endif()
+
 
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(FATAL_ERROR "This project supports Linux only.")

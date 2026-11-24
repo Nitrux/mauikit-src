@@ -1,5 +1,9 @@
 project(MauiStyle)
 
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "Install path prefix" FORCE)
+endif()
+
 ecm_add_qml_module(MauiStyle
     URI "org.mauikit.style"
     # CLASS_NAME MauiStylePlugin

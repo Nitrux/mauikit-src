@@ -47,9 +47,19 @@ T.ProgressBar
         
         Rectangle
         {
+            property real animatedPosition: control.position
             visible: !control.indeterminate
             height: parent.height
-            width: control.position * parent.width
+            width: animatedPosition * parent.width
+
+            Behavior on animatedPosition
+            {
+                NumberAnimation
+                {
+                    duration: 250
+                    easing.type: Easing.OutCubic
+                }
+            }
 
             color: Maui.Theme.highlightColor
             radius: control.background.radius

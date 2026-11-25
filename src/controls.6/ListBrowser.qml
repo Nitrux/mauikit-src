@@ -113,6 +113,11 @@ Item
     property alias currentIndex : _listView.currentIndex
 
     /**
+     * @brief Whether to select the first item automatically when the list becomes nonempty.
+     */
+    property bool autoSelectFirstItem: true
+
+    /**
      * @brief The current item selected.
      * @property Item ListBrowser::currentItem
      */
@@ -390,7 +395,7 @@ Item
 
             onCountChanged:
             {
-                if(count > 0 && currentIndex < 0)
+                if(control.autoSelectFirstItem && count > 0 && currentIndex < 0)
                     currentIndex = 0
             }
 

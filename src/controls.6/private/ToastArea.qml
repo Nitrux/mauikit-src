@@ -445,10 +445,10 @@ Control
         const properties = ({
                                 'iconSource': icon,
                                 'title': title,
-                                'body': body,
                                 'actions': normalizedActions })
 
         const object = _toastComponent.createObject(_listView.flickable, properties);
+        object.body = body
         _container.insertItem(0, object)
         if (soundEnabled)
             playSound("qrc:/assets/notification_simple-01.wav")

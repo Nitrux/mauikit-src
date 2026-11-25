@@ -34,7 +34,7 @@ T.Label
     activeFocusOnTab: false
     focus: false
     //Text.NativeRendering is broken on non integer pixel ratios
-    renderType: Window.devicePixelRatio % 1 !== 0 ? Text.QtRendering : Text.NativeRendering
+    renderType: Screen.devicePixelRatio % 1 !== 0 ? Text.QtRendering : Text.NativeRendering
   
     font.capitalization: Maui.Style.defaultFont.capitalization
     font.family: Maui.Style.defaultFont.family

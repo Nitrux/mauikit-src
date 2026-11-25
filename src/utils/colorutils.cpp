@@ -428,7 +428,7 @@ MauiKit::AdaptivePalette MauiKit::AdaptivePalette::fromImageData(const ImageData
     result.linkBackgroundColor = QColor("#2980B9");
     result.visitedLinkColor = QColor("#7F8C8D");
     result.visitedLinkBackgroundColor = QColor("#2196F3");
-    result.negativeTextColor = QColor("#dac7cb");
+    result.negativeTextColor = isDark ? QColor("#dac7cb") : QColor("#B42333");
     result.negativeBackgroundColor = QColor("#DA4453");
     result.neutralTextColor = QColor("#fafafa");
     result.neutralBackgroundColor = QColor("#F67400");

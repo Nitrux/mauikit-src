@@ -265,7 +265,7 @@ void BasicThemeDefinition::setSystemPaletteColors()
     visitedLinkColor =  palette.color(QPalette::ColorRole::LinkVisited);
     visitedLinkBackgroundColor =  palette.color(QPalette::ColorRole::Light);
 
-    negativeTextColor = QColor{"#dac7cb"};
+    negativeTextColor = isDark ? QColor{"#dac7cb"} : QColor{"#B42333"};
     negativeBackgroundColor = QColor{"#DA4453"};
     neutralTextColor = QColor{"#fafafa"};
     neutralBackgroundColor = QColor{"#F67400"};

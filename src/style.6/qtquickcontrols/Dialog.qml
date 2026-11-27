@@ -52,7 +52,7 @@ T.Dialog
                 return
 
             Qt.callLater(() => {
-                if (!item)
+                if (!item || typeof item.forceActiveFocus !== "function")
                     return
 
                 var ancestor = item

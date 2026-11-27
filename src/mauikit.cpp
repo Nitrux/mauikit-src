@@ -18,6 +18,9 @@
  */
 
 #include "mauikit.h"
+#include <QDir>
+#include <QFileInfo>
+#include <QLibraryInfo>
 #include <QEvent>
 #include <QCoreApplication>
 #if defined(Q_OS_ANDROID)
@@ -25,6 +28,8 @@
 #endif
 #include <QDebug>
 #include <QQmlContext>
+
+void qml_register_types_org_mauikit_controls();
 
 // we can't do this in the plugin object directly, as that can live in a different thread
 // and event filters are only allowed in the same thread as the filtered object
@@ -46,6 +51,10 @@ Q_SIGNALS:
 
 MauiKit::MauiKit(QObject *parent) : QQmlExtensionPlugin(parent)
 {
+    // Keep the backing library loaded so Qt can register its QML_ELEMENT types.
+    auto *volatile registration = &qml_register_types_org_mauikit_controls;
+    Q_UNUSED(registration);
+
     auto filter = new LanguageChangeEventFilter;
     filter->moveToThread(QCoreApplication::instance()->thread());
     QCoreApplication::instance()->installEventFilter(filter);
@@ -54,6 +63,19 @@ MauiKit::MauiKit(QObject *parent) : QQmlExtensionPlugin(parent)
 
 QUrl MauiKit::componentUrl(const QString &fileName) const
 {
+    // Keep relative imports beside their component when the module is installed on disk.
+    const QUrl moduleUrl = baseUrl();
+    if (moduleUrl.isLocalFile()) {
+        const QString path = QDir(moduleUrl.toLocalFile()).filePath(fileName);
+        if (QFileInfo(path).isFile())
+            return QUrl::fromLocalFile(path);
+    }
+
+    const QDir imports(QLibraryInfo::path(QLibraryInfo::QmlImportsPath));
+    const QString installed = imports.filePath(QStringLiteral("org/mauikit/controls/") + fileName);
+    if (QFileInfo(installed).isFile())
+        return QUrl::fromLocalFile(installed);
+
     return QUrl(QStringLiteral("qrc:/qt/qml/org/mauikit/controls/") + fileName);
 }
 

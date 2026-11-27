@@ -632,7 +632,9 @@ Pane
                 visible: false
                 textureSize: Qt.size(_headBar.width, _headBar.height)
                 sourceItem: _parentContainer
-                sourceRect: control.altHeader ? _headBar.mapToItem(_parentContainer, Qt.rect(_headBar.x, _headBar.y, _headBar.width, _headBar.height)) : _headBar.mapToItem(_parentContainer, Qt.rect(_headBar.x, _headBar.y, _headBar.width, _headBar.height))
+                sourceRect: Qt.rect(_headerContent.x + _headBar.x,
+                                    _headerContent.y + _headBar.y + _headerTranslation.y,
+                                    _headBar.width, _headBar.height)
             }
 
             Loader
@@ -675,6 +677,7 @@ Pane
 
         transform: Translate
         {
+            id: _headerTranslation
             y: _headBar.pullBack ? -_headBar.implicitHeight : 0
 
             Behavior on y

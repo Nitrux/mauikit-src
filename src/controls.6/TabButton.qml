@@ -22,6 +22,15 @@ QQC.TabButton
     focus: false
     focusPolicy: Qt.NoFocus
 
+    Behavior on width
+    {
+        NumberAnimation
+        {
+            duration: Maui.Style.units.longDuration
+            easing.type: Easing.InOutQuad
+        }
+    }
+
     /**
         * @brief An alias exposed to append more elements into the main container of this control.
         * @property list<QtObject> TabButton::content
@@ -115,7 +124,7 @@ QQC.TabButton
                 text: control.text
                 icon: control.icon
                 color: control.Maui.Theme.textColor
-                alignment: Qt.AlignHCenter
+                alignment: label.truncated ? Qt.AlignLeft : Qt.AlignHCenter
                 display: QQC.ToolButton.TextBesideIcon
                 font: control.font
             }

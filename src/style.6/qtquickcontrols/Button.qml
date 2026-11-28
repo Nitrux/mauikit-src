@@ -142,7 +142,7 @@ T.Button
             {
             case Maui.Controls.Normal: return defaultColor(control.Maui.Theme.textColor)
             case Maui.Controls.Positive: return control.Maui.Theme.positiveTextColor
-            case Maui.Controls.Negative: return control.Maui.Theme.negativeTextColor
+            case Maui.Controls.Negative: return control.flat ? control.Maui.Theme.negativeTextColor : Maui.ColorUtils.contrastingTextColor(setBackgroundColor(control))
             case Maui.Controls.Neutral: return control.Maui.Theme.neutralTextColor
             }
         }

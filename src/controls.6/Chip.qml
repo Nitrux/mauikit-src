@@ -183,7 +183,7 @@ ItemDelegate
             {
                 icon.width: 16
                 icon.height: 16
-                icon.color: hovered ? Maui.Theme.negativeTextColor : _label1.color
+                icon.color: hovered || containsPress ? Maui.ColorUtils.contrastingTextColor(Maui.Theme.negativeBackgroundColor) : _label1.color
 
                 padding: 0
                 onClicked: control.close()

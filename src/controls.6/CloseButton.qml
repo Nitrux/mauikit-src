@@ -21,7 +21,7 @@ ToolButton
     id: control
     
     icon.name: "window-close"
-    icon.color: control.hovered || control.containsPress ? control.Maui.Theme.negativeTextColor : control.Maui.Theme.textColor
+    icon.color: control.hovered || control.containsPress ? Maui.ColorUtils.contrastingTextColor(control.Maui.Theme.negativeBackgroundColor) : control.Maui.Theme.textColor
     
     background: Rectangle
     {

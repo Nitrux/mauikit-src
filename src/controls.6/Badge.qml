@@ -136,7 +136,7 @@ AbstractButton
             {
             case Maui.Controls.Normal: return control.Maui.Theme.textColor
             case Maui.Controls.Positive: return control.Maui.Theme.positiveTextColor
-            case Maui.Controls.Negative: return control.Maui.Theme.negativeTextColor
+            case Maui.Controls.Negative: return Maui.ColorUtils.contrastingTextColor(control.color)
             case Maui.Controls.Neutral: return control.Maui.Theme.neutralTextColor
             }
         }

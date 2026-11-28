@@ -142,7 +142,12 @@ T.Button
             {
             case Maui.Controls.Normal: return defaultColor(control.Maui.Theme.textColor)
             case Maui.Controls.Positive: return control.Maui.Theme.positiveTextColor
-            case Maui.Controls.Negative: return control.flat ? control.Maui.Theme.negativeTextColor : Maui.ColorUtils.contrastingTextColor(setBackgroundColor(control))
+            case Maui.Controls.Negative:
+                if (control.flat)
+                    return control.Maui.Theme.negativeTextColor
+                if (Maui.ColorUtils.brightnessForColor(control.Maui.Theme.backgroundColor) === Maui.ColorUtils.Dark)
+                    return control.Maui.Theme.textColor
+                return Maui.ColorUtils.contrastingTextColor(control.Maui.Theme.textColor)
             case Maui.Controls.Neutral: return control.Maui.Theme.neutralTextColor
             }
         }
@@ -159,9 +164,10 @@ T.Button
 
         let statusColor = (bg) =>
         {
-            return control.pressed || control.down || control.checked
-                   ? Qt.darker(bg, 1.1)
-                   : (control.highlighted || control.hovered ? Qt.lighter(bg, 1.1) : bg)
+            if (control.pressed || control.down || control.checked)
+                return Qt.lighter(bg, 1.2)
+
+            return control.highlighted || control.hovered ? Qt.lighter(bg, 1.1) : bg
         }
 
         if(control.Maui.Controls.status)

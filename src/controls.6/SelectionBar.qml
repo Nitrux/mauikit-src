@@ -239,6 +239,9 @@ Item
      **/
      property bool singleSelection: false
 
+     /** @brief Whether to show the counter when one item is selected. */
+     property bool showSingleItemCount: false
+
      /**
      * @brief The array list of the URIs associated to the selected items.
      * @see items
@@ -475,7 +478,7 @@ Item
           leftContent: Loader
           {
                asynchronous: true
-               active: !control.singleSelection && control.count > 1
+               active: (control.showSingleItemCount && control.count === 1) || (!control.singleSelection && control.count > 1)
                visible: active
 
                sourceComponent: ToolButton

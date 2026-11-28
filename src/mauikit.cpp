@@ -64,7 +64,10 @@ MauiKit::MauiKit(QObject *parent) : QQmlExtensionPlugin(parent)
 QUrl MauiKit::componentUrl(const QString &fileName) const
 {
     // Keep relative imports beside their component when the module is installed on disk.
+    QT_WARNING_PUSH
+    QT_WARNING_DISABLE_DEPRECATED
     const QUrl moduleUrl = baseUrl();
+    QT_WARNING_POP
     if (moduleUrl.isLocalFile()) {
         const QString path = QDir(moduleUrl.toLocalFile()).filePath(fileName);
         if (QFileInfo(path).isFile())
